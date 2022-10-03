@@ -9,7 +9,8 @@ Authors@R: c(
                 comment = c(ORCID = "0000-0002-9618-3774")))
 Maintainer: Luca De Sano <luca.desano@gmail.com>
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.1.0),
+    NMF
 Imports:
     Biostrings,
     BSgenome,
@@ -21,7 +22,6 @@ Imports:
     gridExtra,
     IRanges,
     lsa,
-    NMF,
     nnls,
     reshape2
 Suggests:
