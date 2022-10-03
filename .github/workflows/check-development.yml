@@ -156,7 +156,7 @@ jobs:
 
       - name: Install R packages
         run: |
-          ##install.packages('Rfast')
+          BiocManager::install("BSgenome.Hsapiens.1000genomes.hs37d5")
         shell: Rscript {0}
 
       - name: Query dependencies
