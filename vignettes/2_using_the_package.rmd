@@ -1,0 +1,65 @@
+---
+title: Using the package
+output: html_document
+---
+
+We now present some of the main features of the package. We notice that the package supports different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991). But, for the sake of this vignette, we present only results on the classical SBS signatures. We refer to the manual for details. 
+
+First, we show how to load example data and import them into a count matrix to perform the signatures analysis. 
+
+```{r}
+library("SparseSignaturesPlus")
+data(ssm560_reduced)
+```
+
+These data are a reduced version of the 560 breast tumors provided by Nik-Zainal, Serena, et al. (2016) comprising only 3 patients. We notice that these data are provided purely as an example, and, as they are a reduced and partial version of the original dataset, they should not be used to draw any biological conclusion. 
+
+We now import such data into a count matrix to perform the signatures discovery. To do so, we also need to specify the reference genome as a BSgenome object to be considered. This can be done as follows, where in the example we used hs37d5 as reference genome as provided as data object within the package. 
+
+```{r}
+data(bsg)
+imported_data = get.SBS.counts(data = ssm560_reduced, reference = bsg)
+head(imported_data)
+```
+
+Now, we present an example of visualization feature provided by the package, showing the counts for the first patient, i.e., PD10010a, in the following plot. 
+
+```{r fig.width=7, fig.height=7, fig.cap="Visualization of the counts for patient PD10010a from the dataset published in Nik-Zainal, Serena, et al."}
+patients.SBS.plot(trinucleotides_counts=imported_data,samples="PD10010a")
+```
+
+After the data are loaded, we can perform signatures de novo extraction. To do so, we need to define a range for the number of signatures (variable K) to be considered. We now show how to perform the inference on the first 3 patients of the dataset from Nik-Zainal, Serena, et al. (2016), whose counts are provided within the package. 
+
+```{r}
+data(background)
+data(patients)
+res_denovo = signaturesDecomposition(x = patients[1:3,], 
+                                     K = 3:4, 
+                                     background_signature = background, 
+                                     nmf_runs = 2, 
+                                     sparsify = FALSE, 
+                                     num_processes = 1, 
+                                     seed = 12345)
+```
+
+Now that we have performed the de novo inferece, we need to decide the optimal number of signatures to be extracted from our dataset. To do so, we provide a procedure based on cross-validation. 
+
+```{r}
+res_cv = signaturesCV(x = patients[1:3,], 
+                      beta = res_denovo$beta, 
+                      cross_validation_iterations = 2, 
+                      cross_validation_repetitions = 2, 
+                      num_processes = 1, 
+                      seed = 12345)
+```
+
+We notice that the computations for this task can be very time consuming, expecially when many iterations of cross validations are performed (see manual) and a large set of configurations of the parameters are tested. 
+
+We conclude this vignette by plotting the discovered signatures for the best configuration, i.e., K = 4. 
+
+```{r fig.width=7, fig.height=7, fig.cap="Visualization of the discovered signatures."}
+signatures = res_denovo$beta[[2]]
+signatures.SBS.plot(beta=signatures, xlabels=FALSE)
+```
+
+We refer to the manual for a detailed description of each parameter and to the SparseSignaturesPlus manuscript for details on the method. 

@@ -3,14 +3,14 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' beta = signaturesDecomposition(x = patients[1:5,], 
+#' beta = signaturesDecomposition(x = patients[1:3,], 
 #'                                K = 3, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
-#'                                num_processes = NA, 
+#'                                num_processes = 1, 
 #'                                seed = 12345)
-#' res = signaturesAssignment(x = patients[1:5,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
+#' res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
 #'
 #' @title signaturesAssignment
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -84,12 +84,12 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' res = signaturesDecomposition(x = patients[1:5,], 
+#' res = signaturesDecomposition(x = patients[1:3,], 
 #'                               K = 3:4, 
 #'                               background_signature = background, 
 #'                               nmf_runs = 2, 
 #'                               sparsify = FALSE, 
-#'                               num_processes = NA, 
+#'                               num_processes = 1, 
 #'                               seed = 12345)
 #'
 #' @title signaturesDecomposition
@@ -342,14 +342,18 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' sigs = signaturesDecomposition(x = patients[1:5,], 
+#' sigs = signaturesDecomposition(x = patients[1:3,], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
-#'                                num_processes = NA, 
+#'                                num_processes = 1, 
 #'                                seed = 12345)
-#' res = signaturesCV(x = patients[1:5,], beta = sigs$beta, cross_validation_iterations = 2, cross_validation_repetitions = 2, num_processes = NA, seed = 12345)
+#' res = signaturesCV(x = patients[1:3,], 
+#'                    beta = sigs$beta, 
+#'                    cross_validation_iterations = 2, 
+#'                    cross_validation_repetitions = 2, 
+#'                    num_processes = 1, seed = 12345)
 #'
 #' @title signaturesCV
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -623,7 +627,14 @@
     
 }
 
-# initialize alpha and beta for nmf.nnls or nmf.lasso functions
+#' Initialize alpha and beta for nmf.nnls or nmf.lasso functions.
+#'
+#' @title nmf.seed
+#' @param model NMF model.
+#' @param target data matrix.
+#' @export nmf.seed
+#' @importFrom stats rnbinom
+#'
 "nmf.seed" <- function( model, target ) {
 
     # initialize alpha with an empty matrix
@@ -652,7 +663,15 @@
 
 }
 
-# perform NMF by Non-negative least squares
+#' Perform NMF by Non-negative least squares.
+#'
+#' @title nmf.nnls
+#' @param x data matrix.
+#' @param seed initial seed for the inference.
+#' @param background background signature.
+#' @export nmf.nnls
+#' @import nnls
+#'
 "nmf.nnls" <- function( x, seed, background = NULL ) {
 
     # initialization
@@ -715,7 +734,16 @@
 
 }
 
-# perform NMF by Non-negative least squares and Non-Negative Lasso
+#' Perform NMF by Non-negative least squares and Non-Negative Lasso.
+#'
+#' @title nmf.lasso
+#' @param x data matrix.
+#' @param seed initial seed for the inference.
+#' @param background background signature.
+#' @export nmf.lasso
+#' @import nnls
+#' @import glmnet
+#'
 "nmf.lasso" <- function( x, seed, background = NULL ) {
 
     # initialization
@@ -855,7 +883,14 @@
 
 }
 
-# perform fit of NMF solution by Non-negative least squares
+#' Perform fit of NMF solution by Non-negative least squares.
+#'
+#' @title nmf.fit
+#' @param x data matrix.
+#' @param beta signature matrix.
+#' @export nmf.fit
+#' @import nnls
+#'
 "nmf.fit" <- function( x, beta ) {
 
     # initialization

@@ -48,12 +48,12 @@ Perform signatures discovery and rank estimation for a range of K somatic mutati
 \examples{
 data(background)
 data(patients)
-res = signaturesDecomposition(x = patients[1:5,], 
+res = signaturesDecomposition(x = patients[1:3,], 
                               K = 3:4, 
                               background_signature = background, 
                               nmf_runs = 2, 
                               sparsify = FALSE, 
-                              num_processes = NA, 
+                              num_processes = 1, 
                               seed = 12345)
 
 }

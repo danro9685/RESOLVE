@@ -53,20 +53,20 @@ given a set of observed counts x and discovered signatures beta.
 \examples{
 data(background)
 data(patients)
-beta = signaturesDecomposition(x = patients[1:5,], 
+beta = signaturesDecomposition(x = patients[1:3,], 
                                K = 3:4, 
                                background_signature = background, 
                                nmf_runs = 2, 
                                sparsify = FALSE, 
-                               num_processes = NA, 
+                               num_processes = 1, 
                                seed = 12345)
-res = signaturesSignificance(x = patients[1:5,], 
+res = signaturesSignificance(x = patients[1:3,], 
                              beta = beta$beta[[1]], 
                              cosine_thr = 0.95, 
                              min_contribution = 0.05, 
                              pvalue_thr = 0.05, 
                              sparsify = FALSE, 
-                             nboot = 5, 
+                             nboot = 2, 
                              num_processes = 1, 
                              seed = 12345)
 

@@ -50,13 +50,17 @@ mutational signatures given a set of observations x and discovered signatures be
 \examples{
 data(background)
 data(patients)
-sigs = signaturesDecomposition(x = patients[1:5,], 
+sigs = signaturesDecomposition(x = patients[1:3,], 
                                K = 3:4, 
                                background_signature = background, 
                                nmf_runs = 2, 
                                sparsify = FALSE, 
-                               num_processes = NA, 
+                               num_processes = 1, 
                                seed = 12345)
-res = signaturesCV(x = patients[1:5,], beta = sigs$beta, cross_validation_iterations = 2, cross_validation_repetitions = 2, num_processes = NA, seed = 12345)
+res = signaturesCV(x = patients[1:3,], 
+                   beta = sigs$beta, 
+                   cross_validation_iterations = 2, 
+                   cross_validation_repetitions = 2, 
+                   num_processes = 1, seed = 12345)
 
 }

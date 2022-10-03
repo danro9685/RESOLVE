@@ -37,13 +37,13 @@ Perform the assignment of K somatic mutational signatures provided as input to s
 \examples{
 data(background)
 data(patients)
-beta = signaturesDecomposition(x = patients[1:5,], 
+beta = signaturesDecomposition(x = patients[1:3,], 
                                K = 3, 
                                background_signature = background, 
                                nmf_runs = 2, 
                                sparsify = FALSE, 
-                               num_processes = NA, 
+                               num_processes = 1, 
                                seed = 12345)
-res = signaturesAssignment(x = patients[1:5,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
+res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
 
 }
