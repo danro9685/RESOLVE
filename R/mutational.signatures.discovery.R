@@ -3,14 +3,14 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' beta = signaturesDecomposition(x = patients[1:50,], 
+#' beta = signaturesDecomposition(x = patients[1:5,], 
 #'                                K = 3, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = NA, 
 #'                                seed = 12345)
-#' res = signaturesAssignment(x = patients[1:50,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
+#' res = signaturesAssignment(x = patients[1:5,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
 #'
 #' @title signaturesAssignment
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -84,7 +84,7 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' res = signaturesDecomposition(x = patients[1:50,], 
+#' res = signaturesDecomposition(x = patients[1:5,], 
 #'                               K = 3:4, 
 #'                               background_signature = background, 
 #'                               nmf_runs = 2, 
@@ -342,14 +342,14 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' sigs = signaturesDecomposition(x = patients[1:50,], 
+#' sigs = signaturesDecomposition(x = patients[1:5,], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = NA, 
 #'                                seed = 12345)
-#' res = signaturesCV(x = patients[1:50,], beta = sigs$beta, cross_validation_iterations = 2, cross_validation_repetitions = 2, num_processes = NA, seed = 12345)
+#' res = signaturesCV(x = patients[1:5,], beta = sigs$beta, cross_validation_iterations = 2, cross_validation_repetitions = 2, num_processes = NA, seed = 12345)
 #'
 #' @title signaturesCV
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.

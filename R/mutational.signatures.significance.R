@@ -4,14 +4,14 @@
 #' @examples
 #' data(background)
 #' data(patients)
-#' beta = signaturesDecomposition(x = patients[1:50,], 
+#' beta = signaturesDecomposition(x = patients[1:5,], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = NA, 
 #'                                seed = 12345)
-#' res = signaturesSignificance(x = patients[1:50,], 
+#' res = signaturesSignificance(x = patients[1:5,], 
 #'                              beta = beta$beta[[1]], 
 #'                              cosine_thr = 0.95, 
 #'                              min_contribution = 0.05, 
@@ -41,8 +41,8 @@
 #' @export signaturesSignificance
 #' @import nnls
 #' @import glmnet
-#' @import lsa
 #' @import parallel
+#' @importFrom lsa cosine
 #'
 "signaturesSignificance" <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, seed = NULL, verbose = TRUE ) {
     

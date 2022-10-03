@@ -22,7 +22,8 @@ Imports:
     IRanges,
     lsa,
     NMF,
-    nnls
+    nnls,
+    reshape2
 Suggests:
     BiocGenerics,
     BiocStyle,

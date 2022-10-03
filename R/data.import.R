@@ -30,8 +30,8 @@
 
     # consider only single nucleotide variants involving (A,C,G,T) bases
     data <- data[which(data[,"start"]==data[,"end"]),,drop=FALSE]
-    data <- data[which(as.matrix(data[,"ref"])%in%c("A","C","G","T")),,drop=FALSE]
-    data <- data[which(as.matrix(data[,"alt"])%in%c("A","C","G","T")),,drop=FALSE]
+    data <- data[which(as.character(data[,"ref"])%in%c("A","C","G","T")),,drop=FALSE]
+    data <- data[which(as.character(data[,"alt"])%in%c("A","C","G","T")),,drop=FALSE]
     data <- data[,c("sample","chrom","start","ref","alt"),drop=FALSE]
     colnames(data) <- c("sample","chrom","pos","ref","alt")
     data <- unique(data)
@@ -59,7 +59,7 @@
     data$rccontext <- reverseComplement(data$context)
 
     # identify trinucleotides motif
-    data$cat <- ifelse(data$ref%in%c("C","T"),paste0(subseq(data$context,1,1),"[",data$ref,">",data$alt,"]",subseq(data$context,3,3)), 
+    data$cat <- ifelse(as.character(data$ref)%in%c("C","T"),paste0(subseq(data$context,1,1),"[",data$ref,">",data$alt,"]",subseq(data$context,3,3)), 
                        paste0(subseq(data$rccontext,1,1),"[",data$cref,">",data$calt,"]",subseq(data$rccontext,3,3)))
 
     # create 96 trinucleotides mutation categories
@@ -122,8 +122,8 @@
 
     # consider only single nucleotide variants involving (A,C,G,T) bases
     data <- data[which(data[,"start"]==data[,"end"]),,drop=FALSE]
-    data <- data[which(as.matrix(data[,"ref"])%in%c("A","C","G","T")),,drop=FALSE]
-    data <- data[which(as.matrix(data[,"alt"])%in%c("A","C","G","T")),,drop=FALSE]
+    data <- data[which(as.character(data[,"ref"])%in%c("A","C","G","T")),,drop=FALSE]
+    data <- data[which(as.character(data[,"alt"])%in%c("A","C","G","T")),,drop=FALSE]
     data <- data[,c("sample","chrom","start","ref","alt"),drop=FALSE]
     colnames(data) <- c("sample","chrom","pos","ref","alt")
     data <- unique(data)
