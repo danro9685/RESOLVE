@@ -37,13 +37,3 @@ NULL
 #' @source Nik-Zainal, Serena, et al. "Landscape of somatic mutations in 560 breast cancer whole-genome sequences." Nature 534.7605 (2016): 47. 
 #' @return reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function 
 NULL
-
-#' @name bsg 
-#' @title BSgenome from the Bioconductor package BSgenome.Hsapiens.1000genomes.hs37d5 
-#' @description reference BSgenome from the Bioconductor package BSgenome.Hsapiens.1000genomes.hs37d5 
-#' @docType data 
-#' @usage data(bsg) 
-#' @format reference BSgenome 
-#' @source Bioconductor package BSgenome.Hsapiens.1000genomes.hs37d5 
-#' @return reference BSgenome from the Bioconductor package BSgenome.Hsapiens.1000genomes.hs37d5 
-NULL

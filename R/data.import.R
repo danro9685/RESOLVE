@@ -1,9 +1,9 @@
 #' Create Single Base Substitutions (SBS) counts matrix from input data for a provided reference genome.
 #'
 #' @examples
+#' library("BSgenome.Hsapiens.1000genomes.hs37d5")
 #' data(ssm560_reduced)
-#' data(bsg)
-#' res = get.SBS.counts(data = ssm560_reduced, reference = bsg)
+#' res = get.SBS.counts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 #'
 #' @title get.SBS.counts
 #' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.

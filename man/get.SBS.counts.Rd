@@ -18,8 +18,8 @@ A matrix with Single Base Substitutions (SBS) counts per patient.
 Create Single Base Substitutions (SBS) counts matrix from input data for a provided reference genome.
 }
 \examples{
+library("BSgenome.Hsapiens.1000genomes.hs37d5")
 data(ssm560_reduced)
-data(bsg)
-res = get.SBS.counts(data = ssm560_reduced, reference = bsg)
+res = get.SBS.counts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 
 }
