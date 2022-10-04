@@ -13,6 +13,7 @@
 #' @import GenomicRanges
 #' @import IRanges
 #' @import GenomeInfoDb
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @importFrom data.table data.table dcast .N
 #' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
 #' @importFrom BSgenome getSeq
