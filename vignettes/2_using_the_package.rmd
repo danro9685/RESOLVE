@@ -17,8 +17,8 @@ These data are a reduced version of the 560 breast tumors provided by Nik-Zainal
 We now import such data into a count matrix to perform the signatures discovery. To do so, we also need to specify the reference genome as a BSgenome object to be considered. This can be done as follows, where in the example we used hs37d5 as reference genome as provided as data object within the package. 
 
 ```{r}
-data(bsg)
-imported_data = get.SBS.counts(data = ssm560_reduced, reference = bsg)
+library("BSgenome.Hsapiens.1000genomes.hs37d5")
+imported_data = get.SBS.counts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 head(imported_data)
 ```
 
