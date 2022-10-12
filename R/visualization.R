@@ -1,5 +1,11 @@
 #' Plot observed Single Base Substitutions (SBS) counts for different groups of patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["groups.SBS.plot"]][["counts"]]
+#' groups = plot_data_examples[["groups.SBS.plot"]][["groups"]]
+#' groups.SBS.plot(counts=counts,groups=groups)
+#' 
 #' @title groups.SBS.plot
 #' @param counts matrix with Single Base Substitutions (SBS) counts data.
 #' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
@@ -50,6 +56,12 @@
 
 #' Plot observed Multi-Nucleotide Variants (MNVs) counts for different groups of patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["groups.MNV.plot"]][["counts"]]
+#' groups = plot_data_examples[["groups.MNV.plot"]][["groups"]]
+#' groups.MNV.plot(counts=counts,groups=groups)
+#' 
 #' @title groups.MNV.plot
 #' @param counts matrix with Multi-Nucleotide Variants (MNVs) counts data.
 #' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
@@ -100,6 +112,11 @@
 
 #' Plot Single Base Substitutions (SBS) counts for a set of given patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["patients.SBS.plot"]][["counts"]]
+#' patients.SBS.plot(trinucleotides_counts=counts,samples=rownames(counts)[1:2])
+#' 
 #' @title patients.SBS.plot
 #' @param trinucleotides_counts trinucleotides counts matrix.
 #' @param samples name of the samples. This should match a rownames in trinucleotides_counts.
@@ -153,6 +170,11 @@
 
 #' Plot Multi-Nucleotide Variants (MNVs) counts for a set of given patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["patients.MNV.plot"]][["counts"]]
+#' patients.MNV.plot(multi_nucleotides_counts=counts,samples=rownames(counts)[1:2])
+#' 
 #' @title patients.MNV.plot
 #' @param multi_nucleotides_counts Multi-Nucleotide counts matrix.
 #' @param samples name of the samples. This should match a rownames in multi_nucleotides_counts
@@ -207,6 +229,11 @@
 
 #' Plot the inferred Single Base Substitutions (SBS) mutational signatures.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' beta = plot_data_examples[["signatures.SBS.plot"]][["beta"]]
+#' signatures.SBS.plot(beta=beta)
+#' 
 #' @title signatures.SBS.plot
 #' @param beta matrix with the inferred mutational signatures.
 #' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
@@ -254,6 +281,11 @@
 
 #' Plot the inferred Multi-Nucleotide Variants (MNVs) mutational signatures.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' beta = plot_data_examples[["signatures.MNV.plot"]][["beta"]]
+#' signatures.MNV.plot(beta=beta)
+#' 
 #' @title signatures.MNV.plot
 #' @param beta matrix with the inferred mutational signatures.
 #' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
@@ -424,6 +456,11 @@
 
 #' Plot the inferred Copy Number (CN) mutational signatures.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' beta = plot_data_examples[["signatures.CN.plot"]][["beta"]]
+#' signatures.CN.plot(beta=beta)
+#' 
 #' @title signatures.CN.plot
 #' @param beta matrix with the inferred mutational signatures.
 #' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
@@ -622,6 +659,11 @@
 
 #' Plot the inferred Copy Number (Reduced, CX) mutational signatures.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' beta = plot_data_examples[["signatures.CX.plot"]][["beta"]]
+#' signatures.CX.plot(beta=beta)
+#' 
 #' @title signatures.CX.plot
 #' @param beta matrix with the inferred mutational signatures.
 #' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?

@@ -21,3 +21,10 @@ A ggplot2 object.
 \description{
 Plot observed Multi-Nucleotide Variants (MNVs) counts for different groups of patients.
 }
+\examples{
+data(plot_data_examples)
+counts = plot_data_examples[["groups.MNV.plot"]][["counts"]]
+groups = plot_data_examples[["groups.MNV.plot"]][["groups"]]
+groups.MNV.plot(counts=counts,groups=groups)
+
+}

@@ -19,3 +19,9 @@ A ggplot2 object.
 \description{
 Plot the inferred Copy Number (CN) mutational signatures.
 }
+\examples{
+data(plot_data_examples)
+beta = plot_data_examples[["signatures.CN.plot"]][["beta"]]
+signatures.CN.plot(beta=beta)
+
+}

@@ -26,3 +26,9 @@ A ggplot2 object.
 \description{
 Plot Single Base Substitutions (SBS) counts for a set of given patients.
 }
+\examples{
+data(plot_data_examples)
+counts = plot_data_examples[["patients.SBS.plot"]][["counts"]]
+patients.SBS.plot(trinucleotides_counts=counts,samples=rownames(counts)[1:2])
+
+}

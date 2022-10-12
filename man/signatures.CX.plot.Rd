@@ -19,3 +19,9 @@ A ggplot2 object.
 \description{
 Plot the inferred Copy Number (Reduced, CX) mutational signatures.
 }
+\examples{
+data(plot_data_examples)
+beta = plot_data_examples[["signatures.CX.plot"]][["beta"]]
+signatures.CX.plot(beta=beta)
+
+}

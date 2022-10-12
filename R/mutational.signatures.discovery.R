@@ -627,14 +627,7 @@
     
 }
 
-#' Initialize alpha and beta for nmf.nnls or nmf.lasso functions.
-#'
-#' @title nmf.seed
-#' @param model NMF model.
-#' @param target data matrix.
-#' @export nmf.seed
-#' @importFrom stats rnbinom
-#'
+# initialize alpha and beta for nmf.nnls or nmf.lasso functions
 "nmf.seed" <- function( model, target ) {
 
     # initialize alpha with an empty matrix
@@ -663,15 +656,7 @@
 
 }
 
-#' Perform NMF by Non-negative least squares.
-#'
-#' @title nmf.nnls
-#' @param x data matrix.
-#' @param seed initial seed for the inference.
-#' @param background background signature.
-#' @export nmf.nnls
-#' @import nnls
-#'
+# perform NMF by Non-negative least squares
 "nmf.nnls" <- function( x, seed, background = NULL ) {
 
     # initialization
@@ -734,16 +719,7 @@
 
 }
 
-#' Perform NMF by Non-negative least squares and Non-Negative Lasso.
-#'
-#' @title nmf.lasso
-#' @param x data matrix.
-#' @param seed initial seed for the inference.
-#' @param background background signature.
-#' @export nmf.lasso
-#' @import nnls
-#' @import glmnet
-#'
+# perform NMF by Non-negative least squares and Non-Negative Lasso
 "nmf.lasso" <- function( x, seed, background = NULL ) {
 
     # initialization
@@ -883,14 +859,7 @@
 
 }
 
-#' Perform fit of NMF solution by Non-negative least squares.
-#'
-#' @title nmf.fit
-#' @param x data matrix.
-#' @param beta signature matrix.
-#' @export nmf.fit
-#' @import nnls
-#'
+# perform fit of NMF solution by Non-negative least squares
 "nmf.fit" <- function( x, beta ) {
 
     # initialization
