@@ -53,7 +53,8 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
                 alpha[j,] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
             }
             else {
-                res <- cv.glmnet(cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1)),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
+                res_inputs <- cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1))
+                res <- cv.glmnet(res_inputs,as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
                 res <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                 alpha[j,] <- res[-length(res)]
             }
@@ -775,7 +776,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 alpha[j,] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
             }
             else {
-                res <- cv.glmnet(cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1)),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
+                res_inputs <- cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1))
+                res <- cv.glmnet(res_inputs,as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
                 res <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                 alpha[j,] <- res[-length(res)]
             }
@@ -791,7 +793,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     beta[2:K,k] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                 }
                 else {
-                    res <- cv.glmnet(x=cbind(curr_alpha_values,rep(0,nrow(curr_alpha_values))),y=as.vector(x[,k]-(alpha[,1]*beta[1,k])),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
+                    res_inputs <- cbind(curr_alpha_values,rep(0,nrow(curr_alpha_values)))
+                    res <- cv.glmnet(x=res_inputs,y=as.vector(x[,k]-(alpha[,1]*beta[1,k])),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
                     res <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                     beta[2:K,k] <- res[-length(res)]
                 }
@@ -803,7 +806,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     beta[,k] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                 }
                 else {
-                    res <- cv.glmnet(x=cbind(curr_alpha_values,rep(0,nrow(curr_alpha_values))),y=as.vector(x[,k]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
+                    res_inputs <- cbind(curr_alpha_values,rep(0,nrow(curr_alpha_values)))
+                    res <- cv.glmnet(x=res_inputs,y=as.vector(x[,k]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
                     res <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
                     beta[,k] <- res[-length(res)]
                 }
@@ -824,7 +828,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
             alpha[j,] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
         }
         else {
-            res <- cv.glmnet(cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1)),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
+            res_inputs <- cbind(t(curr_beta_values),matrix(rep(0,ncol(curr_beta_values)),ncol=1))
+            res <- cv.glmnet(res_inputs,as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
             res <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])
             alpha[j,] <- res[-length(res)]
         }
