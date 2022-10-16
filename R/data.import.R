@@ -21,7 +21,7 @@
 "getSBSCounts" <- function( data, reference = NULL ) {
 
     # check that reference is a BSgenome object
-    if(is.null(reference)|class(reference)!="BSgenome") {
+    if(is.null(reference)|(!is(reference,"BSgenome"))) {
         stop("The reference genome provided as input needs to be a BSgenome object.")
     }
 
