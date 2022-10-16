@@ -12,7 +12,6 @@ signaturesCV(
   cross_validation_iterations = 5,
   cross_validation_repetitions = 100,
   num_processes = Inf,
-  seed = NULL,
   verbose = TRUE
 )
 }
@@ -35,8 +34,6 @@ more expensive.}
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode, 
 this parameter needs to be set to either NA or NULL.}
 
-\item{seed}{Seed for reproducibility.}
-
 \item{verbose}{boolean; Shall I print information messages?}
 }
 \value{
@@ -50,17 +47,18 @@ mutational signatures given a set of observations x and discovered signatures be
 \examples{
 data(background)
 data(patients)
+set.seed(12345)
 sigs = signaturesDecomposition(x = patients[1:3,], 
                                K = 3:4, 
                                background_signature = background, 
                                nmf_runs = 2, 
                                sparsify = FALSE, 
-                               num_processes = 1, 
-                               seed = 12345)
+                               num_processes = 1)
+set.seed(12345)
 res = signaturesCV(x = patients[1:3,], 
                    beta = sigs$beta, 
                    cross_validation_iterations = 2, 
                    cross_validation_repetitions = 2, 
-                   num_processes = 1, seed = 12345)
+                   num_processes = 1)
 
 }

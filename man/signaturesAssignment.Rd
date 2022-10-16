@@ -9,7 +9,6 @@ signaturesAssignment(
   beta,
   normalize_counts = FALSE,
   sparsify = TRUE,
-  seed = NULL,
   verbose = TRUE
 )
 }
@@ -21,8 +20,6 @@ signaturesAssignment(
 \item{normalize_counts}{if true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
 \item{sparsify}{boolean; Shall I perform regularization using LASSO?}
-
-\item{seed}{Seed for reproducibility.}
 
 \item{verbose}{boolean; Shall I print information messages?}
 }
@@ -37,13 +34,14 @@ Perform the assignment of K somatic mutational signatures provided as input to s
 \examples{
 data(background)
 data(patients)
+set.seed(12345)
 beta = signaturesDecomposition(x = patients[1:3,], 
                                K = 3, 
                                background_signature = background, 
                                nmf_runs = 2, 
                                sparsify = FALSE, 
-                               num_processes = 1, 
-                               seed = 12345)
-res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
+                               num_processes = 1)
+set.seed(12345)
+res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE)
 
 }

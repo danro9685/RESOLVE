@@ -4,13 +4,14 @@
 #' @examples
 #' data(background)
 #' data(patients)
+#' set.seed(12345)
 #' beta = signaturesDecomposition(x = patients[1:3,], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
-#'                                num_processes = 1, 
-#'                                seed = 12345)
+#'                                num_processes = 1)
+#' set.seed(12345)
 #' res = signaturesSignificance(x = patients[1:3,], 
 #'                              beta = beta$beta[[1]], 
 #'                              cosine_thr = 0.95, 
@@ -18,8 +19,7 @@
 #'                              pvalue_thr = 0.05, 
 #'                              sparsify = FALSE, 
 #'                              nboot = 2, 
-#'                              num_processes = 1, 
-#'                              seed = 12345)
+#'                              num_processes = 1)
 #'
 #' @title signaturesSignificance
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -31,7 +31,6 @@
 #' @param nboot Number of bootstrap iterations to be performed.
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode, 
 #' this parameter needs to be set to either NA or NULL.
-#' @param seed Seed for reproducibility.
 #' @param verbose boolean; Shall I print information messages?
 #' @return A list with the bootstrap estimates. It includes 4 elements:
 #'              alpha: matrix of the discovered exposure values considering significant signatures as estimated by bootstrap.
@@ -44,11 +43,8 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
 #'
-"signaturesSignificance" <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, seed = NULL, verbose = TRUE ) {
+"signaturesSignificance" <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, verbose = TRUE ) {
     
-    # set the seed
-    set.seed(seed)
-
     # check input parameters
     x <- as.matrix(x)
     beta <- as.matrix(beta)

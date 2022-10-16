@@ -3,21 +3,21 @@
 #' @examples
 #' data(background)
 #' data(patients)
+#' set.seed(12345)
 #' beta = signaturesDecomposition(x = patients[1:3,], 
 #'                                K = 3, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
-#'                                num_processes = 1, 
-#'                                seed = 12345)
-#' res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE, seed = 12345)
+#'                                num_processes = 1)
+#' set.seed(12345)
+#' res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE)
 #'
 #' @title signaturesAssignment
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
 #' @param beta matrix of the discovered signatures to be used for the assignment.
 #' @param normalize_counts if true, the input counts matrix x is normalized such that the patients have the same number of mutation.
 #' @param sparsify boolean; Shall I perform regularization using LASSO?
-#' @param seed Seed for reproducibility.
 #' @param verbose boolean; Shall I print information messages?
 #' @return A list with the discovered signatures. It includes 2 elements:
 #'              alpha: matrix of the discovered exposure values.
@@ -26,11 +26,8 @@
 #' @import nnls
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesAssignment" <- function( x, beta, normalize_counts = FALSE, sparsify = TRUE, seed = NULL, verbose = TRUE ) {
+"signaturesAssignment" <- function( x, beta, normalize_counts = FALSE, sparsify = TRUE, verbose = TRUE ) {
     
-    # set the seed
-    set.seed(seed)
-
     # check input parameters
     x <- as.matrix(x)
     if(normalize_counts) {
@@ -84,13 +81,13 @@
 #' @examples
 #' data(background)
 #' data(patients)
+#' set.seed(12345)
 #' res = signaturesDecomposition(x = patients[1:3,], 
 #'                               K = 3:4, 
 #'                               background_signature = background, 
 #'                               nmf_runs = 2, 
 #'                               sparsify = FALSE, 
-#'                               num_processes = 1, 
-#'                               seed = 12345)
+#'                               num_processes = 1)
 #'
 #' @title signaturesDecomposition
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -101,7 +98,6 @@
 #' @param sparsify boolean; Shall I perform regularization using LASSO?
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode, 
 #' this parameter needs to be set to either NA or NULL.
-#' @param seed Seed for reproducibility.
 #' @param verbose boolean; Shall I print information messages?
 #' @return A list with the discovered signatures and related rank measures. It includes 3 elements:
 #'              alpha: list of matrices of the discovered exposure values for each possible rank in the range K.
@@ -114,11 +110,8 @@
 #' @importFrom cluster silhouette
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesDecomposition" <- function( x, K, background_signature = NULL, normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE, num_processes = Inf, seed = NULL, verbose = TRUE ) {
+"signaturesDecomposition" <- function( x, K, background_signature = NULL, normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE, num_processes = Inf, verbose = TRUE ) {
     
-    # set the seed
-    set.seed(seed)
-
     # check input parameters
     x <- as.matrix(x)
     if(any(colSums(x)==0)) {
@@ -192,7 +185,7 @@
         rank0_beta <- matrix(background_signature,nrow=1)
         rownames(rank0_beta) <- "Background"
         colnames(rank0_beta) <- colnames(x)
-        rank0_alpha <- signaturesAssignment(x=x,beta=rank0_beta,normalize_counts=FALSE,sparsify=sparsify,seed=round(runif(1)*10000),verbose=FALSE)$alpha
+        rank0_alpha <- signaturesAssignment(x=x,beta=rank0_beta,normalize_counts=FALSE,sparsify=sparsify,verbose=FALSE)$alpha
         rank0_rss <- rss(rank0_alpha%*%rank0_beta,x)
         rank0_evar <- evar(rank0_alpha%*%rank0_beta,x)
         rank0_sparseness_alpha <- sparseness(as.vector(rank0_alpha))
@@ -343,18 +336,19 @@
 #' @examples
 #' data(background)
 #' data(patients)
+#' set.seed(12345)
 #' sigs = signaturesDecomposition(x = patients[1:3,], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
-#'                                num_processes = 1, 
-#'                                seed = 12345)
+#'                                num_processes = 1)
+#' set.seed(12345)
 #' res = signaturesCV(x = patients[1:3,], 
 #'                    beta = sigs$beta, 
 #'                    cross_validation_iterations = 2, 
 #'                    cross_validation_repetitions = 2, 
-#'                    num_processes = 1, seed = 12345)
+#'                    num_processes = 1)
 #'
 #' @title signaturesCV
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
@@ -368,7 +362,6 @@
 #' more expensive.
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode, 
 #' this parameter needs to be set to either NA or NULL.
-#' @param seed Seed for reproducibility.
 #' @param verbose boolean; Shall I print information messages?
 #' @return A list of 2 elements: cv_estimates and rank_estimates. Here, cv_estimates reports the mean squared error for each configuration of performed 
 #' cross validation; rank_estimates reports mean and median values for each value of K.
@@ -377,11 +370,8 @@
 #' @import parallel
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesCV" <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01, cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, seed = NULL, verbose = TRUE ) {
+"signaturesCV" <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01, cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
     
-    # set the seed
-    set.seed(seed)
-
     # check input parameters
     x <- as.matrix(x)
     if(any(colSums(x)==0)) {
