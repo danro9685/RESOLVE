@@ -40,8 +40,8 @@
 #'              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 #' @export signaturesSignificance
 #' @import nnls
-#' @import glmnet
 #' @import parallel
+#' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
 #'
 "signaturesSignificance" <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, seed = NULL, verbose = TRUE ) {
@@ -96,7 +96,7 @@
                 curr_boot_sampling <- table(sample(x=colnames(curr_patient),size=curr_num_counts,replace=TRUE,prob=curr_counts_distribution))
                 curr_patient[1,] <- 0
                 curr_patient[1,names(curr_boot_sampling)] <- as.numeric(curr_boot_sampling)
-                return(sigs.significance(x=curr_patient,beta=beta,cosine_thr=cosine_thr,sparsify=sparsify))
+                return(sigs_significance(x=curr_patient,beta=beta,cosine_thr=cosine_thr,sparsify=sparsify))
             })
             alpha[[boot_iteration]] <- Reduce("rbind",curr_alpha)
 
@@ -111,7 +111,7 @@
         res_clusterEvalQ <- clusterEvalQ(parallel,library("nnls",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel,library("glmnet",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel,library("lsa",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
-        clusterExport(parallel,varlist=c("sigs.significance"),envir=environment())
+        clusterExport(parallel,varlist=c("sigs_significance"),envir=environment())
         clusterExport(parallel,varlist=c("verbose","nboot"),envir=environment())
         clusterExport(parallel,varlist=c("x","beta","cosine_thr","sparsify"),envir=environment())
         clusterSetRNGStream(parallel,iseed=round(runif(1)*100000))
@@ -130,7 +130,7 @@
                 curr_boot_sampling <- table(sample(x=colnames(curr_patient),size=curr_num_counts,replace=TRUE,prob=curr_counts_distribution))
                 curr_patient[1,] <- 0
                 curr_patient[1,names(curr_boot_sampling)] <- as.numeric(curr_boot_sampling)
-                return(sigs.significance(x=curr_patient,beta=beta,cosine_thr=cosine_thr,sparsify=sparsify))
+                return(sigs_significance(x=curr_patient,beta=beta,cosine_thr=cosine_thr,sparsify=sparsify))
             })
             curr_alpha <- Reduce("rbind",curr_alpha)
 
@@ -220,7 +220,7 @@
 }
 
 # iteratively estimate alpha coefficients until a given level of cosine similarity is reached
-"sigs.significance" <- function( x, beta, cosine_thr = 0.95, sparsify = TRUE ) {
+"sigs_significance" <- function( x, beta, cosine_thr = 0.95, sparsify = TRUE ) {
 
     # initialization
     alpha <- array(NA,c(1,nrow(beta)))

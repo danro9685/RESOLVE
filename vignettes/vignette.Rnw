@@ -77,14 +77,14 @@ We now import such data into a count matrix to perform the signatures discovery.
 
 <<example_import_final_eval>>=
 library("BSgenome.Hsapiens.1000genomes.hs37d5")
-imported_data = get.SBS.counts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+imported_data = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 head(imported_data)
 @
 
 Now, we present an example of visualization feature provided by the package, showing the counts for the first patient, i.e., PD10010a, in the following plot. 
 
 <<image-1, fig.show='hide', fig.width=5, fig.height=5, results='hide'>>=
-patients.SBS.plot(trinucleotides_counts=imported_data,samples="PD10010a")
+patientsSBSPlot(trinucleotides_counts=imported_data,samples="PD10010a")
 @
 
 \begin{figure*}[ht]
@@ -125,7 +125,7 @@ We conclude this vignette by plotting the discovered signatures for the best con
 
 <<image-5, fig.show='hide', fig.width=5, fig.height=5, results='hide'>>=
 signatures = res_denovo$beta[[2]]
-signatures.SBS.plot(beta=signatures, xlabels=FALSE)
+signaturesSBSPlot(beta=signatures, xlabels=FALSE)
 @
 
 \begin{figure*}[ht]

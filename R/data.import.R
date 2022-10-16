@@ -3,22 +3,22 @@
 #' @examples
 #' library("BSgenome.Hsapiens.1000genomes.hs37d5")
 #' data(ssm560_reduced)
-#' res = get.SBS.counts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+#' res = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 #'
-#' @title get.SBS.counts
+#' @title getSBSCounts
 #' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
 #' @param reference a BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
-#' @export get.SBS.counts
-#' @import GenomicRanges
+#' @export getSBSCounts
 #' @import IRanges
 #' @import GenomeInfoDb
 #' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @importFrom data.table data.table dcast .N
 #' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
 #' @importFrom BSgenome getSeq
+#' @importFrom GenomicRanges GRanges seqnames
 #'
-"get.SBS.counts" <- function( data, reference = NULL ) {
+"getSBSCounts" <- function( data, reference = NULL ) {
 
     # check that reference is a BSgenome object
     if(is.null(reference)|class(reference)!="BSgenome") {
@@ -42,7 +42,7 @@
     data <- GRanges(data$chrom,IRanges(start=(data$pos-1),width=3),ref=DNAStringSet(data$ref),alt=DNAStringSet(data$alt),sample=data$sample)
 
     # check that all chromosomes match reference
-    if(length(setdiff(seqnames(data),GenomeInfoDb::seqnames(reference)))>0) {
+    if(length(setdiff(seqnames(data),seqnames(reference)))>0) {
         warning("Check chromosome names, not all match reference genome.")
     }
 
@@ -80,7 +80,7 @@
     mutation_categories <- data.table(context=categories_context,alt=categories_alt,cat=categories_cat)
     
     # count number of mutations per sample for each category
-    data <- merge(mutation_categories[,.(cat)],data.table(sample=data$sample,cat=data$cat)[,.N,by=.(sample,cat)],by="cat",all=TRUE)
+    data <- merge(mutation_categories[,list(cat)],data.table(sample=data$sample,cat=data$cat)[,.N,by=list(sample,cat)],by="cat",all=TRUE)
     data <- dcast(data,sample~cat,value.var="N")
     data <- data[!is.na(sample),drop=FALSE]
     data[is.na(data)] <- 0
@@ -107,15 +107,15 @@
 #'
 #' @examples
 #' data(ssm560_reduced)
-#' res = get.MNV.counts(data = ssm560_reduced)
+#' res = getMNVCounts(data = ssm560_reduced)
 #'
-#' @title get.MNV.counts
+#' @title getMNVCounts
 #' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
-#' @export get.MNV.counts
+#' @export getMNVCounts
 #' @importFrom data.table data.table dcast .N
 #'
-"get.MNV.counts" <- function( data ) {
+"getMNVCounts" <- function( data ) {
 
     # preprocessing input data
     data <- as.data.frame(data)
@@ -169,7 +169,7 @@
     
     # count number of mutations per sample for each category
     mutation_categories <- data.table(cat=mutation_categories)
-    data <- merge(mutation_categories[,.(cat)],data.table(sample=data$sample,cat=data$cat)[,.N,by=.(sample,cat)],by="cat",all=TRUE)
+    data <- merge(mutation_categories[,list(cat)],data.table(sample=data$sample,cat=data$cat)[,.N,by=list(sample,cat)],by="cat",all=TRUE)
     data <- dcast(data,sample~cat,value.var="N")
     data <- data[!is.na(sample),drop=FALSE]
     data[is.na(data)] <- 0

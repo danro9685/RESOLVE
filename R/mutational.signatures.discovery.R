@@ -24,7 +24,7 @@
 #'              beta: matrix of the discovered signatures.
 #' @export signaturesAssignment
 #' @import nnls
-#' @import glmnet
+#' @importFrom glmnet cv.glmnet
 #'
 "signaturesAssignment" <- function( x, beta, normalize_counts = FALSE, sparsify = TRUE, seed = NULL, verbose = TRUE ) {
     
@@ -110,8 +110,9 @@
 #' @export signaturesDecomposition
 #' @import NMF
 #' @import nnls
-#' @import glmnet
 #' @import parallel
+#' @importFrom cluster silhouette
+#' @importFrom glmnet cv.glmnet
 #'
 "signaturesDecomposition" <- function( x, K, background_signature = NULL, normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE, num_processes = Inf, seed = NULL, verbose = TRUE ) {
     
@@ -165,7 +166,7 @@
         res_clusterEvalQ <- clusterEvalQ(pbackend,library("NMF",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
         res_clusterEvalQ <- clusterEvalQ(pbackend,library("nnls",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
         res_clusterEvalQ <- clusterEvalQ(pbackend,library("glmnet",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
-        clusterExport(pbackend,varlist=c("nmf.seed","nmf.nnls","nmf.lasso"),envir=environment())
+        clusterExport(pbackend,varlist=c("nmf_seed","nmf_nnls","nmf_lasso"),envir=environment())
         clusterSetRNGStream(pbackend,iseed=round(runif(1)*100000))
         close_parallel <- TRUE
         rm(res_clusterEvalQ)
@@ -232,7 +233,7 @@
             if(sparsify) {
                 while(is.null(results)) {
                     results <- tryCatch({
-                        results <- nmf(x=x,rank=K[i],method=nmf.lasso,background=background_signature,seed=nmf.seed,rng=round(runif(1)*10000),nrun=nmf_runs,.pbackend=pbackend)
+                        results <- nmf(x=x,rank=K[i],method=nmf_lasso,background=background_signature,seed=nmf_seed,rng=round(runif(1)*10000),nrun=nmf_runs,.pbackend=pbackend)
                         gc(verbose=FALSE)
                         results
                     }, error = function(e) {
@@ -247,7 +248,7 @@
             else {
                 while(is.null(results)) {
                     results <- tryCatch({
-                        results <- nmf(x=x,rank=K[i],method=nmf.nnls,background=background_signature,seed=nmf.seed,rng=round(runif(1)*10000),nrun=nmf_runs,.pbackend=pbackend)
+                        results <- nmf(x=x,rank=K[i],method=nmf_nnls,background=background_signature,seed=nmf_seed,rng=round(runif(1)*10000),nrun=nmf_runs,.pbackend=pbackend)
                         gc(verbose=FALSE)
                         results
                     }, error = function(e) {
@@ -373,8 +374,8 @@
 #' cross validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
 #' @import nnls
-#' @import glmnet
 #' @import parallel
+#' @importFrom glmnet cv.glmnet
 #'
 "signaturesCV" <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01, cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, seed = NULL, verbose = TRUE ) {
     
@@ -473,7 +474,7 @@
                     }
 
                     # perform the inference
-                    curr_results <- nmf.fit(x=x_cv,beta=beta[[num_signs]])
+                    curr_results <- nmf_fit(x=x_cv,beta=beta[[num_signs]])
                     gc(verbose=FALSE)
 
                 }
@@ -517,7 +518,7 @@
         close_parallel <- TRUE
         res_clusterEvalQ <- clusterEvalQ(parallel,library("nnls",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel,library("glmnet",warn.conflicts=FALSE,quietly=TRUE,verbose=FALSE))
-        clusterExport(parallel,varlist=c("nmf.fit"),envir=environment())
+        clusterExport(parallel,varlist=c("nmf_fit"),envir=environment())
         clusterExport(parallel,varlist=c("verbose","cross_validation_repetitions","cross_validation_entries"),envir=environment())
         clusterExport(parallel,varlist=c("cross_validation_iterations","valid_entries","beta","x"),envir=environment())
         clusterSetRNGStream(parallel,iseed=round(runif(1)*100000))
@@ -563,7 +564,7 @@
                     }
 
                     # perform the inference
-                    curr_results <- nmf.fit(x=x_cv,beta=beta[[num_signs]])
+                    curr_results <- nmf_fit(x=x_cv,beta=beta[[num_signs]])
                     gc(verbose=FALSE)
 
                 }
@@ -627,8 +628,8 @@
     
 }
 
-# initialize alpha and beta for nmf.nnls or nmf.lasso functions
-"nmf.seed" <- function( model, target ) {
+# initialize alpha and beta for nmf_nnls or nmf_lasso functions
+"nmf_seed" <- function( model, target ) {
 
     # initialize alpha with an empty matrix
     alpha <- array(NA,c(nrow(target),nbasis(model)))
@@ -657,7 +658,7 @@
 }
 
 # perform NMF by Non-negative least squares
-"nmf.nnls" <- function( x, seed, background = NULL ) {
+"nmf_nnls" <- function( x, seed, background = NULL ) {
 
     # initialization
     alpha <- basis(seed) # exposures matrix
@@ -720,7 +721,7 @@
 }
 
 # perform NMF by Non-negative least squares and Non-Negative Lasso
-"nmf.lasso" <- function( x, seed, background = NULL ) {
+"nmf_lasso" <- function( x, seed, background = NULL ) {
 
     # initialization
     alpha <- basis(seed) # exposures matrix
@@ -860,7 +861,7 @@
 }
 
 # perform fit of NMF solution by Non-negative least squares
-"nmf.fit" <- function( x, beta ) {
+"nmf_fit" <- function( x, beta ) {
 
     # initialization
     alpha <- array(NA,c(nrow(x),nrow(beta)))
