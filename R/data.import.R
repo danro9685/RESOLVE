@@ -18,7 +18,7 @@
 #' @importFrom BSgenome getSeq
 #' @importFrom GenomicRanges GRanges seqnames
 #'
-"getSBSCounts" <- function( data, reference = NULL ) {
+getSBSCounts <- function( data, reference = NULL ) {
 
     # check that reference is a BSgenome object
     if(is.null(reference)|(!is(reference,"BSgenome"))) {
@@ -115,7 +115,7 @@
 #' @export getMNVCounts
 #' @importFrom data.table data.table dcast .N
 #'
-"getMNVCounts" <- function( data ) {
+getMNVCounts <- function( data ) {
 
     # preprocessing input data
     data <- as.data.frame(data)

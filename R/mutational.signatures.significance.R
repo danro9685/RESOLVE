@@ -43,7 +43,7 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
 #'
-"signaturesSignificance" <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, verbose = TRUE ) {
+signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05, pvalue_thr = 0.05, sparsify = TRUE, nboot = 100, num_processes = Inf, verbose = TRUE ) {
     
     # check input parameters
     x <- as.matrix(x)
@@ -216,7 +216,7 @@
 }
 
 # iteratively estimate alpha coefficients until a given level of cosine similarity is reached
-"sigs_significance" <- function( x, beta, cosine_thr = 0.95, sparsify = TRUE ) {
+sigs_significance <- function( x, beta, cosine_thr = 0.95, sparsify = TRUE ) {
 
     # initialization
     alpha <- array(NA,c(1,nrow(beta)))

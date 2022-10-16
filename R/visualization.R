@@ -16,7 +16,7 @@
 #' @import ggplot2
 #' @import gridExtra
 #'
-"groupsSBSPlot" <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
+groupsSBSPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
@@ -72,7 +72,7 @@
 #' @import ggplot2
 #' @import gridExtra
 #'
-"groupsMNVPlot" <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
+groupsMNVPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
@@ -129,7 +129,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"patientsSBSPlot" <- function( trinucleotides_counts, samples = rownames(trinucleotides_counts), freq = FALSE, xlabels = FALSE ) {
+patientsSBSPlot <- function( trinucleotides_counts, samples = rownames(trinucleotides_counts), freq = FALSE, xlabels = FALSE ) {
 
     # make samples data
     trinucleotides_counts <- trinucleotides_counts[samples,,drop=FALSE]
@@ -188,7 +188,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"patientsMNVPlot" <- function( multi_nucleotides_counts, samples = rownames(multi_nucleotides_counts), freq = FALSE, xlabels = FALSE ) {
+patientsMNVPlot <- function( multi_nucleotides_counts, samples = rownames(multi_nucleotides_counts), freq = FALSE, xlabels = FALSE ) {
 
     # make samples data
     multi_nucleotides_counts <- multi_nucleotides_counts[samples,,drop=FALSE]
@@ -247,7 +247,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"signaturesSBSPlot" <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
+signaturesSBSPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
@@ -300,7 +300,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"signaturesMNVPlot" <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
+signaturesMNVPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
@@ -347,7 +347,7 @@
 #' @import ggplot2
 #' @import gridExtra
 #'
-"groupsCNPlot" <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
+groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
@@ -409,7 +409,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"patientsCNPlot" <- function( cn_data_counts, samples = rownames(cn_data_counts), freq = FALSE, xlabels = FALSE ) {
+patientsCNPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), freq = FALSE, xlabels = FALSE ) {
 
     # make samples data
     cn_data_counts <- cn_data_counts[samples,,drop=FALSE]
@@ -477,7 +477,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"signaturesCNPlot" <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
+signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
@@ -534,7 +534,7 @@
 #' @import ggplot2
 #' @import gridExtra
 #'
-"groupsCXPlot" <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
+groupsCXPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     Context_values <- c("S1","S2","S3","S4","S5","S6","S7","S8","S9","S10","S11","S12","S13","S14","S15","S16","S17","S18","S19","S20","S21","S22","C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","10MB1","10MB2","10MB3","CHRARM1","CHRARM2","CHRARM3","CHRARM4","CHRARM5","CN1","CN2","CN3")
@@ -605,7 +605,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"patientsCXPlot" <- function( cn_data_counts, samples = rownames(cn_data_counts), freq = FALSE, xlabels = FALSE ) {
+patientsCXPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), freq = FALSE, xlabels = FALSE ) {
 
     # make samples data
     cn_data_counts <- cn_data_counts[samples,,drop=FALSE]
@@ -682,7 +682,7 @@
 #' @importFrom data.table as.data.table :=
 #' @importFrom reshape2 melt
 #'
-"signaturesCXPlot" <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
+signaturesCXPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {

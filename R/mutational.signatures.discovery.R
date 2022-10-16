@@ -26,7 +26,7 @@
 #' @import nnls
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesAssignment" <- function( x, beta, normalize_counts = FALSE, sparsify = TRUE, verbose = TRUE ) {
+signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = TRUE, verbose = TRUE ) {
     
     # check input parameters
     x <- as.matrix(x)
@@ -110,7 +110,7 @@
 #' @importFrom cluster silhouette
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesDecomposition" <- function( x, K, background_signature = NULL, normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE, num_processes = Inf, verbose = TRUE ) {
+signaturesDecomposition <- function( x, K, background_signature = NULL, normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE, num_processes = Inf, verbose = TRUE ) {
     
     # check input parameters
     x <- as.matrix(x)
@@ -370,7 +370,7 @@
 #' @import parallel
 #' @importFrom glmnet cv.glmnet
 #'
-"signaturesCV" <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01, cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
+signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01, cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
     
     # check input parameters
     x <- as.matrix(x)
@@ -619,7 +619,7 @@
 }
 
 # initialize alpha and beta for nmf_nnls or nmf_lasso functions
-"nmf_seed" <- function( model, target ) {
+nmf_seed <- function( model, target ) {
 
     # initialize alpha with an empty matrix
     alpha <- array(NA,c(nrow(target),nbasis(model)))
@@ -648,7 +648,7 @@
 }
 
 # perform NMF by Non-negative least squares
-"nmf_nnls" <- function( x, seed, background = NULL ) {
+nmf_nnls <- function( x, seed, background = NULL ) {
 
     # initialization
     alpha <- basis(seed) # exposures matrix
@@ -711,7 +711,7 @@
 }
 
 # perform NMF by Non-negative least squares and Non-Negative Lasso
-"nmf_lasso" <- function( x, seed, background = NULL ) {
+nmf_lasso <- function( x, seed, background = NULL ) {
 
     # initialization
     alpha <- basis(seed) # exposures matrix
@@ -851,7 +851,7 @@
 }
 
 # perform fit of NMF solution by Non-negative least squares
-"nmf_fit" <- function( x, beta ) {
+nmf_fit <- function( x, beta ) {
 
     # initialization
     alpha <- array(NA,c(nrow(x),nrow(beta)))
