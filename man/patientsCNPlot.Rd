@@ -26,3 +26,9 @@ A ggplot2 object.
 \description{
 Plot Copy Number (CN) counts for a set of given patients.
 }
+\examples{
+data(plot_data_examples)
+counts = plot_data_examples[["patients.CN.plot"]][["counts"]]
+patientsCNPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+
+}

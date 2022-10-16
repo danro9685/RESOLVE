@@ -337,6 +337,12 @@ signaturesMNVPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
 #' Plot observed Copy Number (CN) counts for different groups of patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["groups.CN.plot"]][["counts"]]
+#' groups = plot_data_examples[["groups.CN.plot"]][["groups"]]
+#' groupsCNPlot(counts=counts,groups=groups)
+#' 
 #' @title groupsCNPlot
 #' @param counts matrix with Copy Number (CN) counts data.
 #' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
@@ -397,6 +403,11 @@ groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
 #' Plot Copy Number (CN) counts for a set of given patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["patients.CN.plot"]][["counts"]]
+#' patientsCNPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+#' 
 #' @title patientsCNPlot
 #' @param cn_data_counts Copy Number counts matrix.
 #' @param samples name of the samples. This should match a rownames in cn_data_counts
@@ -524,6 +535,12 @@ signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
 #' Plot observed Copy Number (Reduced, CX) counts for different groups of patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["groups.CX.plot"]][["counts"]]
+#' groups = plot_data_examples[["groups.CX.plot"]][["groups"]]
+#' groupsCXPlot(counts=counts,groups=groups)
+#' 
 #' @title groupsCXPlot
 #' @param counts matrix with Copy Number (Reduced, CX) counts data.
 #' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
@@ -593,6 +610,11 @@ groupsCXPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
 #' Plot Copy Number (Reduced, CX) counts for a set of given patients.
 #'
+#' @examples
+#' data(plot_data_examples)
+#' counts = plot_data_examples[["patients.CX.plot"]][["counts"]]
+#' patientsCXPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+#' 
 #' @title patientsCXPlot
 #' @param cn_data_counts Copy Number counts matrix.
 #' @param samples name of the samples. This should match a rownames in cn_data_counts

@@ -21,3 +21,10 @@ A ggplot2 object.
 \description{
 Plot observed Copy Number (CN) counts for different groups of patients.
 }
+\examples{
+data(plot_data_examples)
+counts = plot_data_examples[["groups.CN.plot"]][["counts"]]
+groups = plot_data_examples[["groups.CN.plot"]][["groups"]]
+groupsCNPlot(counts=counts,groups=groups)
+
+}

@@ -26,3 +26,9 @@ A ggplot2 object.
 \description{
 Plot Copy Number (Reduced, CX) counts for a set of given patients.
 }
+\examples{
+data(plot_data_examples)
+counts = plot_data_examples[["patients.CX.plot"]][["counts"]]
+patientsCXPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+
+}
