@@ -365,16 +365,16 @@ groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
                 x_value <- c(x_value,plot_data[a,b])
             }
         }
-        Context = NULL
+        Context <- NULL
         for(j in as.character(x_label)) {
-            Context = c(Context,strsplit(j,":")[[1]][[3]])
+            Context <- c(Context,strsplit(j,":")[[1]][[3]])
         }
-        Alt = NULL
+        Alt <- NULL
         for(j in as.character(x_label)) {
-            Alt = c(Alt,paste0(toupper(strsplit(j,":")[[1]][[2]])," ",strsplit(j,":")[[1]][[1]]))
+            Alt <- c(Alt,paste0(toupper(strsplit(j,":")[[1]][[2]])," ",strsplit(j,":")[[1]][[1]]))
         }
-        Alt = gsub("HOMDEL","HD",Alt)
-        Alt = gsub("HET","Het",Alt)
+        Alt <- gsub("HOMDEL","HD",Alt)
+        Alt <- gsub("HET","Het",Alt)
         plot_data <- data.frame(Context=factor(Context,levels=c("0-100kb","100kb-1Mb","1Mb-10Mb","10Mb-40Mb",">1Mb",">40Mb")),alt=factor(Alt,levels=c("HD 0","LOH 1","LOH 2","LOH 3-4","LOH 5-8","LOH 9+","Het 2","Het 3-4","Het 5-8","Het 9+")),value=x_value)
         plt <- ggplot(plot_data) + 
             geom_boxplot(aes_string(x="Context",y="value",fill="alt")) + 
@@ -419,17 +419,17 @@ patientsCNPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), 
 
     # separate context and alteration
     x <- as.data.table(melt(as.matrix(cn_data_counts),varnames=c("patient","cat")))
-    Context = NULL
+    Context <- NULL
     for(i in as.character(x$cat)) {
-        Context = c(Context,strsplit(i,":")[[1]][[3]])
+        Context <- c(Context,strsplit(i,":")[[1]][[3]])
     }
     x[,"Context":=factor(Context,levels=c("0-100kb","100kb-1Mb","1Mb-10Mb","10Mb-40Mb",">1Mb",">40Mb"))]
-    Alt = NULL
+    Alt <- NULL
     for(i in as.character(x$cat)) {
-        Alt = c(Alt,paste0(toupper(strsplit(i,":")[[1]][[2]])," ",strsplit(i,":")[[1]][[1]]))
+        Alt <- c(Alt,paste0(toupper(strsplit(i,":")[[1]][[2]])," ",strsplit(i,":")[[1]][[1]]))
     }
-    Alt = gsub("HOMDEL","HD",Alt)
-    Alt = gsub("HET","Het",Alt)
+    Alt <- gsub("HOMDEL","HD",Alt)
+    Alt <- gsub("HET","Het",Alt)
     x[,"alt":=factor(Alt,levels=c("HD 0","LOH 1","LOH 2","LOH 3-4","LOH 5-8","LOH 9+","Het 2","Het 3-4","Het 5-8","Het 9+"))]
 
     # make the ggplot2 object
@@ -486,17 +486,17 @@ signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # separate context and alteration
     x <- as.data.table(melt(as.matrix(beta),varnames=c("signature","cat")))
-    Context = NULL
+    Context <- NULL
     for(i in as.character(x$cat)) {
-        Context = c(Context,strsplit(i,":")[[1]][[3]])
+        Context <- c(Context,strsplit(i,":")[[1]][[3]])
     }
     x[,"Context":=factor(Context,levels=c("0-100kb","100kb-1Mb","1Mb-10Mb","10Mb-40Mb",">1Mb",">40Mb"))]
-    Alt = NULL
+    Alt <- NULL
     for(i in as.character(x$cat)) {
-        Alt = c(Alt,paste0(toupper(strsplit(i,":")[[1]][[2]])," ",strsplit(i,":")[[1]][[1]]))
+        Alt <- c(Alt,paste0(toupper(strsplit(i,":")[[1]][[2]])," ",strsplit(i,":")[[1]][[1]]))
     }
-    Alt = gsub("HOMDEL","HD",Alt)
-    Alt = gsub("HET","Het",Alt)
+    Alt <- gsub("HOMDEL","HD",Alt)
+    Alt <- gsub("HET","Het",Alt)
     x[,"alt":=factor(Alt,levels=c("HD 0","LOH 1","LOH 2","LOH 3-4","LOH 5-8","LOH 9+","Het 2","Het 3-4","Het 5-8","Het 9+"))]
 
     # make the ggplot2 object
