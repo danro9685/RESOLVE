@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SparseSignaturesPlus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -133,7 +133,7 @@
 <span><span class="co">##     strsplit</span></span></code></pre>
 <pre><code><span><span class="co">## Loading required package: rtracklayer</span></span></code></pre>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/get.SBS.counts.html">get.SBS.counts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/getSBSCounts.html">getSBSCounts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imported_data</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##          A[C&gt;A]A A[C&gt;A]C A[C&gt;A]G A[C&gt;A]T A[C&gt;G]A A[C&gt;G]C A[C&gt;G]G A[C&gt;G]T</span></span>
 <span><span class="co">## PD10010a      37      25       8      24      35       5      16      25</span></span>
@@ -185,7 +185,7 @@
 <span><span class="co">## PD10014a     143     118      75     148      71      54      76     160</span></span></code></pre>
 <p>Now, we present an example of visualization feature provided by the package, showing the counts for the first patient, i.e., PD10010a, in the following plot.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/patients.SBS.plot.html">patients.SBS.plot</a></span><span class="op">(</span>trinucleotides_counts<span class="op">=</span><span class="va">imported_data</span>,samples<span class="op">=</span><span class="st">"PD10010a"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/patientsSBSPlot.html">patientsSBSPlot</a></span><span class="op">(</span>trinucleotides_counts<span class="op">=</span><span class="va">imported_data</span>,samples<span class="op">=</span><span class="st">"PD10010a"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="2_using_the_package_files/figure-html/unnamed-chunk-3-1.png" alt="Visualization of the counts for patient PD10010a from the dataset published in Nik-Zainal, Serena, et al." width="672"><p class="caption">
 Visualization of the counts for patient PD10010a from the dataset published in Nik-Zainal, Serena, et al.
@@ -195,24 +195,24 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">background</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patients</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
 <span><span class="va">res_denovo</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesDecomposition.html">signaturesDecomposition</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span>
 <span>                                     K <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>, </span>
 <span>                                     background_signature <span class="op">=</span> <span class="va">background</span>, </span>
 <span>                                     nmf_runs <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>                                     sparsify <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>                                     num_processes <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                                     seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></code></pre></div>
+<span>                                     num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Performing signatures discovery and rank estimation... </span></span>
 <span><span class="co">## Performing inference for K=3... </span></span>
 <span><span class="co">## Performing inference for K=4...</span></span></code></pre>
 <p>Now that we have performed the de novo inferece, we need to decide the optimal number of signatures to be extracted from our dataset. To do so, we provide a procedure based on cross-validation.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_cv</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesCV.html">signaturesCV</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
+<span><span class="va">res_cv</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesCV.html">signaturesCV</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span>
 <span>                      beta <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span>, </span>
 <span>                      cross_validation_iterations <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>                      cross_validation_repetitions <span class="op">=</span> <span class="fl">2</span>, </span>
-<span>                      num_processes <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                      seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></code></pre></div>
+<span>                      num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Estimating the optimal number of signatures with a total of 2 cross validation repetitions... </span></span>
 <span><span class="co">## Performing repetition 1 out of 2... </span></span>
 <span><span class="co">## Performing estimation for K=3... </span></span>
@@ -236,7 +236,7 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 <p>We conclude this vignette by plotting the discovered signatures for the best configuration, i.e., K = 4.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">signatures</span> <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="fu"><a href="../reference/signatures.SBS.plot.html">signatures.SBS.plot</a></span><span class="op">(</span>beta<span class="op">=</span><span class="va">signatures</span>, xlabels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/signaturesSBSPlot.html">signaturesSBSPlot</a></span><span class="op">(</span>beta<span class="op">=</span><span class="va">signatures</span>, xlabels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="2_using_the_package_files/figure-html/unnamed-chunk-6-1.png" alt="Visualization of the discovered signatures." width="672"><p class="caption">
 Visualization of the discovered signatures.

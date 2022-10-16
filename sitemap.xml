@@ -22,70 +22,73 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/SparseSignaturesPlus-package.html</loc>
+  </url>
+  <url>
     <loc>/reference/background.html</loc>
   </url>
   <url>
     <loc>/reference/background2.html</loc>
   </url>
   <url>
-    <loc>/reference/get.MNV.counts.html</loc>
+    <loc>/reference/getMNVCounts.html</loc>
   </url>
   <url>
-    <loc>/reference/get.SBS.counts.html</loc>
+    <loc>/reference/getSBSCounts.html</loc>
   </url>
   <url>
-    <loc>/reference/groups.CN.plot.html</loc>
+    <loc>/reference/groupsCNPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/groups.CX.plot.html</loc>
+    <loc>/reference/groupsCXPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/groups.MNV.plot.html</loc>
+    <loc>/reference/groupsMNVPlot.html</loc>
   </url>
   <url>
-    <loc>/reference/groups.SBS.plot.html</loc>
+    <loc>/reference/groupsSBSPlot.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/patients.CN.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patients.CX.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patients.MNV.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patients.SBS.plot.html</loc>
-  </url>
-  <url>
     <loc>/reference/patients.html</loc>
+  </url>
+  <url>
+    <loc>/reference/patientsCNPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/patientsCXPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/patientsMNVPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/patientsSBSPlot.html</loc>
   </url>
   <url>
     <loc>/reference/plot_data_examples.html</loc>
   </url>
   <url>
-    <loc>/reference/signatures.CN.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signatures.CX.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signatures.MNV.plot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signatures.SBS.plot.html</loc>
-  </url>
-  <url>
     <loc>/reference/signaturesAssignment.html</loc>
+  </url>
+  <url>
+    <loc>/reference/signaturesCNPlot.html</loc>
   </url>
   <url>
     <loc>/reference/signaturesCV.html</loc>
   </url>
   <url>
+    <loc>/reference/signaturesCXPlot.html</loc>
+  </url>
+  <url>
     <loc>/reference/signaturesDecomposition.html</loc>
+  </url>
+  <url>
+    <loc>/reference/signaturesMNVPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/signaturesSBSPlot.html</loc>
   </url>
   <url>
     <loc>/reference/signaturesSignificance.html</loc>

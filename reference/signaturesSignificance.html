@@ -18,7 +18,7 @@ given a set of observed counts x and discovered signatures beta."><!-- mathjax -
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SparseSignaturesPlus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -74,7 +74,6 @@ given a set of observed counts x and discovered signatures beta.</p>
 <span>  sparsify <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nboot <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  num_processes <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -114,10 +113,6 @@ given a set of observed counts x and discovered signatures beta.</p>
 this parameter needs to be set to either NA or NULL.</p></dd>
 
 
-<dt>seed</dt>
-<dd><p>Seed for reproducibility.</p></dd>
-
-
 <dt>verbose</dt>
 <dd><p>boolean; Shall I print information messages?</p></dd>
 
@@ -137,16 +132,17 @@ this parameter needs to be set to either NA or NULL.</p></dd>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">background</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patients</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">beta</span> <span class="op">=</span> <span class="fu"><a href="signaturesDecomposition.html">signaturesDecomposition</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span></span>
 <span class="r-in"><span>                               K <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>, </span></span>
 <span class="r-in"><span>                               background_signature <span class="op">=</span> <span class="va">background</span>, </span></span>
 <span class="r-in"><span>                               nmf_runs <span class="op">=</span> <span class="fl">2</span>, </span></span>
 <span class="r-in"><span>                               sparsify <span class="op">=</span> <span class="cn">FALSE</span>, </span></span>
-<span class="r-in"><span>                               num_processes <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                               seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                               num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing signatures discovery and rank estimation... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing inference for K=3... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing inference for K=4... </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">=</span> <span class="fu">signaturesSignificance</span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span></span>
 <span class="r-in"><span>                             beta <span class="op">=</span> <span class="va">beta</span><span class="op">$</span><span class="va">beta</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span></span>
 <span class="r-in"><span>                             cosine_thr <span class="op">=</span> <span class="fl">0.95</span>, </span></span>
@@ -154,8 +150,7 @@ this parameter needs to be set to either NA or NULL.</p></dd>
 <span class="r-in"><span>                             pvalue_thr <span class="op">=</span> <span class="fl">0.05</span>, </span></span>
 <span class="r-in"><span>                             sparsify <span class="op">=</span> <span class="cn">FALSE</span>, </span></span>
 <span class="r-in"><span>                             nboot <span class="op">=</span> <span class="fl">2</span>, </span></span>
-<span class="r-in"><span>                             num_processes <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                             seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                             num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The minimum value of nboot can be 5...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating the contribution of each signature to the fit with a total of 5 bootstrap iterations... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing iteration 1 out of 5... </span>

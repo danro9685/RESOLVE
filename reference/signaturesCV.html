@@ -18,7 +18,7 @@ mutational signatures given a set of observations x and discovered signatures be
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">SparseSignaturesPlus</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.4</span>
       </span>
     </div>
 
@@ -73,7 +73,6 @@ mutational signatures given a set of observations x and discovered signatures be
 <span>  cross_validation_iterations <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  cross_validation_repetitions <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  num_processes <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -112,10 +111,6 @@ more expensive.</p></dd>
 this parameter needs to be set to either NA or NULL.</p></dd>
 
 
-<dt>seed</dt>
-<dd><p>Seed for reproducibility.</p></dd>
-
-
 <dt>verbose</dt>
 <dd><p>boolean; Shall I print information messages?</p></dd>
 
@@ -132,21 +127,22 @@ cross validation; rank_estimates reports mean and median values for each value o
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">background</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patients</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sigs</span> <span class="op">=</span> <span class="fu"><a href="signaturesDecomposition.html">signaturesDecomposition</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span></span>
 <span class="r-in"><span>                               K <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">4</span>, </span></span>
 <span class="r-in"><span>                               background_signature <span class="op">=</span> <span class="va">background</span>, </span></span>
 <span class="r-in"><span>                               nmf_runs <span class="op">=</span> <span class="fl">2</span>, </span></span>
 <span class="r-in"><span>                               sparsify <span class="op">=</span> <span class="cn">FALSE</span>, </span></span>
-<span class="r-in"><span>                               num_processes <span class="op">=</span> <span class="fl">1</span>, </span></span>
-<span class="r-in"><span>                               seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                               num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing signatures discovery and rank estimation... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing inference for K=3... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing inference for K=4... </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">=</span> <span class="fu">signaturesCV</span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span></span>
 <span class="r-in"><span>                   beta <span class="op">=</span> <span class="va">sigs</span><span class="op">$</span><span class="va">beta</span>, </span></span>
 <span class="r-in"><span>                   cross_validation_iterations <span class="op">=</span> <span class="fl">2</span>, </span></span>
 <span class="r-in"><span>                   cross_validation_repetitions <span class="op">=</span> <span class="fl">2</span>, </span></span>
-<span class="r-in"><span>                   num_processes <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">12345</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                   num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Estimating the optimal number of signatures with a total of 2 cross validation repetitions... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing repetition 1 out of 2... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Performing estimation for K=3... </span>
