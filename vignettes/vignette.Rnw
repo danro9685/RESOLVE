@@ -6,7 +6,7 @@
 BiocStyle::latex()
 @
 
-%\VignetteIndexEntry{SparseSignaturesPlus}
+%\VignetteIndexEntry{RESOLVE}
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -30,7 +30,7 @@ BiocStyle::latex()
 
 \begin{tcolorbox}{\bf Overview.} Cancer is a genetic disease caused by somatic mutations in genes controlling key biological functions such as cellular growth and division. Such mutations may arise both through cell-intrinsic and exogenous processes, generating characteristic mutational patterns over the genome named mutational signatures. The study of mutational signatures have become a standard component of modern genomics studies, since it can reveal which (environmental and endogenous) mutagenic processes are active in a tumor, and may highlight markers for therapeutic response. 
 
-Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed SparseSignaturesPlus, a framework that allows the efficient extraction and assignment of mutational signatures. 
+Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures. 
 
 \vspace{1.0cm}
 
@@ -60,14 +60,14 @@ background = "#f3f3ff"
 \item[1.0.0] Package released in October 2022. 
 \end{itemize}
 
-\section{Using the SparseSignaturesPlus R package}
+\section{Using the RESOLVE R package}
 
 We now present some of the main features of the package. We notice that the package supports different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991). But, for the sake of this vignette, we present only results on the classical SBS signatures. We refer to the manual for details. 
 
 First, we show how to load example data and import them into a count matrix to perform the signatures analysis. 
 
 <<req>>=
-library("SparseSignaturesPlus")
+library("RESOLVE")
 data(ssm560_reduced)
 @
 
@@ -135,7 +135,7 @@ signaturesSBSPlot(beta=signatures, xlabels=FALSE)
 \caption{Visualization of the discovered signatures.}
 \end{figure*}
 
-We refer to the manual for a detailed description of each parameter and to the SparseSignaturesPlus manuscript for details on the method.
+We refer to the manual for a detailed description of each parameter and to the RESOLVE manuscript for details on the method.
 
 \section{\Rcode{sessionInfo()}}
 

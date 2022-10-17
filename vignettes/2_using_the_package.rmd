@@ -8,7 +8,7 @@ We now present some of the main features of the package. We notice that the pack
 First, we show how to load example data and import them into a count matrix to perform the signatures analysis.
 
 ```{r}
-library("SparseSignaturesPlus")
+library("RESOLVE")
 data(ssm560_reduced)
 ```
 
@@ -62,4 +62,4 @@ signatures = res_denovo$beta[[2]]
 signaturesSBSPlot(beta=signatures, xlabels=FALSE)
 ```
 
-We refer to the manual for a detailed description of each parameter and to the SparseSignaturesPlus manuscript for details on the method.
+We refer to the manual for a detailed description of each parameter and to the RESOLVE manuscript for details on the method.

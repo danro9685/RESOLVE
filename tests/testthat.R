@@ -1,6 +1,6 @@
 Sys.setenv("R_TESTS" = "")
 
 library("testthat")
-library("SparseSignaturesPlus")
+library("RESOLVE")
 
-test_check("SparseSignaturesPlus")
+test_check("RESOLVE")
