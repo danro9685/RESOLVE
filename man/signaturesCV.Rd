@@ -37,7 +37,7 @@ this parameter needs to be set to either NA or NULL.}
 \item{verbose}{boolean; Shall I print information messages?}
 }
 \value{
-A list of 2 elements: cv_estimates and rank_estimates. Here, cv_estimates reports the mean squared error for each configuration of performed 
+A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed 
 cross validation; rank_estimates reports mean and median values for each value of K.
 }
 \description{

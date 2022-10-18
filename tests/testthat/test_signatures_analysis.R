@@ -26,7 +26,7 @@ res_cv = signaturesCV(x = patients[1:3,],
                       cross_validation_repetitions = 2, 
                       num_processes = 1)
 test_that("RESOLVE can perform optimanl number of signatures estimation", {
-    expect_equal(names(res_cv),c("cv_estimates","rank_estimates"))
+    expect_equal(names(res_cv),c("estimates","summary"))
 })
 
 set.seed(12345)
