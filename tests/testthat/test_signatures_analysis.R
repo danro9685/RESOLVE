@@ -21,7 +21,7 @@ test_that("RESOLVE can perform signatures assignment", {
 
 set.seed(12345)
 res_cv = signaturesCV(x = patients[1:3,], 
-                      beta = sigs$beta, 
+                      beta = res_denovo$beta, 
                       cross_validation_iterations = 2, 
                       cross_validation_repetitions = 2, 
                       num_processes = 1)
