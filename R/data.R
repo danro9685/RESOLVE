@@ -4,7 +4,7 @@
 #' @docType data 
 #' @usage data(patients) 
 #' @format counts of the point mutations 
-#' @source Nik-Zainal, Serena, et al. "Landscape of somatic mutations in 560 breast cancer whole-genome sequences." Nature 534.7605 (2016): 47. 
+#' @source Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676). 
 #' @return counts of point mutations for 560 tumors and 96 trinucleotides 
 NULL
 
@@ -14,7 +14,7 @@ NULL
 #' @docType data 
 #' @usage data(background) 
 #' @format vector of rates 
-#' @source Rahbari, Raheleh, et al. "Timing, rates and spectra of human germline mutation." Nature genetics 48.2 (2016): 126. 
+#' @source Nat Genet. 2016 Feb;48(2):126-133 (https://www.nature.com/articles/ng.3469). 
 #' @return vector of rates for the 96 trinucleotides 
 NULL
 
@@ -34,7 +34,7 @@ NULL
 #' @docType data 
 #' @usage data(ssm560_reduced) 
 #' @format reduced versione of the counts of the point mutations in the format compatible with the import function 
-#' @source Nik-Zainal, Serena, et al. "Landscape of somatic mutations in 560 breast cancer whole-genome sequences." Nature 534.7605 (2016): 47. 
+#' @source Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676). 
 #' @return reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function 
 NULL
 
