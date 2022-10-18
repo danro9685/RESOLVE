@@ -1,6 +1,9 @@
 ---
-title: "Vignette"
-author: "Luca De Sano"
+title: "An introduction to the `RESOLVE` R package"
+author: 
+  - Luca De Sano
+  - Daniele Ramazzotti
+date: "`r format(Sys.time(), '%B %d, %Y')`"
 graphics: yes
 package: RESOLVE
 output:
@@ -15,9 +18,11 @@ vignette: >
 
 Cancer is a genetic disease caused by somatic mutations in genes controlling key biological functions such as cellular growth and division. Such mutations may arise both through cell-intrinsic and exogenous processes, generating characteristic mutational patterns over the genome named mutational signatures. The study of mutational signatures have become a standard component of modern genomics studies, since it can reveal which (environmental and endogenous) mutagenic processes are active in a tumor, and may highlight markers for therapeutic response.
 
-Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.
+Mutational signatures computational analyses fall mostly within two categories: (i) de novo signatures extraction and (ii) signatures exposure estimation. In the first case, the presence of mutational processes is first assessed from the data, signatures are identified and extracted and finally assigned to samples. This task is typically performed by Non-Negative Matrix Factorization (NMF). While other approaches have been proposed, NMF-based methods are by far the most used. The estimation of signatures exposures is performed by holding a set of signatures fixed (see, e.g., COSMIC mutational signatures catalogue) and assigning them to samples by minimizing, e.g., mean squared error between observed and estimated mutational patterns for each sample.
 
-RESOLVE performs de novo signatures extraction by regularized Non-Negative Matrix Factorization. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation.
+However, available mutational signatures computational tools presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.
+
+The RESOLVE R package implements a new de novo signatures extraction algorithm, which employs a regularized Non-Negative Matrix Factorization procedure. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation. Furthermore, the package also provide a procedure for confidence estimation of signatures activities in samples.
 
 In this vignette, we give an overview of the package by presenting some of its main functions.
 
@@ -42,7 +47,7 @@ We now present some of the main features of the package. We notice that the pack
 
 First, we show how to load example data and import them into a count matrix to perform the signatures analysis.
 
-```{r}
+```{r,message=FALSE}
 library("RESOLVE")
 data(ssm560_reduced)
 ```
@@ -51,7 +56,7 @@ These data are a reduced version of the 560 breast tumors provided by Nik-Zainal
 
 We now import such data into a count matrix to perform the signatures discovery. To do so, we also need to specify the reference genome as a BSgenome object to be considered. This can be done as follows, where in the example we used hs37d5 as reference genome as provided as data object within the package.
 
-```{r}
+```{r,message=FALSE}
 library("BSgenome.Hsapiens.1000genomes.hs37d5")
 imported_data = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 head(imported_data)
@@ -100,3 +105,9 @@ signaturesSBSPlot(beta=signatures, xlabels=FALSE)
 ```
 
 We refer to the manual for a detailed description of each parameter and to the RESOLVE manuscript for details on the method.
+
+# Current R Session
+
+```{r eval=FALSE}
+sessionInfo()
+```
