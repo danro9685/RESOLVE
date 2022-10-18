@@ -6,4 +6,3 @@
 ^.git/.*$
 ^LICENSE.md$
 ^\.github$
-^vignettes/.*Rmd$
