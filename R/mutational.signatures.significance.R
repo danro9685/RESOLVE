@@ -5,14 +5,14 @@
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' beta = signaturesDecomposition(x = patients[1:3,], 
+#' beta <- signaturesDecomposition(x = patients[seq_len(3),], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = 1)
 #' set.seed(12345)
-#' res = signaturesSignificance(x = patients[1:3,], 
+#' res <- signaturesSignificance(x = patients[seq_len(3),], 
 #'                              beta = beta$beta[[1]], 
 #'                              cosine_thr = 0.95, 
 #'                              min_contribution = 0.05, 
@@ -79,13 +79,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
 
         # performing inference sequentially
         alpha <- list()
-        for(boot_iteration in 1:nboot) {
+        for(boot_iteration in seq_len(nboot)) {
 
             if(verbose) {
                 cat(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
             }
 
-            curr_alpha <- lapply(X=1:nrow(x),FUN=function(counts) {
+            curr_alpha <- lapply(X=seq_len(nrow(x)),FUN=function(counts) {
                 curr_patient <- x[counts,,drop=FALSE]
                 curr_num_counts <- sum(curr_patient)
                 curr_counts_distribution <- as.numeric(curr_patient/rowSums(curr_patient))
@@ -113,13 +113,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         clusterSetRNGStream(parallel,iseed=round(runif(1)*100000))
         rm(res_clusterEvalQ)
         gc(verbose=FALSE)
-        alpha <- parLapply(parallel,1:nboot,function(boot_iteration) {
+        alpha <- parLapply(parallel,seq_len(nboot),function(boot_iteration) {
 
             if(verbose) {
                 cat(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
             }
 
-            curr_alpha <- lapply(X=1:nrow(x),FUN=function(counts) {
+            curr_alpha <- lapply(X=seq_len(nrow(x)),FUN=function(counts) {
                 curr_patient <- x[counts,,drop=FALSE]
                 curr_num_counts <- sum(curr_patient)
                 curr_counts_distribution <- as.numeric(curr_patient/rowSums(curr_patient))
@@ -152,12 +152,12 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     }
     pvalues <- alpha
     pvalues[which(pvalues==0)] <- NA
-    for(i in 1:nrow(pvalues)) {
-        for(j in 1:ncol(pvalues)) {
+    for(i in seq_len(nrow(pvalues))) {
+        for(j in seq_len(ncol(pvalues))) {
             if(!is.na(pvalues[i,j])) {
                 pvalues[i,j] <- NA
-                curr_values = NULL
-                for(k in 1:length(alpha_distibution)) {
+                curr_values <- NULL
+                for(k in seq_len(length(alpha_distibution))) {
                     curr_values <- c(curr_values,(alpha_distibution[[k]][i,]/sum(alpha_distibution[[k]][i,]))[j])
                 }
                 pvalues[i,j] <- wilcox.test(as.numeric(curr_values),alternative="greater",mu=min_contribution)$p.value
@@ -165,7 +165,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         }
     }
     goodness_fit <- NULL
-    for(i in 1:nrow(x)) {
+    for(i in seq_len(nrow(x))) {
         # estimate goodness of fit
         goodness_fit <- c(goodness_fit,as.numeric(cosine(as.numeric(x[i,]),as.numeric((alpha[i,]%*%beta)))))
     }
@@ -181,7 +181,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     goodness_fit <- NULL
-    for(i in 1:nrow(x)) {
+    for(i in seq_len(nrow(x))) {
         # perform fit
         curr_sigs <- names(which(bootstrap$pvalues[i,]<pvalue_thr))
         curr_alpha <- array(NA,c(1,length(curr_sigs)))
@@ -235,10 +235,10 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     alpha <- array(0,c(1,nrow(beta)))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
-    for(i in 1:length(sigs)) {
+    for(i in seq_len(length(sigs))) {
         # consider current set of signatures and perform fit of alpha
         curr_alpha <- array(NA,c(1,i))
-        curr_beta <- beta[sigs[1:i],,drop=FALSE]
+        curr_beta <- beta[sigs[seq_len(i)],,drop=FALSE]
         if(sparsify==TRUE&&nrow(curr_beta)>1) {
             res <- cv.glmnet(t(curr_beta),as.vector(x[1,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
             curr_alpha[1,] <- as.numeric(res$glmnet.fit$beta[,ncol(res$glmnet.fit$beta)])

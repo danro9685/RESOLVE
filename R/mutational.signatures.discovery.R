@@ -8,14 +8,14 @@
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' beta = signaturesDecomposition(x = patients[1:3,], 
+#' beta <- signaturesDecomposition(x = patients[seq_len(3),], 
 #'                                K = 3, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = 1)
 #' set.seed(12345)
-#' res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE)
+#' res <- signaturesAssignment(x = patients[seq_len(3),], beta = beta$beta[[1]], sparsify = FALSE)
 #'
 #' @title signaturesAssignment
 #' @param x counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
@@ -51,7 +51,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
     
     # perform signatures assignment
     if(sparsify) {
-        for(j in 1:nrow(alpha)) {
+        for(j in seq_len(nrow(alpha))) {
             curr_beta_values <- beta
             if(nrow(curr_beta_values)>1) {
                 res <- cv.glmnet(t(curr_beta_values),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
@@ -66,7 +66,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
         }
     }
     else {
-        for(j in 1:nrow(alpha)) {
+        for(j in seq_len(nrow(alpha))) {
             alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
         }
     }
@@ -92,7 +92,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' res = signaturesDecomposition(x = patients[1:3,], 
+#' res <- signaturesDecomposition(x = patients[seq_len(3),], 
 #'                               K = 3:4, 
 #'                               background_signature = background, 
 #'                               nmf_runs = 2, 
@@ -128,7 +128,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
     if(any(colSums(x)==0)) {
         invalid_cols <- as.numeric(which(colSums(x)==0))
         for(inv_cols in invalid_cols) {
-            x[sample(1:length(x[,inv_cols]),size=1),inv_cols] <- 1e-05
+            x[sample(seq_len(length(x[,inv_cols])),size=1),inv_cols] <- 1e-05
         }
     }
     K <- sort(unique(K))
@@ -226,7 +226,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
             measures <- rank0_measures
         }
         
-        for(i in 1:length(K)) {
+        for(i in seq_len(length(K))) {
 
             if(verbose) {
                 cat(paste0("Performing inference for K=",K[i],"..."),"\n")
@@ -307,7 +307,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
             gc(verbose=FALSE)
 
         }
-        rownames(measures) <- 1:nrow(measures)
+        rownames(measures) <- seq_len(nrow(measures))
 
     }
     else {
@@ -317,7 +317,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
         alpha[["1_signatures"]] <- rank0_alpha
         beta[["1_signatures"]] <- rank0_beta
         measures <- rank0_measures
-        rownames(measures) <- 1:nrow(measures)
+        rownames(measures) <- seq_len(nrow(measures))
 
     }
 
@@ -348,14 +348,14 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' sigs = signaturesDecomposition(x = patients[1:3,], 
+#' sigs <- signaturesDecomposition(x = patients[seq_len(3),], 
 #'                                K = 3:4, 
 #'                                background_signature = background, 
 #'                                nmf_runs = 2, 
 #'                                sparsify = FALSE, 
 #'                                num_processes = 1)
 #' set.seed(12345)
-#' res = signaturesCV(x = patients[1:3,], 
+#' res <- signaturesCV(x = patients[seq_len(3),], 
 #'                    beta = sigs$beta, 
 #'                    cross_validation_iterations = 2, 
 #'                    cross_validation_repetitions = 2, 
@@ -388,7 +388,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     if(any(colSums(x)==0)) {
         invalid_cols <- as.numeric(which(colSums(x)==0))
         for(inv_cols in invalid_cols) {
-            x[sample(1:length(x[,inv_cols]),size=1),inv_cols] <- 1e-05
+            x[sample(seq_len(length(x[,inv_cols])),size=1),inv_cols] <- 1e-05
         }
     }
     if(normalize_counts) {
@@ -418,8 +418,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
     # structure to save the results
     cv_estimates <- array(NA,c(cross_validation_repetitions,length(beta)))
-    rownames(cv_estimates) <- paste0("Repetition_",1:cross_validation_repetitions)
-    colnames(cv_estimates) <- 1:ncol(cv_estimates)
+    rownames(cv_estimates) <- paste0("Repetition_",seq_len(cross_validation_repetitions))
+    colnames(cv_estimates) <- seq_len(ncol(cv_estimates))
 
     # perform a total of cross_validation_repetitions repetitions of cross validation
     valid_entries <- which(x>0,arr.ind=TRUE)
@@ -427,18 +427,18 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     # performing inference
     if(num_processes==1) { # performing inference sequentially
 
-        for(cv_repetitions in 1:cross_validation_repetitions) {
+        for(cv_repetitions in seq_len(cross_validation_repetitions)) {
 
             if(verbose) {
                 cat(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
             }
 
             # randomly set the cross validation entries for the current iteration
-            cv_entries <- valid_entries[sample(1:nrow(valid_entries),size=round(nrow(valid_entries)*cross_validation_entries),replace=FALSE),]
+            cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)),size=round(nrow(valid_entries)*cross_validation_entries),replace=FALSE),]
             
             # consider all the possible values of K
             cont <- 0
-            for(num_signs in 1:length(beta)) {
+            for(num_signs in seq_len(length(beta))) {
 
                 k <- nrow(beta[[num_signs]])
                 if(cv_repetitions==1) {
@@ -451,7 +451,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 
                 # repeat the estimation for a number of cross_validation_iterations
                 x_cv <- x
-                for(cv_iteration in 1:cross_validation_iterations) {
+                for(cv_iteration in seq_len(cross_validation_iterations)) {
 
                     if(verbose) {
                         cat(paste0("Performing cross validation iteration ",cv_iteration," out of ",cross_validation_iterations,"..."),"\n")
@@ -470,7 +470,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     if(any(colSums(x_cv)==0)) {
                         invalid_cols <- as.numeric(which(colSums(x_cv)==0))
                         for(inv_cols in invalid_cols) {
-                            x_cv[sample(1:length(x_cv[,inv_cols]),size=1),inv_cols] <- 1e-05
+                            x_cv[sample(seq_len(length(x_cv[,inv_cols])),size=1),inv_cols] <- 1e-05
                         }
                     }
 
@@ -504,7 +504,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         # compute mean and median values of estimated cross validation error
         cv_mean <- NULL
         cv_median <- NULL
-        for(i in 1:ncol(cv_estimates)) {
+        for(i in seq_len(ncol(cv_estimates))) {
             cv_mean <- c(cv_mean,mean(cv_estimates[,i]))
             cv_median <- c(cv_median,median(cv_estimates[,i]))
         }
@@ -525,19 +525,19 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         clusterSetRNGStream(parallel,iseed=round(runif(1)*100000))
         rm(res_clusterEvalQ)
         gc(verbose=FALSE)
-        curr_results <- parLapply(parallel,1:cross_validation_repetitions,function(cv_repetitions) {
+        curr_results <- parLapply(parallel,seq_len(cross_validation_repetitions),function(cv_repetitions) {
 
             if(verbose) {
                 cat(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
             }
 
             # randomly set the cross validation entries for the current iteration
-            cv_entries <- valid_entries[sample(1:nrow(valid_entries),size=round(nrow(valid_entries)*cross_validation_entries),replace=FALSE),]
+            cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)),size=round(nrow(valid_entries)*cross_validation_entries),replace=FALSE),]
             
             # consider all the possible values of K
             cv_errors <- rep(NA,length(beta))
             cv_names <- NULL
-            for(num_signs in 1:length(beta)) {
+            for(num_signs in seq_len(length(beta))) {
 
                 if(cv_repetitions==1) {
                     cv_names <- c(cv_names,paste0(nrow(beta[[num_signs]]),"_signatures"))
@@ -545,7 +545,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
                 # repeat the estimation for a number of cross_validation_iterations
                 x_cv <- x
-                for(cv_iteration in 1:cross_validation_iterations) {
+                for(cv_iteration in seq_len(cross_validation_iterations)) {
 
                     # set a percentage of cross_validation_entries entries to 0 in order to perform cross validation
                     if(cv_iteration==1) {
@@ -560,7 +560,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     if(any(colSums(x_cv)==0)) {
                         invalid_cols <- as.numeric(which(colSums(x_cv)==0))
                         for(inv_cols in invalid_cols) {
-                            x_cv[sample(1:length(x_cv[,inv_cols]),size=1),inv_cols] <- 1e-05
+                            x_cv[sample(seq_len(length(x_cv[,inv_cols])),size=1),inv_cols] <- 1e-05
                         }
                     }
 
@@ -591,7 +591,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
         # save the results from parallel computation
         colnames(cv_estimates) <- names(curr_results[[1]])
-        for(par_res in 1:length(curr_results)) {
+        for(par_res in seq_len(length(curr_results))) {
             cv_estimates[par_res,] <- curr_results[[par_res]]
         }
         rm(curr_results)
@@ -600,7 +600,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         # compute mean and median values of estimated cross validation error
         cv_mean <- NULL
         cv_median <- NULL
-        for(i in 1:ncol(cv_estimates)) {
+        for(i in seq_len(ncol(cv_estimates))) {
             cv_mean <- c(cv_mean,mean(cv_estimates[,i]))
             cv_median <- c(cv_median,median(cv_estimates[,i]))
         }
@@ -635,7 +635,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     # initialize alpha with an empty matrix
     alpha <- array(NA,c(nrow(target),nbasis(model)))
     rownames(alpha) <- rownames(target)
-    colnames(alpha) <- paste0("S",1:ncol(alpha))
+    colnames(alpha) <- paste0("S",seq_len(ncol(alpha)))
 
     # randomly initialize beta
     beta <- matrix(rnbinom(nbasis(model)*ncol(target),prob=0.10,size=1),nrow=nbasis(model),ncol=ncol(target))
@@ -672,15 +672,15 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     K <- nrow(beta) # K is the number of signatures to be fitted
 
     # iteratively fit alpha and beta by Non-negative least squares (nnls)
-    for(i in 1:20) {
+    for(i in seq_len(20)) {
 
         # update alpha, beta is kept fixed
-        for(j in 1:n) {
+        for(j in seq_len(n)) {
             alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
         }
 
         # update beta, alpha is kept fixed
-        for(k in 1:J) {
+        for(k in seq_len(J)) {
             if(!is.null(background)) {
                 # the first signature represents the background model, thus it is not changed during the fit
                 beta[2:K,k] <- nnls(alpha[,2:K,drop=FALSE],as.vector(x[,k]-(alpha[,1]*beta[1,k])))$x
@@ -697,14 +697,14 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     if(any(is.nan(rowSums(beta)))) {
         beta[which(is.nan(rowSums(beta))),] <- 0
     }
-    for(j in 1:n) {
+    for(j in seq_len(n)) {
         alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
     }
     if(!is.null(background)) {
-        colnames(alpha) <- c("Background",paste0("S",1:(ncol(alpha)-1)))
+        colnames(alpha) <- c("Background",paste0("S",seq_len((ncol(alpha)-1))))
     }
     else {
-        colnames(alpha) <- paste0("S",1:ncol(alpha))
+        colnames(alpha) <- paste0("S",seq_len(ncol(alpha)))
     }
     rownames(beta) <- colnames(alpha)
 
@@ -737,15 +737,15 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     # STEP 1: we get close to a good solution by Non-negative least squares
 
     # iteratively fit alpha and beta by Non-negative least squares (nnls)
-    for(i in 1:20) {
+    for(i in seq_len(20)) {
 
         # update alpha, beta is kept fixed
-        for(j in 1:n) {
+        for(j in seq_len(n)) {
             alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
         }
 
         # update beta, alpha is kept fixed
-        for(k in 1:J) {
+        for(k in seq_len(J)) {
             if(!is.null(background)) {
                 # the first signature represents the background model, thus it is not changed during the fit
                 beta[2:K,k] <- nnls(alpha[,2:K,drop=FALSE],as.vector(x[,k]-(alpha[,1]*beta[1,k])))$x
@@ -762,24 +762,24 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     if(any(is.nan(rowSums(beta)))) {
         beta[which(is.nan(rowSums(beta))),] <- 0
     }
-    for(j in 1:n) {
+    for(j in seq_len(n)) {
         alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
     }
     if(!is.null(background)) {
-        colnames(alpha) <- c("Background",paste0("S",1:(ncol(alpha)-1)))
+        colnames(alpha) <- c("Background",paste0("S",seq_len((ncol(alpha)-1))))
     }
     else {
-        colnames(alpha) <- paste0("S",1:ncol(alpha))
+        colnames(alpha) <- paste0("S",seq_len(ncol(alpha)))
     }
     rownames(beta) <- colnames(alpha)
 
     # STEP 2: we finalize the inference by Non-Negative Lasso
     
     # now regularize solutions by Non-Negative Lasso
-    for(i in 1:10) {
+    for(i in seq_len(10)) {
 
         # update alpha, beta is kept fixed
-        for(j in 1:n) {
+        for(j in seq_len(n)) {
             curr_beta_values <- beta
             if(nrow(curr_beta_values)>1) {
                 res <- cv.glmnet(t(curr_beta_values),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
@@ -794,7 +794,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         }
 
         # update beta, alpha is kept fixed
-        for(k in 1:J) {
+        for(k in seq_len(J)) {
             if(!is.null(background)) {
                 # the first signature represents the background model, thus it is not changed during the fit
                 curr_alpha_values <- alpha[,2:K,drop=FALSE]
@@ -831,7 +831,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     if(any(is.nan(rowSums(beta)))) {
         beta[which(is.nan(rowSums(beta))),] <- 0
     }
-    for(j in 1:n) {
+    for(j in seq_len(n)) {
         curr_beta_values <- beta
         if(nrow(curr_beta_values)>1) {
             res <- cv.glmnet(t(curr_beta_values),as.vector(x[j,]),type.measure="mse",nfolds=10,nlambda=10,family="gaussian",lower.limits=0.00)
@@ -845,10 +845,10 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         }
     }
     if(!is.null(background)) {
-        colnames(alpha) <- c("Background",paste0("S",1:(ncol(alpha)-1)))
+        colnames(alpha) <- c("Background",paste0("S",seq_len((ncol(alpha)-1))))
     }
     else {
-        colnames(alpha) <- paste0("S",1:ncol(alpha))
+        colnames(alpha) <- paste0("S",seq_len(ncol(alpha)))
     }
     rownames(beta) <- colnames(alpha)
 
@@ -880,15 +880,15 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     J <- ncol(x) # J is the number of trinucleotides, i.e., 96 categories
     
     # iteratively fit alpha and beta by Non-negative least squares (nnls)
-    for(i in 1:20) {
+    for(i in seq_len(20)) {
 
         # update alpha, beta is kept fixed
-        for(j in 1:n) {
+        for(j in seq_len(n)) {
             alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
         }
 
         # update beta, alpha is kept fixed
-        for(k in 1:J) {
+        for(k in seq_len(J)) {
             beta[,k] <- nnls(alpha,as.vector(x[,k]))$x
         }
 
@@ -899,7 +899,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     if(any(is.nan(rowSums(beta)))) {
         beta[which(is.nan(rowSums(beta))),] <- 0
     }
-    for(j in 1:n) {
+    for(j in seq_len(n)) {
         alpha[j,] <- nnls(t(beta),as.vector(x[j,]))$x
     }
 

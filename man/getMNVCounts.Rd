@@ -17,6 +17,6 @@ Create Multi-Nucleotide Variants (MNVs) counts matrix from input data.
 }
 \examples{
 data(ssm560_reduced)
-res = getMNVCounts(data = ssm560_reduced)
+res <- getMNVCounts(data = ssm560_reduced)
 
 }

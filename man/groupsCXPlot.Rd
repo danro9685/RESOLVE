@@ -23,8 +23,8 @@ Plot observed Copy Number (Reduced, CX) counts for different groups of patients.
 }
 \examples{
 data(plot_data_examples)
-counts = plot_data_examples[["groups.CX.plot"]][["counts"]]
-groups = plot_data_examples[["groups.CX.plot"]][["groups"]]
+counts <- plot_data_examples[["groups.CX.plot"]][["counts"]]
+groups <- plot_data_examples[["groups.CX.plot"]][["groups"]]
 groupsCXPlot(counts=counts,groups=groups)
 
 }

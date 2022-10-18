@@ -21,7 +21,7 @@ Plot the inferred Copy Number (CN) mutational signatures.
 }
 \examples{
 data(plot_data_examples)
-beta = plot_data_examples[["signatures.CN.plot"]][["beta"]]
+beta <- plot_data_examples[["signatures.CN.plot"]][["beta"]]
 signaturesCNPlot(beta=beta)
 
 }

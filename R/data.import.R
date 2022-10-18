@@ -3,7 +3,7 @@
 #' @examples
 #' library("BSgenome.Hsapiens.1000genomes.hs37d5")
 #' data(ssm560_reduced)
-#' res = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+#' res <- getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 #'
 #' @title getSBSCounts
 #' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
@@ -69,7 +69,7 @@ getSBSCounts <- function( data, reference = NULL ) {
     categories_cat <- NULL
     cont <- 0
     for(i in c("A","C","G","T")) {
-        for(j in 1:6) {
+        for(j in seq_len(6)) {
             for(k in c("A","C","G","T")) {
                 cont <- cont + 1
                 categories_context <- c(categories_context,paste0(k,":",i))
@@ -107,7 +107,7 @@ getSBSCounts <- function( data, reference = NULL ) {
 #'
 #' @examples
 #' data(ssm560_reduced)
-#' res = getMNVCounts(data = ssm560_reduced)
+#' res <- getMNVCounts(data = ssm560_reduced)
 #'
 #' @title getMNVCounts
 #' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
@@ -131,13 +131,13 @@ getMNVCounts <- function( data ) {
     data <- data[order(data[,"sample"],data[,"chrom"],data[,"pos"]),,drop=FALSE]
 
     # consider Multi-Nucleotide Variants (MNVs)
-    cond1 <- c(data$sample[1:(nrow(data)-1)]==data$sample[2:nrow(data)],FALSE)
-    cond2 <- c(data$chrom[1:(nrow(data)-1)]==data$chrom[2:nrow(data)],FALSE)
-    cond3 <- c(data$pos[1:(nrow(data)-1)]==(data$pos[2:nrow(data)]-1),FALSE)
+    cond1 <- c(data$sample[seq_len((nrow(data)-1))]==data$sample[2:nrow(data)],FALSE)
+    cond2 <- c(data$chrom[seq_len((nrow(data)-1))]==data$chrom[2:nrow(data)],FALSE)
+    cond3 <- c(data$pos[seq_len((nrow(data)-1))]==(data$pos[2:nrow(data)]-1),FALSE)
     data <- cbind(data[which(cond1&cond2&cond3),],data[(which(cond1&cond2&cond3)+1),c("ref","alt")])
     data[,4] <- paste0(data[,4],data[,6])
     data[,5] <- paste0(data[,5],data[,7])
-    data <- data[,c(1:5),drop=FALSE]
+    data <- data[,c(seq_len(5)),drop=FALSE]
 
     # create 78 doublet base substitutions categories and their complements
     mutation_categories <- c("AC>CA","AC>CG","AC>CT","AC>GA","AC>GG","AC>GT","AC>TA","AC>TG","AC>TT") # AC
@@ -163,7 +163,7 @@ getMNVCounts <- function( data ) {
 
     # identify doublets motif
     data$cat <- paste0(data$ref,">",data$alt)
-    for(i in 1:length(mutation_categories_complements)) {
+    for(i in seq_len(length(mutation_categories_complements))) {
         data$cat[which(data$cat==mutation_categories_complements[i])] <- mutation_categories[i]
     }
     

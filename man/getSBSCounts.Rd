@@ -20,6 +20,6 @@ Create Single Base Substitutions (SBS) counts matrix from input data for a provi
 \examples{
 library("BSgenome.Hsapiens.1000genomes.hs37d5")
 data(ssm560_reduced)
-res = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+res <- getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 
 }

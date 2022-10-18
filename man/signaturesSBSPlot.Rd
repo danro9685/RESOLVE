@@ -21,7 +21,7 @@ Plot the inferred Single Base Substitutions (SBS) mutational signatures.
 }
 \examples{
 data(plot_data_examples)
-beta = plot_data_examples[["signatures.SBS.plot"]][["beta"]]
+beta <- plot_data_examples[["signatures.SBS.plot"]][["beta"]]
 signaturesSBSPlot(beta=beta)
 
 }

@@ -2,8 +2,8 @@
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["groups.SBS.plot"]][["counts"]]
-#' groups = plot_data_examples[["groups.SBS.plot"]][["groups"]]
+#' counts <- plot_data_examples[["groups.SBS.plot"]][["counts"]]
+#' groups <- plot_data_examples[["groups.SBS.plot"]][["groups"]]
 #' groupsSBSPlot(counts=counts,groups=groups)
 #' 
 #' @title groupsSBSPlot
@@ -20,7 +20,7 @@ groupsSBSPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:length(groups)) {
+    for(i in seq_len(length(groups))) {
 
         plot_data <- counts[groups[[i]],]
         if(normalize) {
@@ -28,8 +28,8 @@ groupsSBSPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
         }
         x_label <- NULL
         x_value <- NULL
-        for(a in 1:nrow(plot_data)) {
-            for(b in 1:ncol(plot_data)) {
+        for(a in seq_len(nrow(plot_data))) {
+            for(b in seq_len(ncol(plot_data))) {
                 x_label <- c(x_label,colnames(plot_data)[b])
                 x_value <- c(x_value,plot_data[a,b])
             }
@@ -58,8 +58,8 @@ groupsSBSPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["groups.MNV.plot"]][["counts"]]
-#' groups = plot_data_examples[["groups.MNV.plot"]][["groups"]]
+#' counts <- plot_data_examples[["groups.MNV.plot"]][["counts"]]
+#' groups <- plot_data_examples[["groups.MNV.plot"]][["groups"]]
 #' groupsMNVPlot(counts=counts,groups=groups)
 #' 
 #' @title groupsMNVPlot
@@ -76,7 +76,7 @@ groupsMNVPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:length(groups)) {
+    for(i in seq_len(length(groups))) {
 
         plot_data <- counts[groups[[i]],]
         if(normalize) {
@@ -84,8 +84,8 @@ groupsMNVPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
         }
         x_label <- NULL
         x_value <- NULL
-        for(a in 1:nrow(plot_data)) {
-            for(b in 1:ncol(plot_data)) {
+        for(a in seq_len(nrow(plot_data))) {
+            for(b in seq_len(ncol(plot_data))) {
                 x_label <- c(x_label,colnames(plot_data)[b])
                 x_value <- c(x_value,plot_data[a,b])
             }
@@ -114,8 +114,8 @@ groupsMNVPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["patients.SBS.plot"]][["counts"]]
-#' patientsSBSPlot(trinucleotides_counts=counts,samples=rownames(counts)[1:2])
+#' counts <- plot_data_examples[["patients.SBS.plot"]][["counts"]]
+#' patientsSBSPlot(trinucleotides_counts=counts,samples=rownames(counts)[seq_len(2)])
 #' 
 #' @title patientsSBSPlot
 #' @param trinucleotides_counts trinucleotides counts matrix.
@@ -144,7 +144,7 @@ patientsSBSPlot <- function( trinucleotides_counts, samples = rownames(trinucleo
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(trinucleotides_counts)) {
+    for(i in seq_len(nrow(trinucleotides_counts))) {
 
         plt <- ggplot(x[x$patient==rownames(trinucleotides_counts)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -173,8 +173,8 @@ patientsSBSPlot <- function( trinucleotides_counts, samples = rownames(trinucleo
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["patients.MNV.plot"]][["counts"]]
-#' patientsMNVPlot(multi_nucleotides_counts=counts,samples=rownames(counts)[1:2])
+#' counts <- plot_data_examples[["patients.MNV.plot"]][["counts"]]
+#' patientsMNVPlot(multi_nucleotides_counts=counts,samples=rownames(counts)[seq_len(2)])
 #' 
 #' @title patientsMNVPlot
 #' @param multi_nucleotides_counts Multi-Nucleotide counts matrix.
@@ -203,7 +203,7 @@ patientsMNVPlot <- function( multi_nucleotides_counts, samples = rownames(multi_
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(multi_nucleotides_counts)) {
+    for(i in seq_len(nrow(multi_nucleotides_counts))) {
 
         plt <- ggplot(x[x$patient==rownames(multi_nucleotides_counts)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -233,7 +233,7 @@ patientsMNVPlot <- function( multi_nucleotides_counts, samples = rownames(multi_
 #'
 #' @examples
 #' data(plot_data_examples)
-#' beta = plot_data_examples[["signatures.SBS.plot"]][["beta"]]
+#' beta <- plot_data_examples[["signatures.SBS.plot"]][["beta"]]
 #' signaturesSBSPlot(beta=beta)
 #' 
 #' @title signaturesSBSPlot
@@ -251,7 +251,7 @@ signaturesSBSPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
-        rownames(beta) <- paste0("Signature ",1:nrow(beta))
+        rownames(beta) <- paste0("Signature ",seq_len(nrow(beta)))
     }
 
     # separate context and alteration
@@ -261,7 +261,7 @@ signaturesSBSPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(beta)) {
+    for(i in seq_len(nrow(beta))) {
 
         plt <- ggplot(x[signature==rownames(beta)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -286,7 +286,7 @@ signaturesSBSPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' beta = plot_data_examples[["signatures.MNV.plot"]][["beta"]]
+#' beta <- plot_data_examples[["signatures.MNV.plot"]][["beta"]]
 #' signaturesMNVPlot(beta=beta)
 #' 
 #' @title signaturesMNVPlot
@@ -304,7 +304,7 @@ signaturesMNVPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
-        rownames(beta) <- paste0("Signature ",1:nrow(beta))
+        rownames(beta) <- paste0("Signature ",seq_len(nrow(beta)))
     }
 
     # separate context and alteration
@@ -314,7 +314,7 @@ signaturesMNVPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(beta)) {
+    for(i in seq_len(nrow(beta))) {
 
         plt <- ggplot(x[signature==rownames(beta)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -339,8 +339,8 @@ signaturesMNVPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["groups.CN.plot"]][["counts"]]
-#' groups = plot_data_examples[["groups.CN.plot"]][["groups"]]
+#' counts <- plot_data_examples[["groups.CN.plot"]][["counts"]]
+#' groups <- plot_data_examples[["groups.CN.plot"]][["groups"]]
 #' groupsCNPlot(counts=counts,groups=groups)
 #' 
 #' @title groupsCNPlot
@@ -357,7 +357,7 @@ groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:length(groups)) {
+    for(i in seq_len(length(groups))) {
 
         plot_data <- counts[groups[[i]],]
         if(normalize) {
@@ -365,8 +365,8 @@ groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
         }
         x_label <- NULL
         x_value <- NULL
-        for(a in 1:nrow(plot_data)) {
-            for(b in 1:ncol(plot_data)) {
+        for(a in seq_len(nrow(plot_data))) {
+            for(b in seq_len(ncol(plot_data))) {
                 x_label <- c(x_label,colnames(plot_data)[b])
                 x_value <- c(x_value,plot_data[a,b])
             }
@@ -405,8 +405,8 @@ groupsCNPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["patients.CN.plot"]][["counts"]]
-#' patientsCNPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+#' counts <- plot_data_examples[["patients.CN.plot"]][["counts"]]
+#' patientsCNPlot(cn_data_counts=counts,samples=rownames(counts)[seq_len(2)])
 #' 
 #' @title patientsCNPlot
 #' @param cn_data_counts Copy Number counts matrix.
@@ -445,7 +445,7 @@ patientsCNPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), 
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(cn_data_counts)) {
+    for(i in seq_len(nrow(cn_data_counts))) {
 
         plt <- ggplot(x[x$patient==rownames(cn_data_counts)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -474,7 +474,7 @@ patientsCNPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), 
 #'
 #' @examples
 #' data(plot_data_examples)
-#' beta = plot_data_examples[["signatures.CN.plot"]][["beta"]]
+#' beta <- plot_data_examples[["signatures.CN.plot"]][["beta"]]
 #' signaturesCNPlot(beta=beta)
 #' 
 #' @title signaturesCNPlot
@@ -492,7 +492,7 @@ signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
-        rownames(beta) <- paste0("Signature ",1:nrow(beta))
+        rownames(beta) <- paste0("Signature ",seq_len(nrow(beta)))
     }
 
     # separate context and alteration
@@ -512,7 +512,7 @@ signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(beta)) {
+    for(i in seq_len(nrow(beta))) {
 
         plt <- ggplot(x[signature==rownames(beta)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -537,8 +537,8 @@ signaturesCNPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["groups.CX.plot"]][["counts"]]
-#' groups = plot_data_examples[["groups.CX.plot"]][["groups"]]
+#' counts <- plot_data_examples[["groups.CX.plot"]][["counts"]]
+#' groups <- plot_data_examples[["groups.CX.plot"]][["groups"]]
 #' groupsCXPlot(counts=counts,groups=groups)
 #' 
 #' @title groupsCXPlot
@@ -560,7 +560,7 @@ groupsCXPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
     alt <- factor(Alt_values,levels=unique(Alt_values))
     colnames(counts) <- paste0(alt," ",Context)
     glist <- list()
-    for(i in 1:length(groups)) {
+    for(i in seq_len(length(groups))) {
 
         plot_data <- counts[groups[[i]],]
         if(normalize) {
@@ -568,8 +568,8 @@ groupsCXPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
         }
         x_label <- NULL
         x_value <- NULL
-        for(a in 1:nrow(plot_data)) {
-            for(b in 1:ncol(plot_data)) {
+        for(a in seq_len(nrow(plot_data))) {
+            for(b in seq_len(ncol(plot_data))) {
                 x_label <- c(x_label,colnames(plot_data)[b])
                 x_value <- c(x_value,plot_data[a,b])
             }
@@ -612,8 +612,8 @@ groupsCXPlot <- function( counts, groups, normalize = TRUE, xlabels = FALSE ) {
 #'
 #' @examples
 #' data(plot_data_examples)
-#' counts = plot_data_examples[["patients.CX.plot"]][["counts"]]
-#' patientsCXPlot(cn_data_counts=counts,samples=rownames(counts)[1:2])
+#' counts <- plot_data_examples[["patients.CX.plot"]][["counts"]]
+#' patientsCXPlot(cn_data_counts=counts,samples=rownames(counts)[seq_len(2)])
 #' 
 #' @title patientsCXPlot
 #' @param cn_data_counts Copy Number counts matrix.
@@ -661,7 +661,7 @@ patientsCXPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), 
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(cn_data_counts)) {
+    for(i in seq_len(nrow(cn_data_counts))) {
 
         plt <- ggplot(x[x$patient==rownames(cn_data_counts)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
@@ -690,7 +690,7 @@ patientsCXPlot <- function( cn_data_counts, samples = rownames(cn_data_counts), 
 #'
 #' @examples
 #' data(plot_data_examples)
-#' beta = plot_data_examples[["signatures.CX.plot"]][["beta"]]
+#' beta <- plot_data_examples[["signatures.CX.plot"]][["beta"]]
 #' signaturesCXPlot(beta=beta)
 #' 
 #' @title signaturesCXPlot
@@ -708,7 +708,7 @@ signaturesCXPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # set names of the signatures
     if(!useRowNames) {
-        rownames(beta) <- paste0("Signature ",1:nrow(beta))
+        rownames(beta) <- paste0("Signature ",seq_len(nrow(beta)))
     }
 
     # separate context and alteration
@@ -737,7 +737,7 @@ signaturesCXPlot <- function( beta, useRowNames = FALSE, xlabels = FALSE ) {
 
     # make the ggplot2 object
     glist <- list()
-    for(i in 1:nrow(beta)) {
+    for(i in seq_len(nrow(beta))) {
 
         plt <- ggplot(x[signature==rownames(beta)[i]]) + 
             geom_bar(aes_string(x="Context",y="value",fill="alt"),stat="identity",position="identity") + 
