@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vignette • RESOLVE</title>
+<title>An introduction to the `RESOLVE` R package • RESOLVE</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Vignette">
+<script src="../pkgdown.js"></script><meta property="og:title" content="An introduction to the `RESOLVE` R package">
 <meta property="og:description" content="RESOLVE">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -66,9 +66,11 @@
       </header><script src="RESOLVE_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Vignette</h1>
+      <h1 data-toc-skip>An introduction to the <code>RESOLVE</code> R package</h1>
                         <h4 data-toc-skip class="author">Luca De Sano</h4>
+                        <h4 data-toc-skip class="author">Daniele Ramazzotti</h4>
             
+            <h4 data-toc-skip class="date">October 18, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/danro9685/RESOLVE/blob/HEAD/vignettes/RESOLVE.rmd" class="external-link"><code>vignettes/RESOLVE.rmd</code></a></small>
       <div class="hidden name"><code>RESOLVE.rmd</code></div>
@@ -78,8 +80,9 @@
     
     
 <p>Cancer is a genetic disease caused by somatic mutations in genes controlling key biological functions such as cellular growth and division. Such mutations may arise both through cell-intrinsic and exogenous processes, generating characteristic mutational patterns over the genome named mutational signatures. The study of mutational signatures have become a standard component of modern genomics studies, since it can reveal which (environmental and endogenous) mutagenic processes are active in a tumor, and may highlight markers for therapeutic response.</p>
-<p>Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.</p>
-<p>RESOLVE performs de novo signatures extraction by regularized Non-Negative Matrix Factorization. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation.</p>
+<p>Mutational signatures computational analyses fall mostly within two categories: (i) de novo signatures extraction and (ii) signatures exposure estimation. In the first case, the presence of mutational processes is first assessed from the data, signatures are identified and extracted and finally assigned to samples. This task is typically performed by Non-Negative Matrix Factorization (NMF). While other approaches have been proposed, NMF-based methods are by far the most used. The estimation of signatures exposures is performed by holding a set of signatures fixed (see, e.g., COSMIC mutational signatures catalogue) and assigning them to samples by minimizing, e.g., mean squared error between observed and estimated mutational patterns for each sample.</p>
+<p>However, available mutational signatures computational tools presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.</p>
+<p>The RESOLVE R package implements a new de novo signatures extraction algorithm, which employs a regularized Non-Negative Matrix Factorization procedure. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation. Furthermore, the package also provide a procedure for confidence estimation of signatures activities in samples.</p>
 <p>In this vignette, we give an overview of the package by presenting some of its main functions.</p>
 <div class="section level2">
 <h2 id="installing-the-resolve-r-package">Installing the RESOLVE R package<a class="anchor" aria-label="anchor" href="#installing-the-resolve-r-package"></a>
@@ -105,49 +108,13 @@
 <p>We now present some of the main features of the package. We notice that the package supports different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. “Substitution mutational signatures in whole-genome–sequenced cancers in the UK population.” Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. “A pan-cancer compendium of chromosomal instability.” Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, Christopher D., et al. “Signatures of copy number alterations in human cancer.” Nature 606.7916 (2022): 984-991). But, for the sake of this vignette, we present only results on the classical SBS signatures. We refer to the manual for details.</p>
 <p>First, we show how to load example data and import them into a count matrix to perform the signatures analysis.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/danro9685/RESOLVE" class="external-link">"RESOLVE"</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Loading required package: NMF</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: pkgmaker</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: registry</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: rngtools</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: cluster</span></span></code></pre>
-<pre><code><span><span class="co">## NMF - BioConductor layer [OK] | Shared memory capabilities [NO: bigmemory] | Cores 2/2</span></span></code></pre>
-<pre><code><span><span class="co">##   To enable shared memory capabilities, try: install.extras('</span></span>
-<span><span class="co">## NMF</span></span>
-<span><span class="co">## ')</span></span></code></pre>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ssm560_reduced</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/danro9685/RESOLVE" class="external-link">"RESOLVE"</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ssm560_reduced</span><span class="op">)</span></span></code></pre></div>
 <p>These data are a reduced version of the 560 breast tumors provided by Nik-Zainal, Serena, et al. (2016) comprising only 3 patients. We notice that these data are provided purely as an example, and, as they are a reduced and partial version of the original dataset, they should not be used to draw any biological conclusion.</p>
 <p>We now import such data into a count matrix to perform the signatures discovery. To do so, we also need to specify the reference genome as a BSgenome object to be considered. This can be done as follows, where in the example we used hs37d5 as reference genome as provided as data object within the package.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"BSgenome.Hsapiens.1000genomes.hs37d5"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Loading required package: BSgenome</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: S4Vectors</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: stats4</span></span></code></pre>
-<pre><code><span><span class="co">## </span></span>
-<span><span class="co">## Attaching package: 'S4Vectors'</span></span></code></pre>
-<pre><code><span><span class="co">## The following object is masked from 'package:NMF':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     nrun</span></span></code></pre>
-<pre><code><span><span class="co">## The following object is masked from 'package:pkgmaker':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     new2</span></span></code></pre>
-<pre><code><span><span class="co">## The following objects are masked from 'package:base':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     expand.grid, I, unname</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: IRanges</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: GenomeInfoDb</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: GenomicRanges</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: Biostrings</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: XVector</span></span></code></pre>
-<pre><code><span><span class="co">## </span></span>
-<span><span class="co">## Attaching package: 'Biostrings'</span></span></code></pre>
-<pre><code><span><span class="co">## The following object is masked from 'package:base':</span></span>
-<span><span class="co">## </span></span>
-<span><span class="co">##     strsplit</span></span></code></pre>
-<pre><code><span><span class="co">## Loading required package: rtracklayer</span></span></code></pre>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/getSBSCounts.html">getSBSCounts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"BSgenome.Hsapiens.1000genomes.hs37d5"</span><span class="op">)</span></span>
+<span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/getSBSCounts.html">getSBSCounts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imported_data</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##          A[C&gt;A]A A[C&gt;A]C A[C&gt;A]G A[C&gt;A]T A[C&gt;G]A A[C&gt;G]C A[C&gt;G]G A[C&gt;G]T</span></span>
 <span><span class="co">## PD10010a      37      25       8      24      35       5      16      25</span></span>
@@ -198,7 +165,7 @@
 <span><span class="co">## PD10011a     125      79      83     113      68      90     140     251</span></span>
 <span><span class="co">## PD10014a     143     118      75     148      71      54      76     160</span></span></code></pre>
 <p>Now, we present an example of visualization feature provided by the package, showing the counts for the first patient, i.e., PD10010a, in the following plot.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/patientsSBSPlot.html">patientsSBSPlot</a></span><span class="op">(</span>trinucleotides_counts<span class="op">=</span><span class="va">imported_data</span>,samples<span class="op">=</span><span class="st">"PD10010a"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="RESOLVE_files/figure-html/unnamed-chunk-4-1.png" alt="Visualization of the counts for patient PD10010a from the dataset published in Nik-Zainal, Serena, et al." width="672"><p class="caption">
@@ -206,7 +173,7 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 </p>
 </div>
 <p>After the data are loaded, we can perform signatures de novo extraction. To do so, we need to define a range for the number of signatures (variable K) to be considered. We now show how to perform the inference on the first 3 patients of the dataset from Nik-Zainal, Serena, et al. (2016), whose counts are provided within the package.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">background</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patients</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
@@ -221,7 +188,7 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 <span><span class="co">## Performing inference for K=4...</span></span></code></pre>
 <p>We notice that this function can be also used to perform de novo estimation for other types of mutational signatures, such as SBS, MNV, CX and CN.</p>
 <p>Now that we have performed the de novo inferece, we need to decide the optimal number of signatures to be extracted from our dataset. To do so, we provide a procedure based on cross-validation.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
 <span><span class="va">res_cv</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesCV.html">signaturesCV</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span>
 <span>                      beta <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span>, </span>
@@ -249,7 +216,7 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 <span><span class="co">## Progress 100%...</span></span></code></pre>
 <p>We notice that the computations for this task can be very time consuming, expecially when many iterations of cross validations are performed (see manual) and a large set of configurations of the parameters are tested.</p>
 <p>We conclude this vignette by plotting the discovered signatures for the best configuration, i.e., K = 4.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">signatures</span> <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/signaturesSBSPlot.html">signaturesSBSPlot</a></span><span class="op">(</span>beta<span class="op">=</span><span class="va">signatures</span>, xlabels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
@@ -258,6 +225,12 @@ Visualization of the discovered signatures.
 </p>
 </div>
 <p>We refer to the manual for a detailed description of each parameter and to the RESOLVE manuscript for details on the method.</p>
+</div>
+<div class="section level2">
+<h2 id="current-r-session">Current R Session<a class="anchor" aria-label="anchor" href="#current-r-session"></a>
+</h2>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>
 
