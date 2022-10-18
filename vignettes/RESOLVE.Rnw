@@ -59,8 +59,19 @@ background = "#f3f3ff"
 \section{Changelog} 
 
 \begin{itemize}
-\item[1.0.0] Package released in October 2022. 
+\item[1.0.0] Package released in Bioconductor 3.16. 
 \end{itemize}
+
+\section{Installing the RESOLVE package}
+
+The RESOLVE package can be installed from Bioconductor as follow.
+
+<<install,eval=FALSE>>=
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("RESOLVE")
+@
 
 \section{Using the RESOLVE R package}
 

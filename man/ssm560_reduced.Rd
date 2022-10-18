@@ -8,7 +8,7 @@
 reduced versione of the counts of the point mutations in the format compatible with the import function
 }
 \source{
-Nik-Zainal, Serena, et al. "Landscape of somatic mutations in 560 breast cancer whole-genome sequences." Nature 534.7605 (2016): 47.
+Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676).
 }
 \usage{
 data(ssm560_reduced)

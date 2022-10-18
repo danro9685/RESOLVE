@@ -9,6 +9,17 @@ Mutational signatures computational analysis presents many pitfalls. First, the 
 
 RESOLVE performs de novo signatures extraction by regularized Non-Negative Matrix Factorization. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation.
 
+## Installing the RESOLVE package
+
+The RESOLVE package can be installed from Bioconductor as follow.
+
+```{r eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("RESOLVE")
+```
+
 ## Changelog
 
-- *1.0.0* Package released in October 2022.
+- *1.0.0* Package released in Bioconductor 3.16. 

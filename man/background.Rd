@@ -8,7 +8,7 @@
 vector of rates
 }
 \source{
-Rahbari, Raheleh, et al. "Timing, rates and spectra of human germline mutation." Nature genetics 48.2 (2016): 126.
+Nat Genet. 2016 Feb;48(2):126-133 (https://www.nature.com/articles/ng.3469).
 }
 \usage{
 data(background)
