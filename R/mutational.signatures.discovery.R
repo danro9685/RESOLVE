@@ -1,4 +1,8 @@
 #' Perform the assignment of K somatic mutational signatures provided as input to samples given a set of observed counts x.
+#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
+#' (see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
+#' CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
+#' signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
 #'
 #' @examples
 #' data(background)
@@ -14,7 +18,8 @@
 #' res = signaturesAssignment(x = patients[1:3,], beta = beta$beta[[1]], sparsify = FALSE)
 #'
 #' @title signaturesAssignment
-#' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
+#' @param x counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+#' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param beta matrix of the discovered signatures to be used for the assignment.
 #' @param normalize_counts if true, the input counts matrix x is normalized such that the patients have the same number of mutation.
 #' @param sparsify boolean; Shall I perform regularization using LASSO?
@@ -78,6 +83,10 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
 }
 
 #' Perform signatures discovery and rank estimation for a range of K somatic mutational signatures given a set of observed counts x.
+#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
+#' (see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
+#' CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
+#' signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
 #'
 #' @examples
 #' data(background)
@@ -91,7 +100,8 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
 #'                               num_processes = 1)
 #'
 #' @title signaturesDecomposition
-#' @param x counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
+#' @param x counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+#' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param K either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures to be considered.
 #' @param background_signature background signature to be used.
 #' @param normalize_counts if true, the input counts matrix x is normalized such that the patients have the same number of mutation.

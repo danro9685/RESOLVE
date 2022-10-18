@@ -16,7 +16,8 @@ signaturesDecomposition(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{K}{either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures to be considered.}
 
@@ -41,6 +42,10 @@ A list with the discovered signatures and related rank measures. It includes 3 e
 }
 \description{
 Perform signatures discovery and rank estimation for a range of K somatic mutational signatures given a set of observed counts x.
+This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
+(see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
+CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
+signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
 }
 \examples{
 data(background)

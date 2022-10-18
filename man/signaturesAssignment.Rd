@@ -13,7 +13,8 @@ signaturesAssignment(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{beta}{matrix of the discovered signatures to be used for the assignment.}
 
@@ -30,6 +31,10 @@ A list with the discovered signatures. It includes 2 elements:
 }
 \description{
 Perform the assignment of K somatic mutational signatures provided as input to samples given a set of observed counts x.
+This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
+(see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
+CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
+signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
 }
 \examples{
 data(background)
