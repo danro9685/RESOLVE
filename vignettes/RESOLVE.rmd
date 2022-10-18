@@ -108,6 +108,6 @@ We refer to the manual for a detailed description of each parameter and to the R
 
 # Current R Session
 
-```{r eval=FALSE}
+```{r}
 sessionInfo()
 ```
