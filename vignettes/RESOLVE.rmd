@@ -1,7 +1,42 @@
 ---
-title: Using the package
-output: html_document
+title: "Vignette"
+author: "Luca De Sano"
+graphics: yes
+package: RESOLVE
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{An R package for the the efficient extraction and assignment of mutational signatures from cancer genomes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{RESOLVE,BiocStyle}
 ---
+
+Cancer is a genetic disease caused by somatic mutations in genes controlling key biological functions such as cellular growth and division. Such mutations may arise both through cell-intrinsic and exogenous processes, generating characteristic mutational patterns over the genome named mutational signatures. The study of mutational signatures have become a standard component of modern genomics studies, since it can reveal which (environmental and endogenous) mutagenic processes are active in a tumor, and may highlight markers for therapeutic response.
+
+Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.
+
+RESOLVE performs de novo signatures extraction by regularized Non-Negative Matrix Factorization. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation.
+
+In this vignette, we give an overview of the package by presenting some of its main functions.
+
+# Installing the RESOLVE R package
+
+The RESOLVE package can be installed from Bioconductor as follow.
+
+```{r eval=FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("RESOLVE")
+```
+
+# Changelog
+
+- *1.0.0* Package released in Bioconductor 3.16.
+
+# Using the RESOLVE R package
 
 We now present some of the main features of the package. We notice that the package supports different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991). But, for the sake of this vignette, we present only results on the classical SBS signatures. We refer to the manual for details.
 
