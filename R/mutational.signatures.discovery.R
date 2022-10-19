@@ -41,7 +41,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, sparsify = 
     }
 
     if(verbose) {
-        cat("Performing signatures assignment...","\n")
+        message("Performing signatures assignment...","\n")
     }
 
     # initialize alpha with an empty matrix
@@ -178,9 +178,9 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
     }
 
     if(verbose) {
-        cat("Performing signatures discovery and rank estimation...","\n")
+        message("Performing signatures discovery and rank estimation...","\n")
         if(num_processes>1) {
-            cat("Executing",num_processes,"processes in parallel...","\n")
+            message("Executing ",num_processes," processes in parallel...","\n")
         }
     }
 
@@ -188,7 +188,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
     rank0 <- FALSE
     if(K[1]==1&&!is.null(background_signature)) {
         if(verbose) {
-            cat("Performing inference for K=1...","\n")
+            message("Performing inference for K=1...","\n")
         }
         rank0 <- TRUE
         K <- K[-1]
@@ -229,7 +229,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
         for(i in seq_len(length(K))) {
 
             if(verbose) {
-                cat(paste0("Performing inference for K=",K[i],"..."),"\n")
+                message(paste0("Performing inference for K=",K[i],"..."),"\n")
             }
 
             # perform the inference for current K
@@ -241,7 +241,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
                         gc(verbose=FALSE)
                         results
                     }, error = function(e) {
-                        cat(paste0("An error has occurred: ",e$message),"\n")
+                        message(paste0("An error has occurred: ",e$message),"\n")
                         gc(verbose=FALSE)
                         NULL
                     }, finally = {
@@ -256,7 +256,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL, normaliz
                         gc(verbose=FALSE)
                         results
                     }, error = function(e) {
-                        cat(paste0("An error has occurred: ",e$message),"\n")
+                        message(paste0("An error has occurred: ",e$message),"\n")
                         gc(verbose=FALSE)
                         NULL
                     }, finally = {
@@ -410,9 +410,9 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     }
 
     if(verbose) {
-        cat("Estimating the optimal number of signatures with a total of",cross_validation_repetitions,"cross validation repetitions...","\n")
+        message("Estimating the optimal number of signatures with a total of ",cross_validation_repetitions," cross validation repetitions...","\n")
         if(num_processes>1) {
-            cat("Executing",num_processes,"processes in parallel...","\n")
+            message("Executing ",num_processes," processes in parallel...","\n")
         }
     }
 
@@ -430,7 +430,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         for(cv_repetitions in seq_len(cross_validation_repetitions)) {
 
             if(verbose) {
-                cat(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
+                message(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
             }
 
             # randomly set the cross validation entries for the current iteration
@@ -446,7 +446,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 }
 
                 if(verbose) {
-                    cat(paste0("Performing estimation for K=",k,"..."),"\n")
+                    message(paste0("Performing estimation for K=",k,"..."),"\n")
                 }
                 
                 # repeat the estimation for a number of cross_validation_iterations
@@ -454,7 +454,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 for(cv_iteration in seq_len(cross_validation_iterations)) {
 
                     if(verbose) {
-                        cat(paste0("Performing cross validation iteration ",cv_iteration," out of ",cross_validation_iterations,"..."),"\n")
+                        message(paste0("Performing cross validation iteration ",cv_iteration," out of ",cross_validation_iterations,"..."),"\n")
                     }
 
                     # set a percentage of cross_validation_entries entries to 0 in order to perform cross validation
@@ -494,7 +494,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
                 if(verbose) {
                     cont <- cont + 1
-                    cat("Progress",paste0(round((cont/length(beta))*100,digits=3),"%..."),"\n")
+                    message("Progress ",paste0(round((cont/length(beta))*100,digits=3),"%..."),"\n")
                 }
 
             }
@@ -528,7 +528,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         curr_results <- parLapply(parallel,seq_len(cross_validation_repetitions),function(cv_repetitions) {
 
             if(verbose) {
-                cat(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
+                message(paste0("Performing repetition ",cv_repetitions," out of ",cross_validation_repetitions,"..."),"\n")
             }
 
             # randomly set the cross validation entries for the current iteration

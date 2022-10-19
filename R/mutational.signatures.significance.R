@@ -68,9 +68,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     }
 
     if(verbose) {
-        cat("Estimating the contribution of each signature to the fit with a total of",nboot,"bootstrap iterations...","\n")
+        message("Estimating the contribution of each signature to the fit with a total of ",nboot," bootstrap iterations...","\n")
         if(num_processes>1) {
-            cat("Executing",num_processes,"processes in parallel...","\n")
+            message("Executing ",num_processes," processes in parallel...","\n")
         }
     }
 
@@ -82,7 +82,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         for(boot_iteration in seq_len(nboot)) {
 
             if(verbose) {
-                cat(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
+                message(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
             }
 
             curr_alpha <- lapply(X=seq_len(nrow(x)),FUN=function(counts) {
@@ -116,7 +116,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         alpha <- parLapply(parallel,seq_len(nboot),function(boot_iteration) {
 
             if(verbose) {
-                cat(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
+                message(paste0("Performing iteration ",boot_iteration," out of ",nboot,"..."),"\n")
             }
 
             curr_alpha <- lapply(X=seq_len(nrow(x)),FUN=function(counts) {
@@ -148,7 +148,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     alpha <- results
 
     if(verbose) {
-        cat("Estimating level of significance for each signature...","\n")
+        message("Estimating level of significance for each signature...","\n")
     }
     pvalues <- alpha
     pvalues[which(pvalues==0)] <- NA
@@ -173,7 +173,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     bootstrap <- list(estimate=alpha,pvalues=pvalues,goodness_fit=goodness_fit)
 
     if(verbose) {
-        cat("Performing fit of alpha considering only signatures with significant contribution...","\n")
+        message("Performing fit of alpha considering only signatures with significant contribution...","\n")
     }
 
     # perform final fit of alpha using only significant signatures
