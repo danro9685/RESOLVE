@@ -251,8 +251,8 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
 
         for (i in seq_len(length(K))) {
             if (verbose) {
-                message(paste0("Performing inference for K=",
-                  K[i], "..."), "\n")
+                message("Performing inference for K=",
+                  K[i], "...", "\n")
             }
 
             # perform the inference for current K
@@ -267,8 +267,8 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
                     gc(verbose = FALSE)
                     results
                   }, error = function(e) {
-                    message(paste0("An error has occurred: ",
-                      e$message), "\n")
+                    paste0("An error has occurred: ",
+                      e$message, "\n")
                     gc(verbose = FALSE)
                     NULL
                   }, finally = {
@@ -285,8 +285,8 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
                     gc(verbose = FALSE)
                     results
                   }, error = function(e) {
-                    message(paste0("An error has occurred: ",
-                      e$message), "\n")
+                    paste0("An error has occurred: ",
+                      e$message, "\n")
                     gc(verbose = FALSE)
                     NULL
                   }, finally = {
@@ -478,8 +478,8 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
         for (cv_repetitions in seq_len(cross_validation_repetitions)) {
             if (verbose) {
-                message(paste0("Performing repetition ", cv_repetitions, " out of ",
-                  cross_validation_repetitions, "..."), "\n")
+                message("Performing repetition ", cv_repetitions, " out of ",
+                  cross_validation_repetitions, "...", "\n")
             }
 
             # randomly set the cross validation entries for the current
@@ -496,7 +496,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 }
 
                 if (verbose) {
-                  message(paste0("Performing estimation for K=", k, "..."), "\n")
+                  message("Performing estimation for K=", k, "...", "\n")
                 }
 
                 # repeat the estimation for a number of
@@ -504,8 +504,8 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 x_cv <- x
                 for (cv_iteration in seq_len(cross_validation_iterations)) {
                   if (verbose) {
-                    message(paste0("Performing cross validation iteration ", cv_iteration,
-                      " out of ", cross_validation_iterations, "..."), "\n")
+                    message("Performing cross validation iteration ", cv_iteration,
+                      " out of ", cross_validation_iterations, "...", "\n")
                   }
 
                   # set a percentage of cross_validation_entries entries to 0
@@ -545,8 +545,8 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
                 if (verbose) {
                   cont <- cont + 1
-                  message("Progress ", paste0(round((cont/length(beta)) * 100, digits = 3),
-                    "%..."), "\n")
+                  message("Progress ", round((cont/length(beta)) * 100, digits = 3),
+                    "%...", "\n")
                 }
 
             }
@@ -584,8 +584,8 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         curr_results <- parLapply(parallel, seq_len(cross_validation_repetitions),
             function(cv_repetitions) {
                 if (verbose) {
-                  message(paste0("Performing repetition ", cv_repetitions, " out of ",
-                    cross_validation_repetitions, "..."), "\n")
+                  message("Performing repetition ", cv_repetitions, " out of ",
+                    cross_validation_repetitions, "...", "\n")
                 }
 
                 # randomly set the cross validation entries for the current

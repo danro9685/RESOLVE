@@ -79,8 +79,8 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
         alpha <- list()
         for (boot_iteration in seq_len(nboot)) {
             if (verbose) {
-                message(paste0("Performing iteration ", boot_iteration, " out of ",
-                  nboot, "..."), "\n")
+                message("Performing iteration ", boot_iteration, " out of ",
+                  nboot, "...", "\n")
             }
 
             curr_alpha <- lapply(X = seq_len(nrow(x)), FUN = function(counts) {
@@ -117,8 +117,8 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
         gc(verbose = FALSE)
         alpha <- parLapply(parallel, seq_len(nboot), function(boot_iteration) {
             if (verbose) {
-                message(paste0("Performing iteration ", boot_iteration, " out of ",
-                  nboot, "..."), "\n")
+                message("Performing iteration ", boot_iteration, " out of ",
+                  nboot, "...", "\n")
             }
 
             curr_alpha <- lapply(X = seq_len(nrow(x)), FUN = function(counts) {
