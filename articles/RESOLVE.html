@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">RESOLVE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.5</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.6</span>
       </span>
     </div>
 
@@ -70,7 +70,7 @@
                         <h4 data-toc-skip class="author">Luca De Sano</h4>
                         <h4 data-toc-skip class="author">Daniele Ramazzotti</h4>
             
-            <h4 data-toc-skip class="date">October 18, 2022</h4>
+            <h4 data-toc-skip class="date">October 19, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/danro9685/RESOLVE/blob/HEAD/vignettes/RESOLVE.rmd" class="external-link"><code>vignettes/RESOLVE.rmd</code></a></small>
       <div class="hidden name"><code>RESOLVE.rmd</code></div>
@@ -183,40 +183,40 @@ Visualization of the counts for patient PD10010a from the dataset published in N
 <span>                                     nmf_runs <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>                                     sparsify <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>                                     num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Performing signatures discovery and rank estimation... </span></span>
-<span><span class="co">## Performing inference for K=3... </span></span>
-<span><span class="co">## Performing inference for K=4...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing signatures discovery and rank estimation...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing inference for K=3...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing inference for K=4...</span></span></code></pre>
 <p>We notice that this function can be also used to perform de novo estimation for other types of mutational signatures, such as SBS, MNV, CX and CN.</p>
 <p>Now that we have performed the de novo inferece, we need to decide the optimal number of signatures to be extracted from our dataset. To do so, we provide a procedure based on cross-validation.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
 <span><span class="va">res_cv</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesCV.html">signaturesCV</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>,<span class="op">]</span>, </span>
 <span>                      beta <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span>, </span>
 <span>                      cross_validation_iterations <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>                      cross_validation_repetitions <span class="op">=</span> <span class="fl">2</span>, </span>
 <span>                      num_processes <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Estimating the optimal number of signatures with a total of 2 cross validation repetitions... </span></span>
-<span><span class="co">## Performing repetition 1 out of 2... </span></span>
-<span><span class="co">## Performing estimation for K=3... </span></span>
-<span><span class="co">## Performing cross validation iteration 1 out of 2... </span></span>
-<span><span class="co">## Performing cross validation iteration 2 out of 2... </span></span>
-<span><span class="co">## Progress 50%... </span></span>
-<span><span class="co">## Performing estimation for K=4... </span></span>
-<span><span class="co">## Performing cross validation iteration 1 out of 2... </span></span>
-<span><span class="co">## Performing cross validation iteration 2 out of 2... </span></span>
-<span><span class="co">## Progress 100%... </span></span>
-<span><span class="co">## Performing repetition 2 out of 2... </span></span>
-<span><span class="co">## Performing estimation for K=3... </span></span>
-<span><span class="co">## Performing cross validation iteration 1 out of 2... </span></span>
-<span><span class="co">## Performing cross validation iteration 2 out of 2... </span></span>
-<span><span class="co">## Progress 50%... </span></span>
-<span><span class="co">## Performing estimation for K=4... </span></span>
-<span><span class="co">## Performing cross validation iteration 1 out of 2... </span></span>
-<span><span class="co">## Performing cross validation iteration 2 out of 2... </span></span>
-<span><span class="co">## Progress 100%...</span></span></code></pre>
+<pre><code><span><span class="co">## Estimating the optimal number of signatures with a total of 2 cross validation repetitions...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing repetition 1 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing estimation for K=3...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 1 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 2 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Progress 50%...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing estimation for K=4...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 1 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 2 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Progress 100%...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing repetition 2 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing estimation for K=3...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 1 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 2 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Progress 50%...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing estimation for K=4...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 1 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Performing cross validation iteration 2 out of 2...</span></span></code></pre>
+<pre><code><span><span class="co">## Progress 100%...</span></span></code></pre>
 <p>We notice that the computations for this task can be very time consuming, expecially when many iterations of cross validations are performed (see manual) and a large set of configurations of the parameters are tested.</p>
 <p>We conclude this vignette by plotting the discovered signatures for the best configuration, i.e., K = 4.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">signatures</span> <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="../reference/signaturesSBSPlot.html">signaturesSBSPlot</a></span><span class="op">(</span>beta<span class="op">=</span><span class="va">signatures</span>, xlabels<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
@@ -229,7 +229,7 @@ Visualization of the discovered signatures.
 <div class="section level2">
 <h2 id="current-r-session">Current R Session<a class="anchor" aria-label="anchor" href="#current-r-session"></a>
 </h2>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.2.1 (2022-06-23)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
@@ -259,7 +259,7 @@ Visualization of the discovered signatures.
 <span><span class="co">##  [7] GenomeInfoDb_1.32.4                        </span></span>
 <span><span class="co">##  [8] IRanges_2.30.1                             </span></span>
 <span><span class="co">##  [9] S4Vectors_0.34.0                           </span></span>
-<span><span class="co">## [10] RESOLVE_0.99.5                             </span></span>
+<span><span class="co">## [10] RESOLVE_0.99.6                             </span></span>
 <span><span class="co">## [11] NMF_0.24.0                                 </span></span>
 <span><span class="co">## [12] Biobase_2.56.0                             </span></span>
 <span><span class="co">## [13] BiocGenerics_0.42.0                        </span></span>
@@ -309,7 +309,7 @@ Visualization of the discovered signatures.
 <span><span class="co">## [73] vctrs_0.4.2                 foreach_1.5.2              </span></span>
 <span><span class="co">## [75] gtable_0.3.1                purrr_0.3.5                </span></span>
 <span><span class="co">## [77] assertthat_0.2.1            cachem_1.0.6               </span></span>
-<span><span class="co">## [79] ggplot2_3.3.6               xfun_0.33                  </span></span>
+<span><span class="co">## [79] ggplot2_3.3.6               xfun_0.34                  </span></span>
 <span><span class="co">## [81] gridBase_0.4-7              xtable_1.8-4               </span></span>
 <span><span class="co">## [83] restfulr_0.0.15             survival_3.3-1             </span></span>
 <span><span class="co">## [85] ragg_1.2.3                  tibble_3.1.8               </span></span>
