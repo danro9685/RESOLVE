@@ -21,7 +21,7 @@ Plot the inferred Multi-Nucleotide Variants (MNVs) mutational signatures.
 }
 \examples{
 data(plot_data_examples)
-beta <- plot_data_examples[["signatures.MNV.plot"]][["beta"]]
+beta <- plot_data_examples[['signatures.MNV.plot']][['beta']]
 signaturesMNVPlot(beta=beta)
 
 }

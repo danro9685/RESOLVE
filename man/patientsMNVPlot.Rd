@@ -28,7 +28,7 @@ Plot Multi-Nucleotide Variants (MNVs) counts for a set of given patients.
 }
 \examples{
 data(plot_data_examples)
-counts <- plot_data_examples[["patients.MNV.plot"]][["counts"]]
+counts <- plot_data_examples[['patients.MNV.plot']][['counts']]
 patientsMNVPlot(multi_nucleotides_counts=counts,samples=rownames(counts)[seq_len(2)])
 
 }

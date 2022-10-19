@@ -24,41 +24,41 @@ signaturesCV(
 
 \item{cross_validation_entries}{Percentage of cells in the counts matrix to be replaced by 0s during cross validation.}
 
-\item{cross_validation_iterations}{For each configuration, the first time the signatures are fitted form a matrix with a 
-percentage of values replaced by 0s. This may result in poor fit/results. Then, we perform predictions of these entries and replace them with 
+\item{cross_validation_iterations}{For each configuration, the first time the signatures are fitted form a matrix with a
+percentage of values replaced by 0s. This may result in poor fit/results. Then, we perform predictions of these entries and replace them with
 such predicted values. This parameter is the number of restarts to be performed to improve this estimate and obtain more stable solutions.}
 
-\item{cross_validation_repetitions}{Number of time cross-validation should be repeated. Higher values result in better estimate, but are computationally 
+\item{cross_validation_repetitions}{Number of time cross-validation should be repeated. Higher values result in better estimate, but are computationally
 more expensive.}
 
-\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode, 
+\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
 \item{verbose}{boolean; Shall I print information messages?}
 }
 \value{
-A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed 
+A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
 cross validation; rank_estimates reports mean and median values for each value of K.
 }
 \description{
-Perform the assessment of different signaturesDecomposition solutions by cross validation for K (beta, as estimated by signaturesDecomposition) somatic 
+Perform the assessment of different signaturesDecomposition solutions by cross validation for K (beta, as estimated by signaturesDecomposition) somatic
 mutational signatures given a set of observations x and discovered signatures beta.
 }
 \examples{
 data(background)
 data(patients)
 set.seed(12345)
-sigs <- signaturesDecomposition(x = patients[seq_len(3),], 
-                               K = 3:4, 
-                               background_signature = background, 
-                               nmf_runs = 2, 
-                               sparsify = FALSE, 
+sigs <- signaturesDecomposition(x = patients[seq_len(3),],
+                               K = 3:4,
+                               background_signature = background,
+                               nmf_runs = 2,
+                               sparsify = FALSE,
                                num_processes = 1)
 set.seed(12345)
-res <- signaturesCV(x = patients[seq_len(3),], 
-                   beta = sigs$beta, 
-                   cross_validation_iterations = 2, 
-                   cross_validation_repetitions = 2, 
+res <- signaturesCV(x = patients[seq_len(3),],
+                   beta = sigs$beta,
+                   cross_validation_iterations = 2,
+                   cross_validation_repetitions = 2,
                    num_processes = 1)
 
 }

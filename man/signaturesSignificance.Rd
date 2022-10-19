@@ -31,7 +31,7 @@ signaturesSignificance(
 
 \item{nboot}{Number of bootstrap iterations to be performed.}
 
-\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode, 
+\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
 \item{verbose}{boolean; Shall I print information messages?}
@@ -44,27 +44,27 @@ A list with the bootstrap estimates. It includes 4 elements:
              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 }
 \description{
-Perform a robust estimation by bootstrap of alpha coefficients until a given level of cosine similarity is reached 
+Perform a robust estimation by bootstrap of alpha coefficients until a given level of cosine similarity is reached
 given a set of observed counts x and discovered signatures beta.
 }
 \examples{
 data(background)
 data(patients)
 set.seed(12345)
-beta <- signaturesDecomposition(x = patients[seq_len(3),], 
-                               K = 3:4, 
-                               background_signature = background, 
-                               nmf_runs = 2, 
-                               sparsify = FALSE, 
+beta <- signaturesDecomposition(x = patients[seq_len(3),],
+                               K = 3:4,
+                               background_signature = background,
+                               nmf_runs = 2,
+                               sparsify = FALSE,
                                num_processes = 1)
 set.seed(12345)
-res <- signaturesSignificance(x = patients[seq_len(3),], 
-                             beta = beta$beta[[1]], 
-                             cosine_thr = 0.95, 
-                             min_contribution = 0.05, 
-                             pvalue_thr = 0.05, 
-                             sparsify = FALSE, 
-                             nboot = 2, 
+res <- signaturesSignificance(x = patients[seq_len(3),],
+                             beta = beta$beta[[1]],
+                             cosine_thr = 0.95,
+                             min_contribution = 0.05,
+                             pvalue_thr = 0.05,
+                             sparsify = FALSE,
+                             nboot = 2,
                              num_processes = 1)
 
 }

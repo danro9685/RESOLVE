@@ -28,7 +28,7 @@ Plot Copy Number (CN) counts for a set of given patients.
 }
 \examples{
 data(plot_data_examples)
-counts <- plot_data_examples[["patients.CN.plot"]][["counts"]]
+counts <- plot_data_examples[['patients.CN.plot']][['counts']]
 patientsCNPlot(cn_data_counts=counts,samples=rownames(counts)[seq_len(2)])
 
 }

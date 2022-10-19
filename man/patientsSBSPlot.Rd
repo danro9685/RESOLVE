@@ -28,7 +28,7 @@ Plot Single Base Substitutions (SBS) counts for a set of given patients.
 }
 \examples{
 data(plot_data_examples)
-counts <- plot_data_examples[["patients.SBS.plot"]][["counts"]]
+counts <- plot_data_examples[['patients.SBS.plot']][['counts']]
 patientsSBSPlot(trinucleotides_counts=counts,samples=rownames(counts)[seq_len(2)])
 
 }

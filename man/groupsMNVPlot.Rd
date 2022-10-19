@@ -23,8 +23,8 @@ Plot observed Multi-Nucleotide Variants (MNVs) counts for different groups of pa
 }
 \examples{
 data(plot_data_examples)
-counts <- plot_data_examples[["groups.MNV.plot"]][["counts"]]
-groups <- plot_data_examples[["groups.MNV.plot"]][["groups"]]
+counts <- plot_data_examples[['groups.MNV.plot']][['counts']]
+groups <- plot_data_examples[['groups.MNV.plot']][['groups']]
 groupsMNVPlot(counts=counts,groups=groups)
 
 }

@@ -23,8 +23,8 @@ Plot observed Single Base Substitutions (SBS) counts for different groups of pat
 }
 \examples{
 data(plot_data_examples)
-counts <- plot_data_examples[["groups.SBS.plot"]][["counts"]]
-groups <- plot_data_examples[["groups.SBS.plot"]][["groups"]]
+counts <- plot_data_examples[['groups.SBS.plot']][['counts']]
+groups <- plot_data_examples[['groups.SBS.plot']][['groups']]
 groupsSBSPlot(counts=counts,groups=groups)
 
 }

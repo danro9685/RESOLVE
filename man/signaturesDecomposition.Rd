@@ -29,7 +29,7 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{sparsify}{boolean; Shall I perform regularization using LASSO?}
 
-\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode, 
+\item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
 \item{verbose}{boolean; Shall I print information messages?}
@@ -42,20 +42,20 @@ A list with the discovered signatures and related rank measures. It includes 3 e
 }
 \description{
 Perform signatures discovery and rank estimation for a range of K somatic mutational signatures given a set of observed counts x.
-This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
-(see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
-CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
-signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
+This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant)
+(see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers in the UK population.' Science 376.6591 (2022): abl9283),
+CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number)
+signatures (see Steele, Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
 }
 \examples{
 data(background)
 data(patients)
 set.seed(12345)
-res <- signaturesDecomposition(x = patients[seq_len(3),], 
-                              K = 3:4, 
-                              background_signature = background, 
-                              nmf_runs = 2, 
-                              sparsify = FALSE, 
+res <- signaturesDecomposition(x = patients[seq_len(3),],
+                              K = 3:4,
+                              background_signature = background,
+                              nmf_runs = 2,
+                              sparsify = FALSE,
                               num_processes = 1)
 
 }

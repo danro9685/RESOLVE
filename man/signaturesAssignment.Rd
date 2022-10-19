@@ -31,20 +31,20 @@ A list with the discovered signatures. It includes 2 elements:
 }
 \description{
 Perform the assignment of K somatic mutational signatures provided as input to samples given a set of observed counts x.
-This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant) 
-(see Degasperi, Andrea, et al. "Substitution mutational signatures in whole-genome–sequenced cancers in the UK population." Science 376.6591 (2022): abl9283), 
-CX (chromosomal instability) (see Drews, Ruben M., et al. "A pan-cancer compendium of chromosomal instability." Nature 606.7916 (2022): 976-983) and CN (copy number) 
-signatures (see Steele, Christopher D., et al. "Signatures of copy number alterations in human cancer." Nature 606.7916 (2022): 984-991).
+This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant)
+(see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers in the UK population.' Science 376.6591 (2022): abl9283),
+CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number)
+signatures (see Steele, Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
 }
 \examples{
 data(background)
 data(patients)
 set.seed(12345)
-beta <- signaturesDecomposition(x = patients[seq_len(3),], 
-                               K = 3, 
-                               background_signature = background, 
-                               nmf_runs = 2, 
-                               sparsify = FALSE, 
+beta <- signaturesDecomposition(x = patients[seq_len(3),],
+                               K = 3,
+                               background_signature = background,
+                               nmf_runs = 2,
+                               sparsify = FALSE,
                                num_processes = 1)
 set.seed(12345)
 res <- signaturesAssignment(x = patients[seq_len(3),], beta = beta$beta[[1]], sparsify = FALSE)
