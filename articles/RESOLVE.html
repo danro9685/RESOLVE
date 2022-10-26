@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">RESOLVE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -63,14 +63,14 @@
 
       
 
-      </header><script src="RESOLVE_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>An introduction to the <code>RESOLVE</code> R package</h1>
                         <h4 data-toc-skip class="author">Luca De Sano</h4>
                         <h4 data-toc-skip class="author">Daniele Ramazzotti</h4>
             
-            <h4 data-toc-skip class="date">October 19, 2022</h4>
+            <h4 data-toc-skip class="date">October 26, 2022</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/danro9685/RESOLVE/blob/HEAD/vignettes/RESOLVE.rmd" class="external-link"><code>vignettes/RESOLVE.rmd</code></a></small>
       <div class="hidden name"><code>RESOLVE.rmd</code></div>
@@ -83,6 +83,7 @@
 <p>Mutational signatures computational analyses fall mostly within two categories: (i) de novo signatures extraction and (ii) signatures exposure estimation. In the first case, the presence of mutational processes is first assessed from the data, signatures are identified and extracted and finally assigned to samples. This task is typically performed by Non-Negative Matrix Factorization (NMF). While other approaches have been proposed, NMF-based methods are by far the most used. The estimation of signatures exposures is performed by holding a set of signatures fixed (see, e.g., COSMIC mutational signatures catalogue) and assigning them to samples by minimizing, e.g., mean squared error between observed and estimated mutational patterns for each sample.</p>
 <p>However, available mutational signatures computational tools presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.</p>
 <p>The RESOLVE R package implements a new de novo signatures extraction algorithm, which employs a regularized Non-Negative Matrix Factorization procedure. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation. Furthermore, the package also provide a procedure for confidence estimation of signatures activities in samples.</p>
+<p>As such, RESOLVE represent an addition to other Bioconductor packages, such as, e.g., SparseSignatures, MutationalPatterns, musicatk among others, that implements a novel approach for detecting mutational signatures.</p>
 <p>In this vignette, we give an overview of the package by presenting some of its main functions.</p>
 <div class="section level2">
 <h2 id="installing-the-resolve-r-package">Installing the RESOLVE R package<a class="anchor" aria-label="anchor" href="#installing-the-resolve-r-package"></a>
@@ -259,7 +260,7 @@ Visualization of the discovered signatures.
 <span><span class="co">##  [7] GenomeInfoDb_1.32.4                        </span></span>
 <span><span class="co">##  [8] IRanges_2.30.1                             </span></span>
 <span><span class="co">##  [9] S4Vectors_0.34.0                           </span></span>
-<span><span class="co">## [10] RESOLVE_0.99.6                             </span></span>
+<span><span class="co">## [10] RESOLVE_1.0.0                              </span></span>
 <span><span class="co">## [11] NMF_0.24.0                                 </span></span>
 <span><span class="co">## [12] Biobase_2.56.0                             </span></span>
 <span><span class="co">## [13] BiocGenerics_0.42.0                        </span></span>
@@ -291,7 +292,7 @@ Visualization of the discovered signatures.
 <span><span class="co">## [37] fastmap_1.1.0               rlang_1.0.6                </span></span>
 <span><span class="co">## [39] farver_2.1.1                shape_1.4.6                </span></span>
 <span><span class="co">## [41] jquerylib_0.1.4             BiocIO_1.6.0               </span></span>
-<span><span class="co">## [43] jsonlite_1.8.2              BiocParallel_1.30.4        </span></span>
+<span><span class="co">## [43] jsonlite_1.8.3              BiocParallel_1.30.4        </span></span>
 <span><span class="co">## [45] RCurl_1.98-1.9              magrittr_2.0.3             </span></span>
 <span><span class="co">## [47] GenomeInfoDbData_1.2.8      Matrix_1.4-1               </span></span>
 <span><span class="co">## [49] Rcpp_1.0.9                  munsell_0.5.0              </span></span>
@@ -305,8 +306,8 @@ Visualization of the discovered signatures.
 <span><span class="co">## [65] rjson_0.2.21                reshape2_1.4.4             </span></span>
 <span><span class="co">## [67] codetools_0.2-18            XML_3.99-0.11              </span></span>
 <span><span class="co">## [69] glue_1.6.2                  evaluate_0.17              </span></span>
-<span><span class="co">## [71] data.table_1.14.4           BiocManager_1.30.18        </span></span>
-<span><span class="co">## [73] vctrs_0.4.2                 foreach_1.5.2              </span></span>
+<span><span class="co">## [71] data.table_1.14.4           BiocManager_1.30.19        </span></span>
+<span><span class="co">## [73] vctrs_0.5.0                 foreach_1.5.2              </span></span>
 <span><span class="co">## [75] gtable_0.3.1                purrr_0.3.5                </span></span>
 <span><span class="co">## [77] assertthat_0.2.1            cachem_1.0.6               </span></span>
 <span><span class="co">## [79] ggplot2_3.3.6               xfun_0.34                  </span></span>
