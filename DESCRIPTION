@@ -1,6 +1,6 @@
 Package: RESOLVE
-Version: 1.1.0
-Date: 2022-10-26
+Version: 1.1.1
+Date: 2023-01-09
 Title: RESOLVE: An R package for the efficient analysis of mutational signatures from cancer genomes
 Authors@R: c(
     person("Daniele", "Ramazzotti", role=c("aut"),email="daniele.ramazzotti@unimib.it",
@@ -8,6 +8,7 @@ Authors@R: c(
     person("Luca", "De Sano", role=c("cre","aut"), email="luca.desano@gmail.com",
                 comment = c(ORCID = "0000-0002-9618-3774")))
 Depends:
+    R (>= 4.1.0),
     NMF
 Imports:
     Biostrings,
@@ -38,5 +39,5 @@ URL: https://github.com/danro9685/RESOLVE
 BugReports: https://github.com/danro9685/RESOLVE/issues
 biocViews: BiomedicalInformatics, 
            SomaticMutation
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
