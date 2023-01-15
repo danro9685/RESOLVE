@@ -20,7 +20,7 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{normalize_counts}{if true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
-\item{sparsify}{boolean; Shall I perform regularization using LASSO?}
+\item{sparsify}{boolean; Shall I perform regularization?}
 
 \item{verbose}{boolean; Shall I print information messages?}
 }

@@ -27,7 +27,7 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{nmf_runs}{number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.}
 
-\item{sparsify}{boolean; Shall I perform regularization using LASSO?}
+\item{sparsify}{boolean; Shall I perform regularization?}
 
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
