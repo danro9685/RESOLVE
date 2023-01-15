@@ -195,9 +195,15 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
         curr_alpha <- array(NA, c(1, length(curr_sigs)))
         curr_beta <- beta[curr_sigs, , drop = FALSE]
         if (sparsify == TRUE && nrow(curr_beta) > 1) {
-            res <- cv.glmnet(t(curr_beta), as.vector(x[i, ]), type.measure = "mse",
-                nfolds = 10, nlambda = 10, family = "gaussian", lower.limits = 0)
-            curr_alpha[1, ] <- as.numeric(res$glmnet.fit$beta[, ncol(res$glmnet.fit$beta)])
+            reg_out <- tryCatch({
+                res <- cv.glmnet(t(curr_beta), as.vector(x[i, ]), type.measure = "mse",
+                    nfolds = 10, nlambda = 10, family = "gaussian", lower.limits = 0)
+                curr_alpha[1, ] <- as.numeric(res$glmnet.fit$beta[, ncol(res$glmnet.fit$beta)])
+            }, error = function( e ) {
+                curr_alpha[1, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
         } else {
             curr_alpha[1, ] <- nnls(t(curr_beta), as.vector(x[i, ]))$x
         }
@@ -233,11 +239,17 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     if (sparsify == TRUE && nrow(beta) > 1) {
-        res <- cv.glmnet(t(beta), as.vector(x[1, ]),
-            type.measure = "mse", nfolds = 10, nlambda = 10,
-            family = "gaussian", lower.limits = 0)
-        alpha[1, ] <- as.numeric(res$glmnet.fit$beta[,
-            ncol(res$glmnet.fit$beta)])
+        reg_out <- tryCatch({
+            res <- cv.glmnet(t(beta), as.vector(x[1, ]),
+                type.measure = "mse", nfolds = 10, nlambda = 10,
+                family = "gaussian", lower.limits = 0)
+            alpha[1, ] <- as.numeric(res$glmnet.fit$beta[,
+                ncol(res$glmnet.fit$beta)])
+        }, error = function( e ) {
+            alpha[1, ] <- 0
+        }, finally = {
+            gc(verbose = FALSE)
+        })
     } else {
         alpha[1, ] <- nnls(t(beta), as.vector(x[1, ]))$x
     }
@@ -255,11 +267,17 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
         curr_alpha <- array(NA, c(1, i))
         curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
         if (sparsify == TRUE && nrow(curr_beta) > 1) {
-            res <- cv.glmnet(t(curr_beta), as.vector(x[1,
-                ]), type.measure = "mse", nfolds = 10,
-                nlambda = 10, family = "gaussian", lower.limits = 0)
-            curr_alpha[1, ] <- as.numeric(res$glmnet.fit$beta[,
-                ncol(res$glmnet.fit$beta)])
+            reg_out <- tryCatch({
+                res <- cv.glmnet(t(curr_beta), as.vector(x[1,
+                    ]), type.measure = "mse", nfolds = 10,
+                    nlambda = 10, family = "gaussian", lower.limits = 0)
+                curr_alpha[1, ] <- as.numeric(res$glmnet.fit$beta[,
+                    ncol(res$glmnet.fit$beta)])
+            }, error = function( e ) {
+                curr_alpha[1, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
         } else {
             curr_alpha[1, ] <- nnls(t(curr_beta), as.vector(x[1,
                 ]))$x
