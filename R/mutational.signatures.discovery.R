@@ -28,11 +28,11 @@
 #'              alpha: matrix of the discovered exposure values.
 #'              beta: matrix of the discovered signatures.
 #' @export signaturesAssignment
-#' @import nnls
-#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet glmnet cv.glmnet
 #'
 signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
     sparsify = TRUE, verbose = TRUE) {
+
     # check input parameters
     x <- as.matrix(x)
     if (normalize_counts) {
@@ -45,7 +45,7 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
     }
 
     # initialize alpha with an empty matrix
-    alpha <- array(NA, c(nrow(x), nrow(beta)))
+    alpha <- matrix(NA, nrow=nrow(x), ncol=nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
 
@@ -57,9 +57,10 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
                 reg_out <- tryCatch({
                     res <- cv.glmnet(t(curr_beta_values), as.vector(x[j,
                       ]), type.measure = "mse", nfolds = 10,
-                      nlambda = 10, family = "gaussian", lower.limits = 0)
-                    alpha[j, ] <- as.numeric(res$glmnet.fit$beta[,
-                      ncol(res$glmnet.fit$beta)])
+                      nlambda = 100, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
                 }, error = function( e ) {
                     alpha[j, ] <- 0
                 }, finally = {
@@ -72,9 +73,9 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
                 reg_out <- tryCatch({
                     res <- cv.glmnet(res_inputs, as.vector(x[j,
                       ]), type.measure = "mse", nfolds = 10,
-                      nlambda = 10, family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(res$glmnet.fit$beta[,
-                      ncol(res$glmnet.fit$beta)])
+                      nlambda = 100, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- as.numeric(res[1]+res[-1])
                     alpha[j, ] <- res[-length(res)]
                 }, error = function( e ) {
                     alpha[j, ] <- 0
@@ -84,8 +85,35 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
             }
         }
     } else {
-        for (j in seq_len(nrow(alpha))) {
-            alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+            curr_beta_values <- beta
+            if (nrow(curr_beta_values) > 1) {
+                reg_out <- tryCatch({
+                    res <- glmnet(t(curr_beta_values), as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+                res_inputs <- cbind(t(curr_beta_values),
+                  matrix(rep(0, ncol(curr_beta_values)),
+                    ncol = 1))
+                reg_out <- tryCatch({
+                    res <- glmnet(res_inputs, as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res[-length(res)]
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
         }
     }
 
@@ -134,23 +162,16 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
 #' @import NMF
-#' @import nnls
 #' @import parallel
 #' @importFrom cluster silhouette
-#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet glmnet cv.glmnet
 #'
 signaturesDecomposition <- function(x, K, background_signature = NULL,
-    normalize_counts = FALSE, nmf_runs = 50, sparsify = TRUE,
+    normalize_counts = FALSE, nmf_runs = 100, sparsify = TRUE,
     num_processes = Inf, verbose = TRUE) {
+    
     # check input parameters
     x <- as.matrix(x)
-    if (any(colSums(x) == 0)) {
-        invalid_cols <- as.numeric(which(colSums(x) == 0))
-        for (inv_cols in invalid_cols) {
-            x[sample(seq_len(length(x[, inv_cols])), size = 1),
-                inv_cols] <- 1e-05
-        }
-    }
     K <- sort(unique(K))
     if (min(K) < 1) {
         warning("The minimum value of K can be 1, removing invalid values...")
@@ -185,8 +206,6 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
     } else {
         pbackend <- makeCluster(num_processes)
         res_clusterEvalQ <- clusterEvalQ(pbackend, library("NMF",
-            warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
-        res_clusterEvalQ <- clusterEvalQ(pbackend, library("nnls",
             warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(pbackend, library("glmnet",
             warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
@@ -252,6 +271,7 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
 
     # perform signatures discovery and rank estimation
     if (length(K) > 0) {
+
         alpha <- list()
         beta <- list()
         measures <- NULL
@@ -262,6 +282,7 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
         }
 
         for (i in seq_len(length(K))) {
+
             if (verbose) {
                 message("Performing inference for K=",
                   K[i], "...", "\n")
@@ -436,21 +457,15 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
 #' @return A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
 #' cross validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
-#' @import nnls
 #' @import parallel
-#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet glmnet cv.glmnet
 #'
 signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
     cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf,
     verbose = TRUE) {
+    
     # check input parameters
     x <- as.matrix(x)
-    if (any(colSums(x) == 0)) {
-        invalid_cols <- as.numeric(which(colSums(x) == 0))
-        for (inv_cols in invalid_cols) {
-            x[sample(seq_len(length(x[, inv_cols])), size = 1), inv_cols] <- 1e-05
-        }
-    }
     if (normalize_counts) {
         x <- (x/rowSums(x)) * 2500
     }
@@ -476,7 +491,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
     }
 
     # structure to save the results
-    cv_estimates <- array(NA, c(cross_validation_repetitions, length(beta)))
+    cv_estimates <- matrix(NA, nrow=cross_validation_repetitions, ncol=length(beta))
     rownames(cv_estimates) <- paste0("Repetition_", seq_len(cross_validation_repetitions))
     colnames(cv_estimates) <- seq_len(ncol(cv_estimates))
 
@@ -502,6 +517,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
             # consider all the possible values of K
             cont <- 0
             for (num_signs in seq_len(length(beta))) {
+
                 k <- nrow(beta[[num_signs]])
                 if (cv_repetitions == 1) {
                   colnames(cv_estimates)[num_signs] <- paste0(k, "_signatures")
@@ -527,14 +543,6 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                   } else {
                     predicted_counts <- curr_results[["alpha"]] %*% curr_results[["beta"]]
                     x_cv[cv_entries] <- predicted_counts[cv_entries]
-                  }
-
-                  # columns in x_cv with all 0s are not allowed
-                  if (any(colSums(x_cv) == 0)) {
-                    invalid_cols <- as.numeric(which(colSums(x_cv) == 0))
-                    for (inv_cols in invalid_cols) {
-                      x_cv[sample(seq_len(length(x_cv[, inv_cols])), size = 1), inv_cols] <- 1e-05
-                    }
                   }
 
                   # perform the inference
@@ -581,8 +589,6 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
         parallel <- makeCluster(num_processes, outfile = "")
         close_parallel <- TRUE
-        res_clusterEvalQ <- clusterEvalQ(parallel, library("nnls", warn.conflicts = FALSE,
-            quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel, library("glmnet", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
         clusterExport(parallel, varlist = c(".nmf_fit"), envir = environment())
@@ -603,8 +609,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 # randomly set the cross validation entries for the current
                 # iteration
                 cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)),
-                  size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE),
-                  ]
+                  size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE), ]
 
                 # consider all the possible values of K
                 cv_errors <- rep(NA, length(beta))
@@ -625,15 +630,6 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                     } else {
                       predicted_counts <- curr_results[["alpha"]] %*% curr_results[["beta"]]
                       x_cv[cv_entries] <- predicted_counts[cv_entries]
-                    }
-
-                    # columns in x_cv with all 0s are not allowed
-                    if (any(colSums(x_cv) == 0)) {
-                      invalid_cols <- as.numeric(which(colSums(x_cv) == 0))
-                      for (inv_cols in invalid_cols) {
-                        x_cv[sample(seq_len(length(x_cv[, inv_cols])), size = 1),
-                          inv_cols] <- 1e-05
-                      }
                     }
 
                     # perform the inference
@@ -703,9 +699,9 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
 # initialize alpha and beta for .nmf_nnls or .nmf_reg functions
 .nmf_seed <- function(model, target) {
+
     # initialize alpha with an empty matrix
-    alpha <- array(NA, c(nrow(target),
-        nbasis(model)))
+    alpha <- matrix(NA, nrow=nrow(target), ncol=nbasis(model))
     rownames(alpha) <- rownames(target)
     colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
 
@@ -715,8 +711,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         nrow = nbasis(model), ncol = ncol(target))
     beta <- (beta/rowSums(beta))  # beta rows (i.e., signatures) must sum to 1
     if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))),
-            ] <- 0
+        beta[which(is.nan(rowSums(beta))), ] <- 1/ncol(beta)
     }
     rownames(beta) <- colnames(alpha)
     colnames(beta) <- colnames(target)
@@ -735,6 +730,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
 # perform NMF by Non-negative least squares
 .nmf_nnls <- function(x, seed, background = NULL) {
+
     # initialization
     alpha <- basis(seed)  # exposures matrix
     beta <- coef(seed)  # signatures matrix
@@ -746,25 +742,104 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
     J <- ncol(x)  # J is the number of trinucleotides, i.e., 96 categories
     K <- nrow(beta)  # K is the number of signatures to be fitted
 
-    # iteratively fit alpha and beta by Non-negative least squares (nnls)
+    # iteratively fit alpha and beta by Non-negative least squares
     for (i in seq_len(20)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(n)) {
-            alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+            curr_beta_values <- beta
+            if (nrow(curr_beta_values) > 1) {
+                reg_out <- tryCatch({
+                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+                res_inputs <- cbind(t(curr_beta_values),
+                  matrix(rep(0, ncol(curr_beta_values)),
+                    ncol = 1))
+                reg_out <- tryCatch({
+                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res[-length(res)]
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
         }
-
         # update beta, alpha is kept fixed
         for (k in seq_len(J)) {
             if (!is.null(background)) {
                 # the first signature represents the background model, thus it
                 # is not changed during the fit
-                beta[2:K, k] <- nnls(alpha[, 2:K, drop = FALSE], as.vector(x[,
-                  k] - (alpha[, 1] * beta[1, k])))$x
+                curr_alpha_values <- alpha[, 2:K, drop = FALSE]
+                if (ncol(curr_alpha_values) > 1) {
+                    reg_out <- tryCatch({
+                        res <- glmnet(x = curr_alpha_values, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[2:K, k] <- as.numeric(res)
+                    }, error = function( e ) {
+                        beta[2:K, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                } else {
+                  res_inputs <- cbind(curr_alpha_values,
+                    rep(0, nrow(curr_alpha_values)))
+                  reg_out <- tryCatch({
+                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[2:K, k] <- res[-length(res)]
+                    }, error = function( e ) {
+                        beta[2:K, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                }
             } else {
-                beta[, k] <- nnls(alpha, as.vector(x[, k]))$x
+                curr_alpha_values <- alpha
+                if (ncol(curr_alpha_values) > 1) {
+                    reg_out <- tryCatch({
+                        res <- glmnet(x = curr_alpha_values, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[, k] <- as.numeric(res)
+                    }, error = function( e ) {
+                        beta[, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                } else {
+                  res_inputs <- cbind(curr_alpha_values,
+                    rep(0, nrow(curr_alpha_values)))
+                  reg_out <- tryCatch({
+                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[, k] <- res[-length(res)]
+                    }, error = function( e ) {
+                        beta[, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                }
             }
         }
-
     }
 
     # normalize beta and perform final fit of alpha
@@ -773,11 +848,38 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         beta[which(is.nan(rowSums(beta))), ] <- 0
     }
     for (j in seq_len(n)) {
-        alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+        curr_beta_values <- beta
+        if (nrow(curr_beta_values) > 1) {
+            reg_out <- tryCatch({
+                res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        } else {
+            res_inputs <- cbind(t(curr_beta_values),
+              matrix(rep(0, ncol(curr_beta_values)),
+                ncol = 1))
+            reg_out <- tryCatch({
+                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res[-length(res)]
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        }
     }
     if (!is.null(background)) {
-        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) -
-            1))))
+        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
     } else {
         colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
     }
@@ -798,6 +900,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
 # perform NMF by Non-negative least squares and Non-Negative Regularized GLM
 .nmf_reg <- function(x, seed, background = NULL) {
+
     # initialization
     alpha <- basis(seed)  # exposures matrix
     beta <- coef(seed)  # signatures matrix
@@ -811,26 +914,104 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
     # STEP 1: we get close to a good solution by Non-negative least squares
 
-    # iteratively fit alpha and beta by Non-negative least squares (nnls)
+    # iteratively fit alpha and beta by Non-negative least squares
     for (i in seq_len(20)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(n)) {
-            alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+            curr_beta_values <- beta
+            if (nrow(curr_beta_values) > 1) {
+                reg_out <- tryCatch({
+                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+                res_inputs <- cbind(t(curr_beta_values),
+                  matrix(rep(0, ncol(curr_beta_values)),
+                    ncol = 1))
+                reg_out <- tryCatch({
+                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res[-length(res)]
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
         }
-
         # update beta, alpha is kept fixed
         for (k in seq_len(J)) {
             if (!is.null(background)) {
                 # the first signature represents the background model, thus it
                 # is not changed during the fit
-                beta[2:K, k] <- nnls(alpha[, 2:K, drop = FALSE],
-                  as.vector(x[, k] - (alpha[, 1] * beta[1,
-                    k])))$x
+                curr_alpha_values <- alpha[, 2:K, drop = FALSE]
+                if (ncol(curr_alpha_values) > 1) {
+                    reg_out <- tryCatch({
+                        res <- glmnet(x = curr_alpha_values, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[2:K, k] <- as.numeric(res)
+                    }, error = function( e ) {
+                        beta[2:K, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                } else {
+                  res_inputs <- cbind(curr_alpha_values,
+                    rep(0, nrow(curr_alpha_values)))
+                  reg_out <- tryCatch({
+                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[2:K, k] <- res[-length(res)]
+                    }, error = function( e ) {
+                        beta[2:K, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                }
             } else {
-                beta[, k] <- nnls(alpha, as.vector(x[, k]))$x
+                curr_alpha_values <- alpha
+                if (ncol(curr_alpha_values) > 1) {
+                    reg_out <- tryCatch({
+                        res <- glmnet(x = curr_alpha_values, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[, k] <- as.numeric(res)
+                    }, error = function( e ) {
+                        beta[, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                } else {
+                  res_inputs <- cbind(curr_alpha_values,
+                    rep(0, nrow(curr_alpha_values)))
+                  reg_out <- tryCatch({
+                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
+                          lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                        res <- as.numeric(coef(res,s=res$lambda))
+                        res <- as.numeric(res[-1])
+                        beta[, k] <- res[-length(res)]
+                    }, error = function( e ) {
+                        beta[, k] <- 0
+                    }, finally = {
+                        gc(verbose = FALSE)
+                    })
+                }
             }
         }
-
     }
 
     # normalize beta and perform final fit of alpha
@@ -839,11 +1020,38 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         beta[which(is.nan(rowSums(beta))), ] <- 0
     }
     for (j in seq_len(n)) {
-        alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+        curr_beta_values <- beta
+        if (nrow(curr_beta_values) > 1) {
+            reg_out <- tryCatch({
+                res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        } else {
+            res_inputs <- cbind(t(curr_beta_values),
+              matrix(rep(0, ncol(curr_beta_values)),
+                ncol = 1))
+            reg_out <- tryCatch({
+                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res[-length(res)]
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        }
     }
     if (!is.null(background)) {
-        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) -
-            1))))
+        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
     } else {
         colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
     }
@@ -860,9 +1068,10 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 reg_out <- tryCatch({
                     res <- cv.glmnet(t(curr_beta_values), as.vector(x[j,
                       ]), type.measure = "mse", nfolds = 10,
-                      nlambda = 10, family = "gaussian", lower.limits = 0)
-                    alpha[j, ] <- as.numeric(res$glmnet.fit$beta[,
-                      ncol(res$glmnet.fit$beta)])
+                      nlambda = 100, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
                 }, error = function( e ) {
                     alpha[j, ] <- 0
                 }, finally = {
@@ -875,9 +1084,9 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 reg_out <- tryCatch({
                     res <- cv.glmnet(res_inputs, as.vector(x[j,
                       ]), type.measure = "mse", nfolds = 10,
-                      nlambda = 10, family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(res$glmnet.fit$beta[,
-                      ncol(res$glmnet.fit$beta)])
+                      nlambda = 100, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- as.numeric(res[1]+res[-1])
                     alpha[j, ] <- res[-length(res)]
                 }, error = function( e ) {
                     alpha[j, ] <- 0
@@ -886,7 +1095,6 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 })
             }
         }
-
         # update beta, alpha is kept fixed
         for (k in seq_len(J)) {
             if (!is.null(background)) {
@@ -898,10 +1106,11 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                       res <- cv.glmnet(x = curr_alpha_values,
                         y = as.vector(x[, k] - (alpha[, 1] *
                           beta[1, k])), type.measure = "mse",
-                        nfolds = 10, nlambda = 10, family = "gaussian",
-                        lower.limits = 0)
-                      beta[2:K, k] <- as.numeric(res$glmnet.fit$beta[,
-                        ncol(res$glmnet.fit$beta)])
+                        nfolds = 10, nlambda = 100, family = "gaussian",
+                        lower.limits = 0, upper.limits = 1)
+                      res <- as.numeric(coef(res,s=res$lambda.min))
+                      res <- as.numeric(res[-1])
+                      beta[2:K, k] <- res
                     }, error = function( e ) {
                         beta[2:K, k] <- 0
                     }, finally = {
@@ -913,10 +1122,10 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                   reg_out <- tryCatch({
                       res <- cv.glmnet(x = res_inputs, y = as.vector(x[,
                         k] - (alpha[, 1] * beta[1, k])), type.measure = "mse",
-                        nfolds = 10, nlambda = 10, family = "gaussian",
-                        lower.limits = 0)
-                      res <- as.numeric(res$glmnet.fit$beta[,
-                        ncol(res$glmnet.fit$beta)])
+                        nfolds = 10, nlambda = 100, family = "gaussian",
+                        lower.limits = 0, upper.limits = 1)
+                      res <- as.numeric(coef(res,s=res$lambda.min))
+                      res <- as.numeric(res[-1])
                       beta[2:K, k] <- res[-length(res)]
                     }, error = function( e ) {
                         beta[2:K, k] <- 0
@@ -930,10 +1139,11 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                     reg_out <- tryCatch({
                       res <- cv.glmnet(x = curr_alpha_values,
                         y = as.vector(x[, k]), type.measure = "mse",
-                        nfolds = 10, nlambda = 10, family = "gaussian",
-                        lower.limits = 0)
-                      beta[, k] <- as.numeric(res$glmnet.fit$beta[,
-                        ncol(res$glmnet.fit$beta)])
+                        nfolds = 10, nlambda = 100, family = "gaussian",
+                        lower.limits = 0, upper.limits = 1)
+                      res <- as.numeric(coef(res,s=res$lambda.min))
+                      res <- as.numeric(res[-1])
+                      beta[, k] <- res
                     }, error = function( e ) {
                         beta[, k] <- 0
                     }, finally = {
@@ -943,11 +1153,10 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                   res_inputs <- cbind(curr_alpha_values,
                     rep(0, nrow(curr_alpha_values)))
                   reg_out <- tryCatch({
-                      res <- cv.glmnet(x = res_inputs, y = as.vector(x[,
-                        k]), type.measure = "mse", nfolds = 10,
-                        nlambda = 10, family = "gaussian", lower.limits = 0)
-                      res <- as.numeric(res$glmnet.fit$beta[,
-                        ncol(res$glmnet.fit$beta)])
+                      res <- cv.glmnet(x = res_inputs, y = as.vector(x[, k]), type.measure = "mse", nfolds = 10,
+                        nlambda = 100, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                      res <- as.numeric(coef(res,s=res$lambda.min))
+                      res <- as.numeric(res[-1])
                       beta[, k] <- res[-length(res)]
                     }, error = function( e ) {
                         beta[, k] <- 0
@@ -970,10 +1179,11 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         if (nrow(curr_beta_values) > 1) {
             reg_out <- tryCatch({
                 res <- cv.glmnet(t(curr_beta_values), as.vector(x[j,
-                    ]), type.measure = "mse", nfolds = 10, nlambda = 10,
+                    ]), type.measure = "mse", nfolds = 10, nlambda = 100,
                     family = "gaussian", lower.limits = 0)
-                alpha[j, ] <- as.numeric(res$glmnet.fit$beta[,
-                    ncol(res$glmnet.fit$beta)])
+                res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res
             }, error = function( e ) {
                 alpha[j, ] <- 0
             }, finally = {
@@ -984,9 +1194,10 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
                 ncol(curr_beta_values)), ncol = 1))
             reg_out <- tryCatch({
                 res <- cv.glmnet(res_inputs, as.vector(x[j,
-                    ]), type.measure = "mse", nfolds = 10, nlambda = 10,
+                    ]), type.measure = "mse", nfolds = 10, nlambda = 100,
                     family = "gaussian", lower.limits = 0)
-                res <- as.numeric(res$glmnet.fit$beta[, ncol(res$glmnet.fit$beta)])
+                res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- as.numeric(res[1]+res[-1])
                 alpha[j, ] <- res[-length(res)]
             }, error = function( e ) {
                 alpha[j, ] <- 0
@@ -996,8 +1207,7 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         }
     }
     if (!is.null(background)) {
-        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) -
-            1))))
+        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
     } else {
         colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
     }
@@ -1018,8 +1228,9 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
 
 # perform fit of NMF solution by Non-negative least squares
 .nmf_fit <- function(x, beta) {
+
     # initialization
-    alpha <- array(NA, c(nrow(x), nrow(beta)))
+    alpha <- matrix(NA, nrow=nrow(x),ncol=nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     beta <- (beta/rowSums(beta))
@@ -1029,18 +1240,71 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
     n <- nrow(x)  # n is the number of observations in x, i.e., the patients
     J <- ncol(x)  # J is the number of trinucleotides, i.e., 96 categories
 
-    # iteratively fit alpha and beta by Non-negative least squares (nnls)
+    # iteratively fit alpha and beta by Non-negative least squares
     for (i in seq_len(20)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(n)) {
-            alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+            curr_beta_values <- beta
+            if (nrow(curr_beta_values) > 1) {
+                reg_out <- tryCatch({
+                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+                res_inputs <- cbind(t(curr_beta_values),
+                  matrix(rep(0, ncol(curr_beta_values)),
+                    ncol = 1))
+                reg_out <- tryCatch({
+                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                        lambda = 0, family = "gaussian", lower.limits = 0)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[1]+res[-1])
+                    alpha[j, ] <- res[-length(res)]
+                }, error = function( e ) {
+                    alpha[j, ] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
         }
-
         # update beta, alpha is kept fixed
         for (k in seq_len(J)) {
-            beta[, k] <- nnls(alpha, as.vector(x[, k]))$x
+            curr_alpha_values <- alpha
+            if (ncol(curr_alpha_values) > 1) {
+                reg_out <- tryCatch({
+                    res <- glmnet(x = curr_alpha_values, y = as.vector(x[, k]), 
+                      lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[-1])
+                    beta[, k] <- as.numeric(res)
+                }, error = function( e ) {
+                    beta[, k] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+              res_inputs <- cbind(curr_alpha_values,
+                rep(0, nrow(curr_alpha_values)))
+              reg_out <- tryCatch({
+                    res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
+                      lambda = 0, family = "gaussian", lower.limits = 0, upper.limits = 1)
+                    res <- as.numeric(coef(res,s=res$lambda))
+                    res <- as.numeric(res[-1])
+                    beta[, k] <- res[-length(res)]
+                }, error = function( e ) {
+                    beta[, k] <- 0
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
         }
-
     }
 
     # normalize beta and perform final fit of alpha
@@ -1049,8 +1313,42 @@ signaturesCV <- function(x, beta, normalize_counts = FALSE, cross_validation_ent
         beta[which(is.nan(rowSums(beta))), ] <- 0
     }
     for (j in seq_len(n)) {
-        alpha[j, ] <- nnls(t(beta), as.vector(x[j, ]))$x
+        curr_beta_values <- beta
+        if (nrow(curr_beta_values) > 1) {
+            reg_out <- tryCatch({
+                res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        } else {
+            res_inputs <- cbind(t(curr_beta_values),
+              matrix(rep(0, ncol(curr_beta_values)),
+                ncol = 1))
+            reg_out <- tryCatch({
+                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                    lambda = 0, family = "gaussian", lower.limits = 0)
+                res <- as.numeric(coef(res,s=res$lambda))
+                res <- as.numeric(res[1]+res[-1])
+                alpha[j, ] <- res[-length(res)]
+            }, error = function( e ) {
+                alpha[j, ] <- 0
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        }
     }
+    if (!is.null(background)) {
+        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
+    } else {
+        colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
+    }
+    rownames(beta) <- colnames(alpha)
 
     # update results
     results <- list(alpha = alpha, beta = beta)
