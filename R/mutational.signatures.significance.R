@@ -183,14 +183,14 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
     }
 
     # perform final fit of alpha using only significant signatures
-    alpha <- array(0, c(nrow(x), nrow(beta)))
+    alpha <- matrix(0, nrow=nrow(x), ncol=nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     goodness_fit <- NULL
     for (i in seq_len(nrow(x))) {
         # perform fit
         curr_sigs <- names(which(bootstrap$pvalues[i, ] < pvalue_thr))
-        curr_alpha <- array(NA, c(1, length(curr_sigs)))
+        curr_alpha <- matrix(NA, nrow=1, ncol=length(curr_sigs))
         curr_beta <- beta[curr_sigs, , drop = FALSE]
         if (sparsify == TRUE) {
             curr_beta_values <- curr_beta
@@ -282,7 +282,7 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
     sparsify = TRUE) {
     
     # initialization
-    alpha <- array(NA, c(1, nrow(beta)))
+    alpha <- matrix(NA, nrow=1, ncol=nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     if (sparsify == TRUE) {
@@ -353,12 +353,12 @@ signaturesSignificance <- function(x, beta, cosine_thr = 0.95, min_contribution 
     # similarity is reached
     sigs <- colnames(alpha[, which(alpha[1, ] > 0),
         drop = FALSE])[sort.int(alpha[, which(alpha[1, ] > 0)], decreasing = TRUE, index.return = TRUE)$ix]
-    alpha <- array(0, c(1, nrow(beta)))
+    alpha <- matrix(0, nrow=1, ncol=nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     for (i in seq_len(length(sigs))) {
         # consider current set of signatures and perform fit of alpha
-        curr_alpha <- array(NA, c(1, i))
+        curr_alpha <- matrix(NA, nrow=1, ncol=i)
         curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
         if (sparsify == TRUE) {
             curr_beta_values <- curr_beta

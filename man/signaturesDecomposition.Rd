@@ -9,7 +9,7 @@ signaturesDecomposition(
   K,
   background_signature = NULL,
   normalize_counts = FALSE,
-  nmf_runs = 50,
+  nmf_runs = 100,
   sparsify = TRUE,
   num_processes = Inf,
   verbose = TRUE

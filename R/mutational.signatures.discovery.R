@@ -49,7 +49,7 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
 
-    # perform signatures assignment
+    # # perform signatures assignment
     if (sparsify) {
         for (j in seq_len(nrow(alpha))) {
             curr_beta_values <- beta
@@ -114,7 +114,6 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
                     gc(verbose = FALSE)
                 })
             }
-        }
     }
 
     # rescale alpha to the original magnitude
