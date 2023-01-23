@@ -344,7 +344,7 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
                 })
                 curr_measures <- matrix(c(K[i], curr_rss,
                   curr_evar, curr_silhouette_alpha, curr_silhouette_beta,
-                  curr_sparseness_alpha, curr_silhouette_beta,
+                  curr_sparseness_alpha, curr_sparseness_beta,
                   cophcor(results), dispersion(results),
                   curr_silhouette_consensus), nrow = 1)
                 colnames(curr_measures) <- c("Rank", "Residual_Sum_Squares",
@@ -355,7 +355,7 @@ signaturesDecomposition <- function(x, K, background_signature = NULL,
             } else {
                 curr_measures <- matrix(c(K[i], curr_rss,
                   curr_evar, curr_silhouette_alpha, curr_silhouette_beta,
-                  curr_sparseness_alpha, curr_silhouette_beta),
+                  curr_sparseness_alpha, curr_sparseness_beta),
                   nrow = 1)
                 colnames(curr_measures) <- c("Rank", "Residual_Sum_Squares",
                   "Explained_Variance", "Silhouette_Alpha",
