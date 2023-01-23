@@ -85,6 +85,7 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
             }
         }
     } else {
+        for (j in seq_len(nrow(alpha))) {
             curr_beta_values <- beta
             if (nrow(curr_beta_values) > 1) {
                 reg_out <- tryCatch({
@@ -114,6 +115,7 @@ signaturesAssignment <- function(x, beta, normalize_counts = FALSE,
                     gc(verbose = FALSE)
                 })
             }
+        }
     }
 
     # rescale alpha to the original magnitude
