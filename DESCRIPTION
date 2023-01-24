@@ -23,7 +23,6 @@ Imports:
     gridExtra,
     IRanges,
     lsa,
-    nnls,
     parallel,
     reshape2
 Suggests:

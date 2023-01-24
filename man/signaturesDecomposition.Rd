@@ -51,7 +51,7 @@ signatures (see Steele, Christopher D., et al. 'Signatures of copy number altera
 data(background)
 data(patients)
 set.seed(12345)
-res <- signaturesDecomposition(x = patients[seq_len(3),],
+res <- signaturesDecomposition(x = patients[seq_len(10),],
                                K = 3:4,
                                background_signature = background,
                                nmf_runs = 2,

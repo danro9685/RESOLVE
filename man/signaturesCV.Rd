@@ -48,14 +48,14 @@ mutational signatures given a set of observations x and discovered signatures be
 data(background)
 data(patients)
 set.seed(12345)
-sigs <- signaturesDecomposition(x = patients[seq_len(3),],
+sigs <- signaturesDecomposition(x = patients[seq_len(10),],
                                 K = 3:4,
                                 background_signature = background,
                                 nmf_runs = 2,
                                 sparsify = FALSE,
                                 num_processes = 1)
 set.seed(12345)
-res <- signaturesCV(x = patients[seq_len(3),],
+res <- signaturesCV(x = patients[seq_len(10),],
                     beta = sigs$beta,
                     cross_validation_iterations = 2,
                     cross_validation_repetitions = 2,
