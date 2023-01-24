@@ -189,7 +189,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             curr_beta_values <- curr_beta
             if (nrow(curr_beta_values) > 1) {
                 curr_alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), maxit = 1e+06, 
+                    res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -206,7 +206,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             } else {
                 res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
                 curr_alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), maxit = 1e+06, 
+                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -225,7 +225,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             curr_beta_values <- curr_beta
             if (nrow(curr_beta_values) > 1) {
                 curr_alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), maxit = 1e+06, 
+                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])
@@ -241,7 +241,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             } else {
                 res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
                 curr_alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), maxit = 1e+06, 
+                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])[-length(res)]
