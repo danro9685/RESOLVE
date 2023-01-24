@@ -17,9 +17,9 @@ signaturesSignificance(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
 
-\item{beta}{discovered signatures to be used for the fit of alpha.}
+\item{beta}{Discovered signatures to be used for the fit of alpha.}
 
 \item{cosine_thr}{Level of cosine similarity to be reached for the fit of alpha.}
 
@@ -27,14 +27,14 @@ signaturesSignificance(
 
 \item{pvalue_thr}{Pvalue level to be used to assess significance.}
 
-\item{sparsify}{boolean; Shall I perform regularization using LASSO?}
+\item{sparsify}{Boolean. Shall I perform regularization using LASSO?}
 
 \item{nboot}{Number of bootstrap iterations to be performed.}
 
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
-\item{verbose}{boolean; Shall I print information messages?}
+\item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
 A list with the bootstrap estimates. It includes 4 elements:
@@ -44,7 +44,7 @@ A list with the bootstrap estimates. It includes 4 elements:
              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 }
 \description{
-Perform a robust estimation by bootstrap of alpha coefficients until a given level of cosine similarity is reached
+Perform a robust estimation by bootstrap of alpha coefficients to reach a given level of cosine similarity 
 given a set of observed counts x and discovered signatures beta.
 }
 \examples{
@@ -52,19 +52,19 @@ data(background)
 data(patients)
 set.seed(12345)
 beta <- signaturesDecomposition(x = patients[seq_len(3),],
-                               K = 3:4,
-                               background_signature = background,
-                               nmf_runs = 2,
-                               sparsify = FALSE,
-                               num_processes = 1)
+                                K = 3:4,
+                                background_signature = background,
+                                nmf_runs = 2,
+                                sparsify = FALSE,
+                                num_processes = 1)
 set.seed(12345)
 res <- signaturesSignificance(x = patients[seq_len(3),],
-                             beta = beta$beta[[1]],
-                             cosine_thr = 0.95,
-                             min_contribution = 0.05,
-                             pvalue_thr = 0.05,
-                             sparsify = FALSE,
-                             nboot = 2,
-                             num_processes = 1)
+                              beta = beta$beta[[1]],
+                              cosine_thr = 0.95,
+                              min_contribution = 0.05,
+                              pvalue_thr = 0.05,
+                              sparsify = FALSE,
+                              nboot = 5,
+                              num_processes = 1)
 
 }

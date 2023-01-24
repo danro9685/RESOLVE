@@ -13,16 +13,16 @@ signaturesAssignment(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
-\item{beta}{matrix of the discovered signatures to be used for the assignment.}
+\item{beta}{Matrix of the discovered signatures to be used for the assignment.}
 
-\item{normalize_counts}{if true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
+\item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
-\item{sparsify}{boolean; Shall I perform regularization?}
+\item{sparsify}{Boolean. Shall I perform regularization?}
 
-\item{verbose}{boolean; Shall I print information messages?}
+\item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
 A list with the discovered signatures. It includes 2 elements:
@@ -41,11 +41,11 @@ data(background)
 data(patients)
 set.seed(12345)
 beta <- signaturesDecomposition(x = patients[seq_len(3),],
-                               K = 3,
-                               background_signature = background,
-                               nmf_runs = 2,
-                               sparsify = FALSE,
-                               num_processes = 1)
+                                K = 3,
+                                background_signature = background,
+                                nmf_runs = 2,
+                                sparsify = FALSE,
+                                num_processes = 1)
 set.seed(12345)
 res <- signaturesAssignment(x = patients[seq_len(3),], beta = beta$beta[[1]], sparsify = FALSE)
 

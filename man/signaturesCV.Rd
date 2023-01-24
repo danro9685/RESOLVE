@@ -16,11 +16,11 @@ signaturesCV(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
 
-\item{beta}{a set of inferred signatures as returned by signaturesDecomposition function.}
+\item{beta}{A set of inferred signatures as returned by signaturesDecomposition function.}
 
-\item{normalize_counts}{if true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
+\item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
 \item{cross_validation_entries}{Percentage of cells in the counts matrix to be replaced by 0s during cross validation.}
 
@@ -34,7 +34,7 @@ more expensive.}
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
-\item{verbose}{boolean; Shall I print information messages?}
+\item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
 A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
@@ -49,16 +49,16 @@ data(background)
 data(patients)
 set.seed(12345)
 sigs <- signaturesDecomposition(x = patients[seq_len(3),],
-                               K = 3:4,
-                               background_signature = background,
-                               nmf_runs = 2,
-                               sparsify = FALSE,
-                               num_processes = 1)
+                                K = 3:4,
+                                background_signature = background,
+                                nmf_runs = 2,
+                                sparsify = FALSE,
+                                num_processes = 1)
 set.seed(12345)
 res <- signaturesCV(x = patients[seq_len(3),],
-                   beta = sigs$beta,
-                   cross_validation_iterations = 2,
-                   cross_validation_repetitions = 2,
-                   num_processes = 1)
+                    beta = sigs$beta,
+                    cross_validation_iterations = 2,
+                    cross_validation_repetitions = 2,
+                    num_processes = 1)
 
 }

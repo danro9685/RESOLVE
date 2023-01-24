@@ -16,23 +16,23 @@ signaturesDecomposition(
 )
 }
 \arguments{
-\item{x}{counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
-\item{K}{either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures to be considered.}
+\item{K}{Either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures to be considered.}
 
-\item{background_signature}{background signature to be used.}
+\item{background_signature}{Background signature to be used.}
 
-\item{normalize_counts}{if true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
+\item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
-\item{nmf_runs}{number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.}
+\item{nmf_runs}{Number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.}
 
-\item{sparsify}{boolean; Shall I perform regularization?}
+\item{sparsify}{Boolean. Shall I perform regularization?}
 
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
 
-\item{verbose}{boolean; Shall I print information messages?}
+\item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
 A list with the discovered signatures and related rank measures. It includes 3 elements:
@@ -52,10 +52,10 @@ data(background)
 data(patients)
 set.seed(12345)
 res <- signaturesDecomposition(x = patients[seq_len(3),],
-                              K = 3:4,
-                              background_signature = background,
-                              nmf_runs = 2,
-                              sparsify = FALSE,
-                              num_processes = 1)
+                               K = 3:4,
+                               background_signature = background,
+                               nmf_runs = 2,
+                               sparsify = FALSE,
+                               num_processes = 1)
 
 }
