@@ -17,7 +17,8 @@ signaturesSignificance(
 )
 }
 \arguments{
-\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{beta}{Discovered signatures to be used for the fit of alpha.}
 
@@ -44,27 +45,27 @@ A list with the bootstrap estimates. It includes 4 elements:
              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 }
 \description{
-Perform a robust estimation by bootstrap of alpha coefficients to reach a given level of cosine similarity 
+Perform a robust estimation of alpha coefficients by bootstrap to reach a certain level of cosine similarity 
 given a set of observed counts x and discovered signatures beta.
 }
 \examples{
 data(background)
 data(patients)
 set.seed(12345)
-beta <- signaturesDecomposition(x = patients[seq_len(10),],
+beta <- signaturesDecomposition(x = patients[seq_len(5),],
                                 K = 3:4,
                                 background_signature = background,
                                 nmf_runs = 2,
                                 sparsify = FALSE,
                                 num_processes = 1)
 set.seed(12345)
-res <- signaturesSignificance(x = patients[seq_len(10),],
+res <- signaturesSignificance(x = patients[seq_len(5),],
                               beta = beta$beta[[1]],
                               cosine_thr = 0.95,
                               min_contribution = 0.05,
                               pvalue_thr = 0.05,
                               sparsify = FALSE,
-                              nboot = 5,
+                              nboot = 3,
                               num_processes = 1)
 
 }

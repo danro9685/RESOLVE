@@ -41,13 +41,13 @@ Christopher D., et al. 'Signatures of copy number alterations in human cancer.' 
 data(background)
 data(patients)
 set.seed(12345)
-beta <- signaturesDecomposition(x = patients[seq_len(10),],
+beta <- signaturesDecomposition(x = patients[seq_len(5),],
                                 K = 3,
                                 background_signature = background,
                                 nmf_runs = 2,
                                 sparsify = FALSE,
                                 num_processes = 1)
 set.seed(12345)
-res <- signaturesAssignment(x = patients[seq_len(10),], beta = beta$beta[[1]], sparsify = FALSE)
+res <- signaturesAssignment(x = patients[seq_len(5),], beta = beta$beta[[1]], sparsify = FALSE)
 
 }

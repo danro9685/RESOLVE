@@ -1,28 +1,29 @@
-#' Perform a robust estimation by bootstrap of alpha coefficients to reach a given level of cosine similarity 
+#' Perform a robust estimation of alpha coefficients by bootstrap to reach a certain level of cosine similarity 
 #' given a set of observed counts x and discovered signatures beta.
 #'
 #' @examples
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' beta <- signaturesDecomposition(x = patients[seq_len(10),],
+#' beta <- signaturesDecomposition(x = patients[seq_len(5),],
 #'                                 K = 3:4,
 #'                                 background_signature = background,
 #'                                 nmf_runs = 2,
 #'                                 sparsify = FALSE,
 #'                                 num_processes = 1)
 #' set.seed(12345)
-#' res <- signaturesSignificance(x = patients[seq_len(10),],
+#' res <- signaturesSignificance(x = patients[seq_len(5),],
 #'                               beta = beta$beta[[1]],
 #'                               cosine_thr = 0.95,
 #'                               min_contribution = 0.05,
 #'                               pvalue_thr = 0.05,
 #'                               sparsify = FALSE,
-#'                               nboot = 5,
+#'                               nboot = 3,
 #'                               num_processes = 1)
 #'
 #' @title signaturesSignificance
-#' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
+#' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+#' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param beta Discovered signatures to be used for the fit of alpha.
 #' @param cosine_thr Level of cosine similarity to be reached for the fit of alpha.
 #' @param min_contribution Minimum contribution of a signature to be considered significant.
@@ -38,8 +39,8 @@
 #'              goodness_fit: vector reporting cosine similarities between predictions and observations.
 #'              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 #' @export signaturesSignificance
+#' @import glmnet
 #' @import parallel
-#' @importFrom glmnet glmnet cv.glmnet
 #' @importFrom lsa cosine
 #'
 signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05,
@@ -48,9 +49,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     # check input parameters
     x <- as.matrix(x)
     beta <- as.matrix(beta)
-    if (nboot < 5) {
-        warning("The minimum value of nboot must be 5...")
-        nboot <- 5
+    if (nboot < 3) {
+        warning("The minimum value of nboot must be 3...")
+        nboot <- 3
     }
 
     # setting up parallel execution
@@ -101,10 +102,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel, library("lsa", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
-        clusterExport(parallel, varlist = c(".sigs_significance"), envir = environment())
-        clusterExport(parallel, varlist = c("verbose", "nboot"), envir = environment())
-        clusterExport(parallel, varlist = c("x", "beta", "cosine_thr", "sparsify"),
-            envir = environment())
+        clusterExport(parallel, varlist = c(".sigs_significance", "verbose", "nboot"), envir = environment())
+        clusterExport(parallel, varlist = c("x", "beta", "cosine_thr", "sparsify"), envir = environment())
         clusterSetRNGStream(parallel, iseed = round(runif(1) * 1e+05))
         rm(res_clusterEvalQ)
         gc(verbose = FALSE)
@@ -165,8 +164,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     goodness_fit <- NULL
     for (i in seq_len(nrow(x))) {
         # estimate goodness of fit
-        goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), 
-            as.numeric((alpha[i, ] %*% beta)))))
+        goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), as.numeric((alpha[i, ] %*% beta)))))
     }
     names(goodness_fit) <- rownames(x)
     bootstrap <- list(estimate = alpha, pvalues = pvalues, goodness_fit = goodness_fit)
@@ -186,10 +184,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         curr_alpha <- matrix(NA, nrow=1, ncol=length(curr_sigs))
         curr_beta <- beta[curr_sigs, , drop = FALSE]
         if (sparsify == TRUE) {
-            curr_beta_values <- curr_beta
-            if (nrow(curr_beta_values) > 1) {
-                curr_alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+            if (nrow(curr_beta) > 1) {
+                curr_alpha[1, ] <- tryCatch({
+                    res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[i, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -199,14 +196,15 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[i,]))/ncol(curr_alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
-                curr_alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                res_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
+                curr_alpha[1, ] <- tryCatch({
+                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[i, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -216,16 +214,16 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[i,]))/ncol(curr_alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             }
         } else {
-            curr_beta_values <- curr_beta
-            if (nrow(curr_beta_values) > 1) {
-                curr_alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+            if (nrow(curr_beta) > 1) {
+                curr_alpha[1, ] <- tryCatch({
+                    res <- glmnet(x = t(curr_beta), y = as.vector(x[i, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])
@@ -234,14 +232,15 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[i,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
-                curr_alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                res_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
+                curr_alpha[1, ] <- tryCatch({
+                    res <- glmnet(x = res_inputs, y = as.vector(x[i, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])[-length(res)]
@@ -250,7 +249,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[i,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
@@ -286,10 +286,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     if (sparsify == TRUE) {
-        curr_beta_values <- beta
-        if (nrow(curr_beta_values) > 1) {
+        if (nrow(beta) > 1) {
             alpha[1, ] <- tryCatch({
-                res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[1, ]), 
+                res <- cv.glmnet(x = t(beta), y = as.vector(x[1, ]), 
                     type.measure = "mse", nfolds = 10, nlambda = 100, 
                     family = "gaussian", lower.limits = 0)
                 res <- as.numeric(coef(res,s=res$lambda.min))
@@ -299,12 +298,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 }
                 res
             }, error = function( e ) {
-                return((sum(as.vector(x[1,]))/ncol(alpha)))
+                res <- (sum(as.vector(x[1,]))/ncol(curr_alpha))
+                return(res)
             }, finally = {
                 gc(verbose = FALSE)
             })
         } else {
-            res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
             alpha[1, ] <- tryCatch({
                 res <- cv.glmnet(x = res_inputs, y = as.vector(x[1, ]), 
                     type.measure = "mse", nfolds = 10, nlambda = 100, 
@@ -316,16 +316,16 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 }
                 res
             }, error = function( e ) {
-                return((sum(as.vector(x[1,]))/ncol(alpha)))
+                res <- (sum(as.vector(x[1,]))/ncol(curr_alpha))
+                return(res)
             }, finally = {
                 gc(verbose = FALSE)
             })
         }
     } else {
-        curr_beta_values <- beta
-        if (nrow(curr_beta_values) > 1) {
+        if (nrow(beta) > 1) {
             alpha[1, ] <- tryCatch({
-                res <- glmnet(x = t(curr_beta_values), y = as.vector(x[1, ]), 
+                res <- glmnet(x = t(beta), y = as.vector(x[1, ]), 
                     lambda = 0, family = "gaussian", lower.limits = 0)
                 res <- as.numeric(coef(res,s=res$lambda))
                 res <- as.numeric(res[1]+res[-1])
@@ -334,12 +334,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 }
                 res
             }, error = function( e ) {
-                return((sum(as.vector(x[1,]))/ncol(alpha)))
+                res <- (sum(as.vector(x[1,]))/ncol(alpha))
+                return(res)
             }, finally = {
                 gc(verbose = FALSE)
             })
         } else {
-            res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
             alpha[1, ] <- tryCatch({
                 res <- glmnet(x = res_inputs, y = as.vector(x[1, ]), 
                     lambda = 0, family = "gaussian", lower.limits = 0)
@@ -350,7 +351,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 }
                 res
             }, error = function( e ) {
-                return((sum(as.vector(x[1,]))/ncol(alpha)))
+                res <- (sum(as.vector(x[1,]))/ncol(alpha))
+                return(res)
             }, finally = {
                 gc(verbose = FALSE)
             })
@@ -369,10 +371,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         curr_alpha <- matrix(NA, nrow=1, ncol=i)
         curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
         if (sparsify == TRUE) {
-            curr_beta_values <- curr_beta
-            if (nrow(curr_beta_values) > 1) {
+            if (nrow(curr_beta) > 1) {
                 curr_alpha[1, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[1, ]), 
+                    res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -382,12 +383,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[1,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[1,]))/ncol(curr_alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+                res_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
                 curr_alpha[1, ] <- tryCatch({
                     res <- cv.glmnet(x = res_inputs, y = as.vector(x[1, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
@@ -399,16 +401,16 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[1,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[1,]))/ncol(curr_alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             }
         } else {
-            curr_beta_values <- curr_beta
-            if (nrow(curr_beta_values) > 1) {
+            if (nrow(curr_beta) > 1) {
                 curr_alpha[1, ] <- tryCatch({
-                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[1, ]), 
+                    res <- glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])
@@ -417,12 +419,13 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[1,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[1,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+                res_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
                 curr_alpha[1, ] <- tryCatch({
                     res <- glmnet(x = res_inputs, y = as.vector(x[1, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
@@ -433,7 +436,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[1,]))/ncol(curr_alpha)))
+                    res <- (sum(as.vector(x[1,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
@@ -441,8 +445,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         }
         # estimate goodness of fit
         curr_predicted_counts <- curr_alpha %*% curr_beta
-        curr_goodness_fit <- as.numeric(cosine(as.numeric(x),
-            as.numeric(curr_predicted_counts)))
+        curr_goodness_fit <- as.numeric(cosine(as.numeric(x), as.numeric(curr_predicted_counts)))
         if (curr_goodness_fit > cosine_thr) {
             break
         }

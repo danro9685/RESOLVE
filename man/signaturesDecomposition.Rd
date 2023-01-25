@@ -53,7 +53,7 @@ Christopher D., et al. 'Signatures of copy number alterations in human cancer.' 
 data(background)
 data(patients)
 set.seed(12345)
-res <- signaturesDecomposition(x = patients[seq_len(10),],
+res <- signaturesDecomposition(x = patients[seq_len(5),],
                                K = 3:4,
                                background_signature = background,
                                nmf_runs = 2,
