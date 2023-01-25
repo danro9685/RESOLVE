@@ -16,20 +16,21 @@ signaturesCV(
 )
 }
 \arguments{
-\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.}
+\item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{beta}{A set of inferred signatures as returned by signaturesDecomposition function.}
 
 \item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
-\item{cross_validation_entries}{Percentage of cells in the counts matrix to be replaced by 0s during cross validation.}
+\item{cross_validation_entries}{Percentage of cells in the counts matrix to be replaced by 0s during cross-validation.}
 
 \item{cross_validation_iterations}{For each configuration, the first time the signatures are fitted form a matrix with a
 percentage of values replaced by 0s. This may result in poor fit/results. Then, we perform predictions of these entries and replace them with
 such predicted values. This parameter is the number of restarts to be performed to improve this estimate and obtain more stable solutions.}
 
-\item{cross_validation_repetitions}{Number of time cross-validation should be repeated. Higher values result in better estimate, but are computationally
-more expensive.}
+\item{cross_validation_repetitions}{Number of time cross-validation should be repeated. Higher values result in better estimate, but are 
+computationally more expensive.}
 
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
@@ -38,11 +39,11 @@ this parameter needs to be set to either NA or NULL.}
 }
 \value{
 A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
-cross validation; rank_estimates reports mean and median values for each value of K.
+cross-validation; rank_estimates reports mean and median values for each value of K.
 }
 \description{
-Perform the assessment of different signaturesDecomposition solutions by cross validation for K (beta, as estimated by signaturesDecomposition) somatic
-mutational signatures given a set of observations x and discovered signatures beta.
+Perform the assessment of different signaturesDecomposition solutions by cross-validation for K (beta, as estimated by 
+signaturesDecomposition) somatic mutational signatures given a set of observations x and discovered signatures beta.
 }
 \examples{
 data(background)

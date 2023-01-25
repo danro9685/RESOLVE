@@ -1,8 +1,9 @@
 #' Perform the assignment of K somatic mutational signatures provided as input to samples given a set of observed counts x.
-#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant)
-#' (see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers in the UK population.' Science 376.6591 (2022): abl9283),
-#' CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number)
-#' signatures (see Steele, Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
+#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and 
+#' MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers 
+#' in the UK population.' Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer 
+#' compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, 
+#' Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
 #'
 #' @examples
 #' data(background)
@@ -28,7 +29,7 @@
 #'              alpha: matrix of the discovered exposure values.
 #'              beta: matrix of the discovered signatures.
 #' @export signaturesAssignment
-#' @importFrom glmnet glmnet cv.glmnet
+#' @import glmnet
 #'
 signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
     sparsify = TRUE, verbose = TRUE ) {
@@ -52,10 +53,9 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
     # perform signatures assignment
     if (sparsify) {
         for (j in seq_len(nrow(alpha))) {
-            curr_beta_values <- beta
-            if (nrow(curr_beta_values) > 1) {
+            if (nrow(beta) > 1) {
                 alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                    res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda.min))
@@ -65,12 +65,13 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(alpha)))
+                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
                 alpha[j, ] <- tryCatch({
                     res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
@@ -82,18 +83,19 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(alpha)))
+                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             }
+            gc(verbose = FALSE)
         }
     } else {
         for (j in seq_len(nrow(alpha))) {
-            curr_beta_values <- beta
-            if (nrow(curr_beta_values) > 1) {
+            if (nrow(beta) > 1) {
                 alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(curr_beta_values), y = as.vector(x[j, ]), 
+                    res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
                     res <- as.numeric(coef(res,s=res$lambda))
                     res <- as.numeric(res[1]+res[-1])
@@ -102,12 +104,13 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(alpha)))
+                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             } else {
-                res_inputs <- cbind(t(curr_beta_values), rep(0, ncol(curr_beta_values)))
+                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
                 alpha[j, ] <- tryCatch({
                     res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
                         lambda = 0, family = "gaussian", lower.limits = 0)
@@ -118,11 +121,13 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
                     }
                     res
                 }, error = function( e ) {
-                    return((sum(as.vector(x[j,]))/ncol(alpha)))
+                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
+                    return(res)
                 }, finally = {
                     gc(verbose = FALSE)
                 })
             }
+            gc(verbose = FALSE)
         }
     }
 
@@ -131,17 +136,23 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
         alpha <- alpha * (rowSums(x_not_normalized)/2500)
     }
 
-    # return the assigned signatures
+    # save results
     results <- list(alpha = alpha, beta = beta)
+    rm(alpha)
+    rm(beta)
+    gc(verbose = FALSE)
+
+    # return the assigned signatures
     return(results)
 
 }
 
 #' Perform signatures discovery and rank estimation for a range of K somatic mutational signatures given a set of observed counts x.
-#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and MNV (multi-nucleotide variant)
-#' (see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers in the UK population.' Science 376.6591 (2022): abl9283),
-#' CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number)
-#' signatures (see Steele, Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
+#' This function can be used to estimate different types of mutational signatures such as: SBS (single base substitutions) and 
+#' MNV (multi-nucleotide variant) (see Degasperi, Andrea, et al. 'Substitution mutational signatures in whole-genome–sequenced cancers 
+#' in the UK population.' Science 376.6591 (2022): abl9283), CX (chromosomal instability) (see Drews, Ruben M., et al. 'A pan-cancer 
+#' compendium of chromosomal instability.' Nature 606.7916 (2022): 976-983) and CN (copy number) signatures (see Steele, 
+#' Christopher D., et al. 'Signatures of copy number alterations in human cancer.' Nature 606.7916 (2022): 984-991).
 #'
 #' @examples
 #' data(background)
@@ -157,7 +168,8 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
 #' @title signaturesDecomposition
 #' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 #' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
-#' @param K Either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures to be considered.
+#' @param K Either one value or a range of numeric values (each of them greater than 0) indicating the number of signatures 
+#' to be considered.
 #' @param background_signature Background signature to be used.
 #' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
 #' @param nmf_runs Number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.
@@ -170,10 +182,11 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
 #'              beta: list of matrices of the discovered signatures for each possible rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
+#' @import glmnet
 #' @import NMF
 #' @import parallel
 #' @importFrom cluster silhouette
-#' @importFrom glmnet glmnet cv.glmnet
+#' @importFrom lsa cosine
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
     normalize_counts = FALSE, nmf_runs = 100, sparsify = TRUE,
@@ -217,6 +230,8 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         pbackend <- "seq"
     } else {
         pbackend <- makeCluster(num_processes)
+        res_clusterEvalQ <- clusterEvalQ(pbackend, library("lsa",
+            warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(pbackend, library("NMF",
             warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(pbackend, library("glmnet",
@@ -252,8 +267,9 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         rank0_alpha <- signaturesAssignment(x = x, beta = rank0_beta,
             normalize_counts = FALSE, sparsify = sparsify,
             verbose = FALSE)$alpha
-        rank0_rss <- rss(rank0_alpha %*% rank0_beta, x)
-        rank0_evar <- evar(rank0_alpha %*% rank0_beta, x)
+        pred_rank0 <- rank0_alpha %*% rank0_beta
+        rank0_rss <- rss(pred_rank0, x)
+        rank0_evar <- evar(pred_rank0, x)
         rank0_sparseness_alpha <- sparseness(as.vector(rank0_alpha))
         rank0_sparseness_beta <- sparseness(as.vector(rank0_beta))
         if (normalize_counts) {
@@ -297,16 +313,17 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             }
 
             # perform the inference for the current K
+            results <- NULL
+            gc(verbose = FALSE)
             if (sparsify) {
-                results <- nmf(x = x, rank = K[i], method = .nmf_reg,
-                        background = background_signature,
-                        seed = .nmf_seed, rng = round(runif(1) * 10000), 
+                results <- nmf(x = x, rank = K[i], method = .nmf_reg, 
+                        background = background_signature, objective = .nmf_objective, 
+                        mixed = FALSE, seed = .nmf_seed, rng = round(runif(1) * 1e+05), 
                         nrun = nmf_runs, .pbackend = pbackend)
-                gc(verbose = FALSE)
             } else {
-                results <- nmf(x = x, rank = K[i], method = .nmf_ls,
-                        background = background_signature,
-                        seed = .nmf_seed, rng = round(runif(1) * 10000), 
+                results <- nmf(x = x, rank = K[i], method = .nmf_ls, 
+                        background = background_signature, objective = .nmf_objective, 
+                        mixed = FALSE, seed = .nmf_seed, rng = round(runif(1) * 1e+05), 
                         nrun = nmf_runs, .pbackend = pbackend)
             }
             gc(verbose = FALSE)
@@ -316,33 +333,27 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
             # rescale alpha to the original magnitude
             if (normalize_counts) {
-                alpha[[paste0(K[i], "_signatures")]] <- alpha[[paste0(K[i],
-                  "_signatures")]] * (rowSums(x_not_normalized)/2500)
+                alpha[[paste0(K[i], "_signatures")]] <- alpha[[paste0(K[i], "_signatures")]] * (rowSums(x_not_normalized)/2500)
             }
 
             # compute and save quality measures
             curr_rss <- rss(results, x)
             curr_evar <- evar(results, x)
             curr_silhouette_alpha <- tryCatch({
-                mean(silhouette(results, what = "features")[,
-                  "sil_width"])
+                mean(silhouette(results, what = "features")[, "sil_width"])
             }, error = function(e) {
                 NA
             })
             curr_silhouette_beta <- tryCatch({
-                mean(silhouette(results, what = "samples")[,
-                  "sil_width"])
+                mean(silhouette(results, what = "samples")[, "sil_width"])
             }, error = function(e) {
                 NA
             })
-            curr_sparseness_alpha <- sparseness(as.vector(alpha[[paste0(K[i],
-                "_signatures")]]))
-            curr_sparseness_beta <- sparseness(as.vector(beta[[paste0(K[i],
-                "_signatures")]]))
+            curr_sparseness_alpha <- sparseness(as.vector(alpha[[paste0(K[i], "_signatures")]]))
+            curr_sparseness_beta <- sparseness(as.vector(beta[[paste0(K[i], "_signatures")]]))
             if (nmf_runs > 1) {
                 curr_silhouette_consensus <- tryCatch({
-                  mean(silhouette(results, what = "chc")[,
-                    "sil_width"])
+                  mean(silhouette(results, what = "chc")[, "sil_width"])
                 }, error = function(e) {
                   NA
                 })
@@ -405,8 +416,8 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
 }
 
-#' Perform the assessment of different signaturesDecomposition solutions by cross validation for K (beta, as estimated by signaturesDecomposition) somatic
-#' mutational signatures given a set of observations x and discovered signatures beta.
+#' Perform the assessment of different signaturesDecomposition solutions by cross-validation for K (beta, as estimated by 
+#' signaturesDecomposition) somatic mutational signatures given a set of observations x and discovered signatures beta.
 #'
 #' @examples
 #' data(background)
@@ -426,23 +437,24 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #'                     num_processes = 1)
 #'
 #' @title signaturesCV
-#' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., trinucleotides counts for n patients and 96 trinucleotides.
+#' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
+#' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param beta A set of inferred signatures as returned by signaturesDecomposition function.
 #' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
-#' @param cross_validation_entries Percentage of cells in the counts matrix to be replaced by 0s during cross validation.
+#' @param cross_validation_entries Percentage of cells in the counts matrix to be replaced by 0s during cross-validation.
 #' @param cross_validation_iterations For each configuration, the first time the signatures are fitted form a matrix with a
 #' percentage of values replaced by 0s. This may result in poor fit/results. Then, we perform predictions of these entries and replace them with
 #' such predicted values. This parameter is the number of restarts to be performed to improve this estimate and obtain more stable solutions.
-#' @param cross_validation_repetitions Number of time cross-validation should be repeated. Higher values result in better estimate, but are computationally
-#' more expensive.
+#' @param cross_validation_repetitions Number of time cross-validation should be repeated. Higher values result in better estimate, but are 
+#' computationally more expensive.
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode,
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
 #' @return A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
-#' cross validation; rank_estimates reports mean and median values for each value of K.
+#' cross-validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
+#' @import glmnet
 #' @import parallel
-#' @importFrom glmnet glmnet cv.glmnet
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
     cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf,
@@ -468,7 +480,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
     if (verbose) {
         message("Estimating the optimal number of signatures with a total of ", cross_validation_repetitions,
-            " cross validation repetitions...", "\n")
+            " cross-validation repetitions...", "\n")
         if (num_processes > 1) {
             message("Executing ", num_processes, " processes in parallel...", "\n")
         }
@@ -479,11 +491,11 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     rownames(cv_estimates) <- paste0("Repetition_", seq_len(cross_validation_repetitions))
     colnames(cv_estimates) <- seq_len(ncol(cv_estimates))
 
-    # perform a total of cross_validation_repetitions repetitions of cross validation
+    # perform a total of cross_validation_repetitions repetitions of cross-validation
     valid_entries <- which(x > 0, arr.ind = TRUE)
 
-    # performing inference
-    if (num_processes == 1) { # performing inference sequentially
+    # performing the inference
+    if (num_processes == 1) { # performing the inference sequentially
 
         for (cv_repetitions in seq_len(cross_validation_repetitions)) {
 
@@ -492,7 +504,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     cross_validation_repetitions, "...", "\n")
             }
 
-            # randomly set the cross validation entries for the current iteration
+            # randomly set the cross-validation entries for the current iteration
             cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)), 
                 size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE), ]
 
@@ -514,12 +526,12 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 for (cv_iteration in seq_len(cross_validation_iterations)) {
 
                     if (verbose) {
-                        message("Performing cross validation iteration ", cv_iteration,
+                        message("Performing cross-validation iteration ", cv_iteration,
                             " out of ", cross_validation_iterations, "...", "\n")
                     }
 
                     # set a percentage of cross_validation_entries entries to 0
-                    # in order to perform cross validation
+                    # in order to perform cross-validation
                     if (cv_iteration == 1) {
                         x_cv[cv_entries] <- 0
                     } else {
@@ -538,7 +550,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 rm(curr_results)
                 curr_true_considered_counts <- as.vector(x[cv_entries])
                 curr_predicted_considered_counts <- as.vector(curr_predicted_counts[cv_entries])
-                error <- mean((curr_true_considered_counts - curr_predicted_considered_counts)^2)
+                error <- median((curr_true_considered_counts - curr_predicted_considered_counts)^2)
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_estimates[cv_repetitions, paste0(k, "_signatures")] <- error
@@ -555,7 +567,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
         }
 
-        # compute mean and median values of estimated cross validation error
+        # compute mean and median values of estimated cross-validation error
         cv_mean <- NULL
         cv_median <- NULL
         for (i in seq_len(ncol(cv_estimates))) {
@@ -566,14 +578,13 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         rownames(cv_summary) <- colnames(cv_estimates)
         colnames(cv_summary) <- c("Mean cross-validation error", "Median cross-validation error")
 
-    } else { # performing inference in parallel
+    } else { # performing the inference in parallel
 
         parallel <- makeCluster(num_processes, outfile = "")
         close_parallel <- TRUE
         res_clusterEvalQ <- clusterEvalQ(parallel, library("glmnet", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
-        clusterExport(parallel, varlist = c(".nmf_fit"), envir = environment())
-        clusterExport(parallel, varlist = c("verbose", "cross_validation_repetitions",
+        clusterExport(parallel, varlist = c(".nmf_fit", "verbose", "cross_validation_repetitions",
             "cross_validation_entries"), envir = environment())
         clusterExport(parallel, varlist = c("cross_validation_iterations", "valid_entries",
             "beta", "x"), envir = environment())
@@ -587,7 +598,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     cross_validation_repetitions, "...", "\n")
             }
 
-            # randomly set the cross validation entries for the current iteration
+            # randomly set the cross-validation entries for the current iteration
             cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)), 
                 size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE), ]
 
@@ -605,7 +616,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 for (cv_iteration in seq_len(cross_validation_iterations)) {
 
                     # set a percentage of cross_validation_entries entries to 0
-                    # in order to perform cross validation
+                    # in order to perform cross-validation
                     if (cv_iteration == 1) {
                         x_cv[cv_entries] <- 0
                     } else {
@@ -622,7 +633,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 rm(curr_results)
                 curr_true_considered_counts <- as.vector(x[cv_entries])
                 curr_predicted_considered_counts <- as.vector(curr_predicted_counts[cv_entries])
-                error <- mean((curr_true_considered_counts - curr_predicted_considered_counts)^2)
+                error <- median((curr_true_considered_counts - curr_predicted_considered_counts)^2)
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_errors[num_signs] <- error
@@ -644,7 +655,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         rm(curr_results)
         gc(verbose = FALSE)
 
-        # compute mean and median values of estimated cross validation error
+        # compute mean and median values of estimated cross-validation error
         cv_mean <- NULL
         cv_median <- NULL
         for (i in seq_len(ncol(cv_estimates))) {
@@ -671,12 +682,12 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     rm(parallel)
     gc(verbose = FALSE)
 
-    # return results of cross validation
+    # return results of cross-validation
     return(results)
 
 }
 
-# initialize alpha and beta for .nmf_ls and .nmf_reg functions
+# initialize alpha and beta for the .nmf_ls and .nmf_reg methods
 .nmf_seed <- function( model, target ) {
 
     # initialize alpha with an empty matrix
@@ -685,7 +696,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
 
     # randomly initialize beta
-    beta <- matrix(rnbinom(nbasis(model) * ncol(target), prob = 0.1, size = 1),
+    beta <- matrix(runif(n = nbasis(model) * ncol(target), min = 0, max = 1),
         nrow = nbasis(model), ncol = ncol(target))
     beta <- (beta/rowSums(beta))  # beta rows (i.e., signatures) must sum to 1
     if (any(is.nan(rowSums(beta)))) {
@@ -701,13 +712,37 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     rm(beta)
     gc(verbose = FALSE)
 
-    # return updated model
+    # return the updated model
     return(model)
 
 }
 
+# objective function for the .nmf_ls and .nmf_reg methods
+.nmf_objective <- function( x, y, background ) {
+
+    # initialization
+    predictions <- basis(x) %*% coef(x)
+    rm(x)
+    rm(background)
+    gc(verbose=FALSE)
+
+    # compute mean cosine similarity comparing observations and predictions
+    obj_value <- rep(NA, nrow(y))
+    for(i in 1:nrow(y)) {
+        obj_value[i] <- as.numeric(cosine(as.numeric(y[i,]),as.numeric(predictions[i,])))
+    }
+    obj_value <- (1 - mean(obj_value,na.rm=TRUE))
+    rm(y)
+    rm(predictions)
+    gc(verbose=FALSE)
+
+    # return the estimated objective value
+    return(obj_value)
+
+}
+
 # perform NMF by Non-negative least squares
-.nmf_ls <- function( x, seed, background = NULL ) {
+.nmf_ls <- function( x, seed, background ) {
 
     # initialization
     alpha <- basis(seed)  # exposures matrix
@@ -883,7 +918,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 }
 
 # perform NMF by Non-negative fit regularized by elastic net with LASSO penalty
-.nmf_reg <- function( x, seed, background = NULL ) {
+.nmf_reg <- function( x, seed, background ) {
 
     # initialization
     alpha <- basis(seed)  # exposures matrix
