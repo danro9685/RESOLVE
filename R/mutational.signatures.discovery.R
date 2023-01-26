@@ -144,7 +144,6 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #' @export signaturesDecomposition
 #' @import glmnet
 #' @import parallel
-#' @importFrom cluster silhouette
 #' @importFrom lsa cosine
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
