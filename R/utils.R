@@ -1,3 +1,23 @@
+# perform the inference for a given rank
+.fit_nmf <- function( x, K, background = NULL ) {
+
+    # generate the seed to start the inference
+    seed <- .fit_seed(x = x, K = K)
+
+    # perform the fit by elastic net with LASSO penalty
+    model <- .fit_regularized( x = x, seed = seed, background = background )
+
+    # evaluate goodness of fit of the inferred model
+    objective <- .fit_objective( x = x, model = model )
+
+    # save the results
+    results <- list( model = model, objective = objective)
+
+    # return the results
+    return(results)
+
+}
+
 # initialize alpha and beta for the inference
 .fit_seed <- function( x, K ) {
 
@@ -25,26 +45,6 @@
 
 }
 
-# compute goodness of fit estimates for a given model
-.fit_objective <- function( x, model ) {
-
-    # compute cosine similarities comparing observations and predictions
-    predictions <- (model$alpha %*% model$beta)
-    cosine_similarities <- rep(NA, nrow(x))
-    names(cosine_similarities) <- rownames(x)
-    for(i in seq_len(nrow(x))) {
-        cosine_similarities[i] <- as.numeric(cosine(x[i,],predictions[i,]))
-    }
-
-    # compute goodness of fit for a given model
-    goodness_fit <- median(cosine_similarities,na.rm=TRUE)
-
-    # return the results
-    results <- list(goodness_fit = goodness_fit, cosine_similarities = cosine_similarities)
-    return(results)
-
-}
-
 # perform regularized fit by elastic net with LASSO penalty
 .fit_regularized <- function( x, seed, background = NULL ) {
 
@@ -66,9 +66,9 @@
             if (nrow(beta) > 1) {
                 alpha[j, ] <- tryCatch({
                     res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+04)
+                            maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
                     res <- (res[1]+res[-1])
                     is.invalid <- (res<0)
@@ -86,10 +86,11 @@
                 fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
                 alpha[j, ] <- tryCatch({
                     res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+04)
+                            maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- res[-length(res)]
                     res <- (res[1]+res[-1])
                     is.invalid <- (res<0)
                     if(any(is.invalid)) {
@@ -112,9 +113,9 @@
                 if (ncol(alpha[, 2:K, drop = FALSE]) > 1) {
                     beta[2:K, k] <- tryCatch({
                         res <- cv.glmnet(x = alpha[, 2:K, drop = FALSE], y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            upper.limits = 1, maxit = 1e+04)
+                            upper.limits = 1, maxit = 1e+05)
                         res <- as.numeric(coef(res,s=res$lambda.min))
                         res <- res[-1]
                         res
@@ -128,10 +129,11 @@
                     fit_inputs <- cbind(alpha[, 2:K, drop = FALSE], rep(0, nrow(alpha[, 2:K, drop = FALSE])))
                     beta[2:K, k] <- tryCatch({
                         res <- cv.glmnet(x = fit_inputs, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            upper.limits = 1, maxit = 1e+04)
+                            upper.limits = 1, maxit = 1e+05)
                         res <- as.numeric(coef(res,s=res$lambda.min))
+                        res <- res[-length(res)]
                         res <- res[-1]
                         res
                     }, error = function( e ) {
@@ -145,9 +147,9 @@
                 if (ncol(alpha) > 1) {
                     beta[, k] <- tryCatch({
                         res <- cv.glmnet(x = alpha, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            upper.limits = 1, maxit = 1e+04)
+                            upper.limits = 1, maxit = 1e+05)
                         res <- as.numeric(coef(res,s=res$lambda.min))
                         res <- res[-1]
                         res
@@ -161,10 +163,11 @@
                     fit_inputs <- cbind(alpha, rep(0, nrow(alpha)))
                     beta[, k] <- tryCatch({
                         res <- cv.glmnet(x = fit_inputs, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            upper.limits = 1, maxit = 1e+04)
+                            upper.limits = 1, maxit = 1e+05)
                         res <- as.numeric(coef(res,s=res$lambda.min))
+                        res <- res[-length(res)]
                         res <- res[-1]
                         res
                     }, error = function( e ) {
@@ -189,9 +192,9 @@
         if (nrow(beta) > 1) {
             alpha[j, ] <- tryCatch({
                 res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
@@ -209,10 +212,11 @@
             fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
             alpha[j, ] <- tryCatch({
                 res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- res[-length(res)]
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {
@@ -241,6 +245,26 @@
 
 }
 
+# compute goodness of fit estimates for a given model
+.fit_objective <- function( x, model ) {
+
+    # compute cosine similarities comparing observations and predictions
+    predictions <- (model$alpha %*% model$beta)
+    cosine_similarities <- rep(NA, nrow(x))
+    names(cosine_similarities) <- rownames(x)
+    for(i in seq_len(nrow(x))) {
+        cosine_similarities[i] <- as.numeric(cosine(x[i,],predictions[i,]))
+    }
+
+    # compute goodness of fit for a given model
+    goodness_fit <- median(cosine_similarities,na.rm=TRUE)
+
+    # return the results
+    results <- list(goodness_fit = goodness_fit, cosine_similarities = cosine_similarities)
+    return(results)
+
+}
+
 # perform fit of a model solution by elastic net with LASSO penalty
 .fit_model <- function( x, beta ) {
 
@@ -258,9 +282,9 @@
             if (nrow(beta) > 1) {
                 alpha[j, ] <- tryCatch({
                     res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+04)
+                            maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
                     res <- (res[1]+res[-1])
                     is.invalid <- (res<0)
@@ -278,10 +302,11 @@
                 fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
                 alpha[j, ] <- tryCatch({
                     res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
                             family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+04)
+                            maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- res[-length(res)]
                     res <- (res[1]+res[-1])
                     is.invalid <- (res<0)
                     if(any(is.invalid)) {
@@ -301,9 +326,9 @@
             if (ncol(alpha) > 1) {
                 beta[, k] <- tryCatch({
                     res <- cv.glmnet(x = alpha, y = as.vector(x[, k]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        upper.limits = 1, maxit = 1e+04)
+                        upper.limits = 1, maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
                     res <- res[-1]
                     res
@@ -317,10 +342,11 @@
                 fit_inputs <- cbind(alpha, rep(0, nrow(alpha)))
                 beta[, k] <- tryCatch({
                     res <- cv.glmnet(x = fit_inputs, y = as.vector(x[, k]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        upper.limits = 1, maxit = 1e+04)
+                        upper.limits = 1, maxit = 1e+05)
                     res <- as.numeric(coef(res,s=res$lambda.min))
+                    res <- res[-length(res)]
                     res <- res[-1]
                     res
                 }, error = function( e ) {
@@ -344,9 +370,9 @@
         if (nrow(beta) > 1) {
             alpha[j, ] <- tryCatch({
                 res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
@@ -364,10 +390,11 @@
             fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
             alpha[j, ] <- tryCatch({
                 res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- res[-length(res)]
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {
@@ -406,9 +433,9 @@
     if (nrow(beta) > 1) {
         alpha[1, ] <- tryCatch({
             res <- cv.glmnet(x = t(beta), y = as.vector(x[1, ]), 
-                    type.measure = "mse", nfolds = 10, nlambda = 50, 
+                    type.measure = "mse", nfolds = 10, nlambda = 100, 
                     family = "gaussian", alpha = 1, lower.limits = 0, 
-                    maxit = 1e+04)
+                    maxit = 1e+05)
             res <- as.numeric(coef(res,s=res$lambda.min))
             res <- (res[1]+res[-1])
             is.invalid <- (res<0)
@@ -426,10 +453,11 @@
         fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
         alpha[1, ] <- tryCatch({
             res <- cv.glmnet(x = fit_inputs, y = as.vector(x[1, ]), 
-                    type.measure = "mse", nfolds = 10, nlambda = 50, 
+                    type.measure = "mse", nfolds = 10, nlambda = 100, 
                     family = "gaussian", alpha = 1, lower.limits = 0, 
-                    maxit = 1e+04)
+                    maxit = 1e+05)
             res <- as.numeric(coef(res,s=res$lambda.min))
+            res <- res[-length(res)]
             res <- (res[1]+res[-1])
             is.invalid <- (res<0)
             if(any(is.invalid)) {
@@ -458,9 +486,9 @@
         if (nrow(curr_beta) > 1) {
             curr_alpha[1, ] <- tryCatch({
                 res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
@@ -478,10 +506,11 @@
             fit_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
             curr_alpha[1, ] <- tryCatch({
                 res <- cv.glmnet(x = fit_inputs, y = as.vector(x[1, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 50, 
+                        type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+04)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- res[-length(res)]
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {

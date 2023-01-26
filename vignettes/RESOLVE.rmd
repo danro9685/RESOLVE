@@ -70,7 +70,7 @@ Now, we present an example of visualization feature provided by the package, sho
 patientsSBSPlot(trinucleotides_counts=imported_data,samples="PD10010a")
 ```
 
-After the data are loaded, we can perform signatures de novo extraction. To do so, we need to define a range for the number of signatures (variable K) to be considered. We now show how to perform the inference on the first 3 patients of the dataset from Nik-Zainal, Serena, et al. (2016), whose counts are provided within the package.
+After the data are loaded, we can perform signatures de novo extraction. To do so, we need to define a range for the number of signatures (variable K) to be considered. We now show how to perform the inference on the first 5 patients of the dataset from Nik-Zainal, Serena, et al. (2016), whose counts are provided within the package.
 
 ```{r}
 data(background)
@@ -80,7 +80,6 @@ res_denovo = signaturesDecomposition(x = patients[1:5,],
                                      K = 3:4, 
                                      background_signature = background, 
                                      nmf_runs = 2, 
-                                     sparsify = FALSE, 
                                      num_processes = 1)
 ```
 

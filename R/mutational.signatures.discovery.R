@@ -54,7 +54,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                 res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+06)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
@@ -74,8 +74,9 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                 res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+06)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- res[-length(res)]
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {
@@ -135,9 +136,10 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode,
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
-#' @return A list with the discovered signatures and related rank measures. It includes 3 elements:
+#' @return A list with the discovered signatures and related rank measures. It includes 4 elements:
 #'              alpha: list of matrices of the discovered exposure values for each possible rank in the range K.
 #'              beta: list of matrices of the discovered signatures for each possible rank in the range K.
+#'              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
 #' @import glmnet
@@ -178,9 +180,9 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         num_processes <- 1
     } else if (num_processes == Inf) {
         cores <- as.integer((detectCores() - 1))
-        num_processes <- min(cores, cross_validation_repetitions)
+        num_processes <- min(cores, nmf_runs)
     } else {
-        num_processes <- min(num_processes, cross_validation_repetitions)
+        num_processes <- min(num_processes, nmf_runs)
     }
     if(num_processes > 1) {
         parallel <- makeCluster(num_processes, outfile = "")
@@ -189,8 +191,8 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             quietly = TRUE, verbose = FALSE))
         res_clusterEvalQ <- clusterEvalQ(parallel, library("lsa", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
-        clusterExport(parallel, varlist = c(".fit_nmf", ".fit_measures", ".fit_seed",
-            ".fit_objective", ".fit_regularized"), envir = environment())
+        clusterExport(parallel, varlist = c(".fit_nmf", ".fit_seed", ".fit_regularized",
+            ".fit_objective"), envir = environment())
         clusterExport(parallel, varlist = c("x", "background_signature",
             "verbose", "nmf_runs"), envir = environment())
         clusterSetRNGStream(parallel, iseed = round(runif(1) * 1e+05))
@@ -211,12 +213,20 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         }
         rank0 <- TRUE
         K <- K[-1]
-        rank0_K <- 1
         rank0_beta <- matrix(background_signature, nrow = 1)
         rownames(rank0_beta) <- "Background"
         colnames(rank0_beta) <- colnames(x)
         rank0_alpha <- signaturesAssignment(x = x, beta = rank0_beta,
             normalize_counts = FALSE, verbose = FALSE)$alpha
+        rank0_mse <- mean(((x - (rank0_alpha %*% rank0_beta))^2), na.rm = TRUE)
+        rank0_obj <- .fit_objective(x = x, model = list(alpha = rank0_alpha, beta = rank0_beta))
+        rank0_cosine_similarity <- rank0_obj$cosine_similarities
+        rank0_measures <- matrix(NA, nrow = 1, ncol = 3)
+        rownames(rank0_measures) <- paste0("K=",1)
+        colnames(rank0_measures) <- c("Stability", "Mean Squared Error", "Predictions")
+        rank0_measures[1, "Stability"] <- 1
+        rank0_measures[1, "Mean Squared Error"] <- rank0_mse
+        rank0_measures[1, "Predictions"] <- rank0_obj$goodness_fit
         if (normalize_counts) {
             rank0_alpha <- rank0_alpha * (rowSums(x_not_normalized)/2500)
         }
@@ -227,10 +237,13 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
         alpha <- list()
         beta <- list()
+        cosine_similarity <- list()
         measures <- NULL
         if (rank0) {
             alpha[["1_signatures"]] <- rank0_alpha
             beta[["1_signatures"]] <- rank0_beta
+            cosine_similarity[["1_signatures"]] <- rank0_cosine_similarity
+            measures <- rbind(measures,rank0_measures)
         }
 
         for (i in seq_len(length(K))) {
@@ -261,11 +274,27 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
                 })
             }
 
-            alpha[[paste0(K[i], "_signatures")]] <- results$alpha
-            beta[[paste0(K[i], "_signatures")]] <- results$beta
+            # select the best model based on median cosine similarity
+            models_objective <- NULL
+            for(j in 1:length(results)) {
+                models_objective <- c(models_objective, results[[j]]$objective$goodness_fit)
+            }
+            best_model <- which.max(models_objective)[1]
+
+            alpha[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$alpha
+            beta[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$beta
+            cosine_similarity[[paste0(K[i], "_signatures")]] <- results[[best_model]]$objective$cosine_similarities
 
             # compute quality measures for the given solution
-            ###
+            ##### compute measures #####
+            curr_measures <- matrix(NA, nrow = 1, ncol = 3)
+            rownames(curr_measures) <- paste0("K=",rank)
+            colnames(curr_measures) <- c("Stability", "Mean Squared Error", "Predictions")
+            curr_measures[1, "Mean Squared Error"] <- mean(((x - (alpha[[paste0(K[i], "_signatures")]] %*% beta[[paste0(K[i], 
+                "_signatures")]]))^2), na.rm = TRUE)
+            curr_measures[1, "Predictions"] <- results[[best_model]]$objective$goodness_fit
+            measures <- rbind(measures, curr_measures)
+            ##### compute measures #####
 
             # rescale alpha to the original magnitude
             if (normalize_counts) {
@@ -279,24 +308,26 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
     } else {
 
         alpha <- list()
-        beta <- list()
         alpha[["1_signatures"]] <- rank0_alpha
+        beta <- list()
         beta[["1_signatures"]] <- rank0_beta
+        measures <- rank0_measures
 
     }
 
     # save results
-    results <- list(alpha = alpha, beta = beta, measures = measures)
+    results <- list(alpha = alpha, beta = beta, cosine_similarity = cosine_similarity, measures = measures)
     rm(alpha)
     rm(beta)
+    rm(cosine_similarity)
     rm(measures)
 
-    # close pbackend
+    # close parallel
     if (close_parallel) {
-        stopCluster(pbackend)
+        stopCluster(parallel)
     }
     rm(close_parallel)
-    rm(pbackend)
+    rm(parallel)
     gc(verbose = FALSE)
 
     # return the discovered signatures

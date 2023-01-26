@@ -179,7 +179,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[i, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+06)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
@@ -199,7 +199,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                 res <- cv.glmnet(x = fit_inputs, y = as.vector(x[i, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
                         family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+06)
+                        maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- (res[1]+res[-1])
                 is.invalid <- (res<0)
