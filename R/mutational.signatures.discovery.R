@@ -13,17 +13,15 @@
 #'                                 K = 3,
 #'                                 background_signature = background,
 #'                                 nmf_runs = 2,
-#'                                 sparsify = FALSE,
 #'                                 num_processes = 1)
 #' set.seed(12345)
-#' res <- signaturesAssignment(x = patients[seq_len(5),], beta = beta$beta[[1]], sparsify = FALSE)
+#' res <- signaturesAssignment(x = patients[seq_len(5),], beta = beta$beta[[1]])
 #'
 #' @title signaturesAssignment
 #' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 #' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param beta Matrix of the discovered signatures to be used for the assignment.
 #' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
-#' @param sparsify Boolean. Shall I perform regularization?
 #' @param verbose Boolean. Shall I print information messages?
 #' @return A list with the discovered signatures. It includes 2 elements:
 #'              alpha: matrix of the discovered exposure values.
@@ -31,8 +29,7 @@
 #' @export signaturesAssignment
 #' @import glmnet
 #'
-signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
-    sparsify = TRUE, verbose = TRUE ) {
+signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = TRUE ) {
 
     # check input parameters
     x <- as.matrix(x)
@@ -51,83 +48,46 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
     colnames(alpha) <- rownames(beta)
 
     # perform signatures assignment
-    if (sparsify) {
-        for (j in seq_len(nrow(alpha))) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
+    for (j in seq_len(nrow(x))) {
+        if (nrow(beta) > 1) {
+            alpha[j, ] <- tryCatch({
+                res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- as.numeric(res[1]+res[-1])
-                    if(any(res<0)) {
-                        res[which(res<0)] <- 0
-                    }
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
+                        family = "gaussian", alpha = 1, lower.limits = 0, 
+                        maxit = 1e+06)
+                res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- (res[1]+res[-1])
+                is.invalid <- (res<0)
+                if(any(is.invalid)) {
+                    res[is.invalid] <- 0
+                }
+                res
+            }, error = function( e ) {
+                res <- (sum(x[j,])/ncol(alpha))
+                return(res)
+            }, finally = {
+                gc(verbose = FALSE)
+            })
+        } else {
+            fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
+            alpha[j, ] <- tryCatch({
+                res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
                         type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- as.numeric(res[1]+res[-1])[-length(res)]
-                    if(any(res<0)) {
-                        res[which(res<0)] <- 0
-                    }
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-            gc(verbose = FALSE)
-        }
-    } else {
-        for (j in seq_len(nrow(alpha))) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[1]+res[-1])
-                    if(any(res<0)) {
-                        res[which(res<0)] <- 0
-                    }
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[1]+res[-1])[-length(res)]
-                    if(any(res<0)) {
-                        res[which(res<0)] <- 0
-                    }
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-            gc(verbose = FALSE)
+                        family = "gaussian", alpha = 1, lower.limits = 0, 
+                        maxit = 1e+06)
+                res <- as.numeric(coef(res,s=res$lambda.min))
+                res <- (res[1]+res[-1])
+                is.invalid <- (res<0)
+                if(any(is.invalid)) {
+                    res[is.invalid] <- 0
+                }
+                res
+            }, error = function( e ) {
+                res <- (sum(x[j,])/ncol(alpha))
+                return(res)
+            }, finally = {
+                gc(verbose = FALSE)
+            })
         }
     }
 
@@ -162,7 +122,6 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
 #'                                K = 3:4,
 #'                                background_signature = background,
 #'                                nmf_runs = 2,
-#'                                sparsify = FALSE,
 #'                                num_processes = 1)
 #'
 #' @title signaturesDecomposition
@@ -173,7 +132,6 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
 #' @param background_signature Background signature to be used.
 #' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
 #' @param nmf_runs Number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.
-#' @param sparsify Boolean. Shall I perform regularization?
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode,
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
@@ -183,14 +141,12 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE,
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
 #' @import glmnet
-#' @import NMF
 #' @import parallel
 #' @importFrom cluster silhouette
 #' @importFrom lsa cosine
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
-    normalize_counts = FALSE, nmf_runs = 100, sparsify = TRUE,
-    num_processes = Inf, verbose = TRUE ) {
+    normalize_counts = FALSE, nmf_runs = 100, num_processes = Inf, verbose = TRUE ) {
 
     # check input parameters
     x <- as.matrix(x)
@@ -216,33 +172,28 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
     }
 
     # setting up parallel execution
-    pbackend <- NULL
+    parallel <- NULL
     close_parallel <- FALSE
     if (is.na(num_processes) || is.null(num_processes)) {
         num_processes <- 1
     } else if (num_processes == Inf) {
         cores <- as.integer((detectCores() - 1))
-        num_processes <- min(cores, nmf_runs)
+        num_processes <- min(cores, cross_validation_repetitions)
     } else {
-        num_processes <- min(num_processes, nmf_runs)
+        num_processes <- min(num_processes, cross_validation_repetitions)
     }
-    if (num_processes == 1) {
-        pbackend <- "seq"
-    } else {
-        pbackend <- makeCluster(num_processes)
-        res_clusterEvalQ <- clusterEvalQ(pbackend, library("lsa",
-            warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
-        res_clusterEvalQ <- clusterEvalQ(pbackend, library("NMF",
-            warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
-        res_clusterEvalQ <- clusterEvalQ(pbackend, library("glmnet",
-            warn.conflicts = FALSE, quietly = TRUE, verbose = FALSE))
-        clusterExport(pbackend, varlist = c(".nmf_seed",
-            ".nmf_ls", ".nmf_reg"), envir = environment())
-        clusterSetRNGStream(pbackend, iseed = round(runif(1) *
-            1e+05))
+    if(num_processes > 1) {
+        parallel <- makeCluster(num_processes, outfile = "")
         close_parallel <- TRUE
-        rm(res_clusterEvalQ)
-        gc(verbose = FALSE)
+        res_clusterEvalQ <- clusterEvalQ(parallel, library("glmnet", warn.conflicts = FALSE,
+            quietly = TRUE, verbose = FALSE))
+        res_clusterEvalQ <- clusterEvalQ(parallel, library("lsa", warn.conflicts = FALSE,
+            quietly = TRUE, verbose = FALSE))
+        clusterExport(parallel, varlist = c(".fit_nmf", ".fit_measures", ".fit_seed",
+            ".fit_objective", ".fit_regularized"), envir = environment())
+        clusterExport(parallel, varlist = c("x", "background_signature",
+            "verbose", "nmf_runs"), envir = environment())
+        clusterSetRNGStream(parallel, iseed = round(runif(1) * 1e+05))
     }
 
     if (verbose) {
@@ -265,32 +216,9 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         rownames(rank0_beta) <- "Background"
         colnames(rank0_beta) <- colnames(x)
         rank0_alpha <- signaturesAssignment(x = x, beta = rank0_beta,
-            normalize_counts = FALSE, sparsify = sparsify,
-            verbose = FALSE)$alpha
-        pred_rank0 <- rank0_alpha %*% rank0_beta
-        rank0_rss <- rss(pred_rank0, x)
-        rank0_evar <- evar(pred_rank0, x)
-        rank0_sparseness_alpha <- sparseness(as.vector(rank0_alpha))
-        rank0_sparseness_beta <- sparseness(as.vector(rank0_beta))
+            normalize_counts = FALSE, verbose = FALSE)$alpha
         if (normalize_counts) {
             rank0_alpha <- rank0_alpha * (rowSums(x_not_normalized)/2500)
-        }
-        if (nmf_runs > 1) {
-            rank0_measures <- matrix(c(rank0_K, rank0_rss,
-                rank0_evar, NA, NA, rank0_sparseness_alpha,
-                rank0_sparseness_beta, 1, 1, 1), nrow = 1)
-            colnames(rank0_measures) <- c("Rank", "Residual_Sum_Squares",
-                "Explained_Variance", "Silhouette_Alpha",
-                "Silhouette_Beta", "Sparseness_Alpha", "Sparseness_Beta",
-                "Cophenetic_Coefficient", "Dispersion_Coefficient",
-                "Silhouette_Consensus")
-        } else {
-            rank0_measures <- matrix(c(rank0_K, rank0_rss,
-                rank0_evar, NA, NA, rank0_sparseness_alpha,
-                rank0_sparseness_beta), nrow = 1)
-            colnames(rank0_measures) <- c("Rank", "Residual_Sum_Squares",
-                "Explained_Variance", "Silhouette_Alpha",
-                "Silhouette_Beta", "Sparseness_Alpha", "Sparseness_Beta")
         }
     }
 
@@ -303,7 +231,6 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         if (rank0) {
             alpha[["1_signatures"]] <- rank0_alpha
             beta[["1_signatures"]] <- rank0_beta
-            measures <- rank0_measures
         }
 
         for (i in seq_len(length(K))) {
@@ -311,79 +238,43 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             if (verbose) {
                 message("Performing inference for K=", K[i], "...", "\n")
             }
+            rank = K[i]
 
             # perform the inference for the current K
-            results <- NULL
-            gc(verbose = FALSE)
-            if (sparsify) {
-                results <- nmf(x = x, rank = K[i], method = .nmf_reg, 
-                        background = background_signature, objective = .nmf_objective, 
-                        mixed = FALSE, seed = .nmf_seed, rng = round(runif(1) * 1e+05), 
-                        nrun = nmf_runs, .pbackend = pbackend)
-            } else {
-                results <- nmf(x = x, rank = K[i], method = .nmf_ls, 
-                        background = background_signature, objective = .nmf_objective, 
-                        mixed = FALSE, seed = .nmf_seed, rng = round(runif(1) * 1e+05), 
-                        nrun = nmf_runs, .pbackend = pbackend)
+            if (num_processes == 1) { # performing the inference sequentially
+                results <- list()
+                for (iteration in seq_len(nmf_runs)) {
+                    if (verbose) {
+                        message("Performing NMF run ", iteration, " out of ",
+                            nmf_runs, "...", "\n")
+                    }
+                    results[[iteration]] <- .fit_nmf(x = x, K = rank, background = background_signature)
+                }
+            } else { # performing the inference in parallel
+                clusterExport(parallel, varlist = c("rank"), envir = environment())
+                results <- parLapply(parallel, seq_len(nmf_runs), function(iteration) {
+                    if (verbose) {
+                        message("Performing NMF run ", iteration, " out of ",
+                            nmf_runs, "...", "\n")
+                    }
+                    return(.fit_nmf(x = x, K = rank, background = background_signature))
+                })
             }
-            gc(verbose = FALSE)
 
-            alpha[[paste0(K[i], "_signatures")]] <- basis(results)
-            beta[[paste0(K[i], "_signatures")]] <- coef(results)
+            alpha[[paste0(K[i], "_signatures")]] <- results$alpha
+            beta[[paste0(K[i], "_signatures")]] <- results$beta
+
+            # compute quality measures for the given solution
+            ###
 
             # rescale alpha to the original magnitude
             if (normalize_counts) {
                 alpha[[paste0(K[i], "_signatures")]] <- alpha[[paste0(K[i], "_signatures")]] * (rowSums(x_not_normalized)/2500)
             }
-
-            # compute and save quality measures
-            curr_rss <- rss(results, x)
-            curr_evar <- evar(results, x)
-            curr_silhouette_alpha <- tryCatch({
-                mean(silhouette(results, what = "features")[, "sil_width"])
-            }, error = function(e) {
-                NA
-            })
-            curr_silhouette_beta <- tryCatch({
-                mean(silhouette(results, what = "samples")[, "sil_width"])
-            }, error = function(e) {
-                NA
-            })
-            curr_sparseness_alpha <- sparseness(as.vector(alpha[[paste0(K[i], "_signatures")]]))
-            curr_sparseness_beta <- sparseness(as.vector(beta[[paste0(K[i], "_signatures")]]))
-            if (nmf_runs > 1) {
-                curr_silhouette_consensus <- tryCatch({
-                  mean(silhouette(results, what = "chc")[, "sil_width"])
-                }, error = function(e) {
-                  NA
-                })
-                curr_measures <- matrix(c(K[i], curr_rss,
-                  curr_evar, curr_silhouette_alpha, curr_silhouette_beta,
-                  curr_sparseness_alpha, curr_sparseness_beta,
-                  cophcor(results), dispersion(results),
-                  curr_silhouette_consensus), nrow = 1)
-                colnames(curr_measures) <- c("Rank", "Residual_Sum_Squares",
-                  "Explained_Variance", "Silhouette_Alpha",
-                  "Silhouette_Beta", "Sparseness_Alpha",
-                  "Sparseness_Beta", "Cophenetic_Coefficient",
-                  "Dispersion_Coefficient", "Silhouette_Consensus")
-            } else {
-                curr_measures <- matrix(c(K[i], curr_rss,
-                  curr_evar, curr_silhouette_alpha, curr_silhouette_beta,
-                  curr_sparseness_alpha, curr_sparseness_beta),
-                  nrow = 1)
-                colnames(curr_measures) <- c("Rank", "Residual_Sum_Squares",
-                  "Explained_Variance", "Silhouette_Alpha",
-                  "Silhouette_Beta", "Sparseness_Alpha",
-                  "Sparseness_Beta")
-            }
-            measures <- rbind(measures, curr_measures)
             rm(results)
-            rm(curr_measures)
             gc(verbose = FALSE)
 
         }
-        rownames(measures) <- seq_len(nrow(measures))
 
     } else {
 
@@ -391,8 +282,6 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         beta <- list()
         alpha[["1_signatures"]] <- rank0_alpha
         beta[["1_signatures"]] <- rank0_beta
-        measures <- rank0_measures
-        rownames(measures) <- seq_len(nrow(measures))
 
     }
 
@@ -401,7 +290,6 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
     rm(alpha)
     rm(beta)
     rm(measures)
-    gc(verbose = FALSE)
 
     # close pbackend
     if (close_parallel) {
@@ -427,7 +315,6 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #'                                 K = 3:4,
 #'                                 background_signature = background,
 #'                                 nmf_runs = 2,
-#'                                 sparsify = FALSE,
 #'                                 num_processes = 1)
 #' set.seed(12345)
 #' res <- signaturesCV(x = patients[seq_len(5),],
@@ -457,8 +344,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @import parallel
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
-    cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf,
-    verbose = TRUE ) {
+    cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
 
     # check input parameters
     x <- as.matrix(x)
@@ -487,7 +373,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     }
 
     # structure to save the results
-    cv_estimates <- matrix(NA, nrow=cross_validation_repetitions, ncol=length(beta))
+    cv_estimates <- matrix(NA, nrow = cross_validation_repetitions, ncol = length(beta))
     rownames(cv_estimates) <- paste0("Repetition_", seq_len(cross_validation_repetitions))
     colnames(cv_estimates) <- seq_len(ncol(cv_estimates))
 
@@ -540,7 +426,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     }
 
                     # perform the inference
-                    curr_results <- .nmf_fit(x = x_cv, beta = beta[[num_signs]])
+                    curr_results <- .fit_model(x = x_cv, beta = beta[[num_signs]])
                     gc(verbose = FALSE)
 
                 }
@@ -554,8 +440,6 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_estimates[cv_repetitions, paste0(k, "_signatures")] <- error
-                rm(error)
-                gc(verbose = FALSE)
 
                 if (verbose) {
                     cont <- cont + 1
@@ -584,13 +468,11 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         close_parallel <- TRUE
         res_clusterEvalQ <- clusterEvalQ(parallel, library("glmnet", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
-        clusterExport(parallel, varlist = c(".nmf_fit", "verbose", "cross_validation_repetitions",
+        clusterExport(parallel, varlist = c(".fit_model", "verbose", "cross_validation_repetitions",
             "cross_validation_entries"), envir = environment())
         clusterExport(parallel, varlist = c("cross_validation_iterations", "valid_entries",
             "beta", "x"), envir = environment())
         clusterSetRNGStream(parallel, iseed = round(runif(1) * 1e+05))
-        rm(res_clusterEvalQ)
-        gc(verbose = FALSE)
         curr_results <- parLapply(parallel, seq_len(cross_validation_repetitions), function(cv_repetitions) {
 
             if (verbose) {
@@ -624,7 +506,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     }
 
                     # perform the inference
-                    curr_results <- .nmf_fit(x = x_cv, beta = beta[[num_signs]])
+                    curr_results <- .fit_model(x = x_cv, beta = beta[[num_signs]])
                     gc(verbose = FALSE)
                 }
 
@@ -637,8 +519,6 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_errors[num_signs] <- error
-                rm(error)
-                gc(verbose = FALSE)
 
             }
             names(cv_errors) <- cv_names
@@ -652,8 +532,6 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         for (par_res in seq_len(length(curr_results))) {
             cv_estimates[par_res, ] <- curr_results[[par_res]]
         }
-        rm(curr_results)
-        gc(verbose = FALSE)
 
         # compute mean and median values of estimated cross-validation error
         cv_mean <- NULL
@@ -672,7 +550,6 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     results <- list(estimates = cv_estimates, summary = cv_summary)
     rm(cv_estimates)
     rm(cv_summary)
-    gc(verbose = FALSE)
 
     # close parallel
     if (close_parallel) {
@@ -683,701 +560,6 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
     gc(verbose = FALSE)
 
     # return results of cross-validation
-    return(results)
-
-}
-
-# initialize alpha and beta for the .nmf_ls and .nmf_reg methods
-.nmf_seed <- function( model, target ) {
-
-    # initialize alpha with an empty matrix
-    alpha <- matrix(NA, nrow=nrow(target), ncol=nbasis(model))
-    rownames(alpha) <- rownames(target)
-    colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
-
-    # randomly initialize beta
-    beta <- matrix(runif(n = nbasis(model) * ncol(target), min = 0, max = 1),
-        nrow = nbasis(model), ncol = ncol(target))
-    beta <- (beta/rowSums(beta))  # beta rows (i.e., signatures) must sum to 1
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    rownames(beta) <- colnames(alpha)
-    colnames(beta) <- colnames(target)
-
-    # update results
-    basis(model) <- alpha
-    coef(model) <- beta
-    rm(alpha)
-    rm(beta)
-    gc(verbose = FALSE)
-
-    # return the updated model
-    return(model)
-
-}
-
-# objective function for the .nmf_ls and .nmf_reg methods
-.nmf_objective <- function( x, y, background ) {
-
-    # initialization
-    predictions <- basis(x) %*% coef(x)
-    rm(x)
-    rm(background)
-    gc(verbose=FALSE)
-
-    # compute mean cosine similarities comparing observations and predictions
-    obj_value <- rep(NA, nrow(y))
-    for(i in 1:nrow(y)) {
-        obj_value[i] <- as.numeric(cosine(as.numeric(y[i,]),as.numeric(predictions[i,])))
-    }
-
-    # compute the mean cosine distance
-    obj_value <- (1 - mean(obj_value,na.rm=TRUE))
-    rm(y)
-    rm(predictions)
-    gc(verbose=FALSE)
-
-    # return the estimated objective value
-    return(obj_value)
-
-}
-
-# perform NMF by least squares with non-negative constraints
-.nmf_ls <- function( x, seed, background ) {
-
-    # initialization
-    alpha <- basis(seed)  # exposures matrix
-    beta <- coef(seed)  # signatures matrix
-    if (!is.null(background)) {
-        # if specified, the first row of beta is the background signature
-        beta[1, ] <- background
-    }
-    n <- nrow(x)  # n is the number of observations in x, i.e., the patients
-    J <- ncol(x)  # J is the number of categories, e.g., 96 trinucleotides
-    K <- nrow(beta)  # K is the number of signatures to be fitted
-
-    # iteratively fit alpha and beta by non-negative least squares
-    for (i in seq_len(10)) {
-        # update alpha, beta is kept fixed
-        for (j in seq_len(n)) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])[-length(res)]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-        }
-        # update beta, alpha is kept fixed
-        for (k in seq_len(J)) {
-            if (!is.null(background)) {
-                # the first signature represents the background model, thus it
-                # is not changed during the fit
-                if (ncol(alpha[, 2:K, drop = FALSE]) > 1) {
-                    beta[2:K, k] <- tryCatch({
-                        res <- glmnet(x = alpha[, 2:K, drop = FALSE], y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha[, 2:K, drop = FALSE], rep(0, nrow(alpha[, 2:K, drop = FALSE])))
-                    beta[2:K, k] <- tryCatch({
-                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            } else {
-                if (ncol(alpha) > 1) {
-                    beta[, k] <- tryCatch({
-                        res <- glmnet(x = alpha, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha, rep(0, nrow(alpha)))
-                    beta[, k] <- tryCatch({
-                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            }
-        }
-        gc(verbose = FALSE)
-    }
-
-    # normalize beta and perform final fit of alpha
-    beta <- (beta/rowSums(beta))
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    for (j in seq_len(n)) {
-        if (nrow(beta) > 1) {
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])[-length(res)]
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        }
-    }
-    if (!is.null(background)) {
-        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
-    } else {
-        colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
-    }
-    rownames(beta) <- colnames(alpha)
-
-    # update the results
-    basis(seed) <- alpha
-    coef(seed) <- beta
-    rm(x)
-    rm(alpha)
-    rm(beta)
-    gc(verbose = FALSE)
-
-    # return the updated seed
-    return(seed)
-
-}
-
-# perform NMF by regularized fit with non-negative constraints by elastic net with LASSO penalty
-.nmf_reg <- function( x, seed, background ) {
-
-    # initialization
-    alpha <- basis(seed)  # exposures matrix
-    beta <- coef(seed)  # signatures matrix
-    if (!is.null(background)) {
-        # if specified, the first row of beta is the background signature
-        beta[1, ] <- background
-    }
-    n <- nrow(x)  # n is the number of observations in x, i.e., the patients
-    J <- ncol(x)  # J is the number of categories, e.g., 96 trinucleotides
-    K <- nrow(beta)  # K is the number of signatures to be fitted
-
-    # STEP 1: we get close to a good solution by least squares with non-negative constraints
-
-    # iteratively fit alpha and beta by non-negative least squares
-    for (i in seq_len(10)) {
-        # update alpha, beta is kept fixed
-        for (j in seq_len(n)) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])[-length(res)]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-        }
-        # update beta, alpha is kept fixed
-        for (k in seq_len(J)) {
-            if (!is.null(background)) {
-                # the first signature represents the background model, thus it
-                # is not changed during the fit
-                if (ncol(alpha[, 2:K, drop = FALSE]) > 1) {
-                    beta[2:K, k] <- tryCatch({
-                        res <- glmnet(x = alpha[, 2:K, drop = FALSE], y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha[, 2:K, drop = FALSE], rep(0, nrow(alpha[, 2:K, drop = FALSE])))
-                    beta[2:K, k] <- tryCatch({
-                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            } else {
-                if (ncol(alpha) > 1) {
-                    beta[, k] <- tryCatch({
-                        res <- glmnet(x = alpha, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha, rep(0, nrow(alpha)))
-                    beta[, k] <- tryCatch({
-                        res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                          lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            }
-        }
-        gc(verbose = FALSE)
-    }
-
-    # normalize beta and perform final fit of alpha
-    beta <- (beta/rowSums(beta))
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    for (j in seq_len(n)) {
-        if (nrow(beta) > 1) {
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])[-length(res)]
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        }
-    }
-
-    # STEP 2: we finalize the inference by regularizing with elastic net using LASSO penalty
-
-    # now regularize solutions by non-negative fit with elastic net using LASSO penalty
-    for (i in seq_len(10)) {
-        # update alpha, beta is kept fixed
-        for (j in seq_len(n)) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- as.numeric(res[-1])[-length(res)]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-        }
-        # update beta, alpha is kept fixed
-        for (k in seq_len(J)) {
-            if (!is.null(background)) {
-                # the first signature represents the background model, thus it
-                # is not changed during the fit
-                if (ncol(alpha[, 2:K, drop = FALSE]) > 1) {
-                    beta[2:K, k] <- tryCatch({
-                        res <- cv.glmnet(x = alpha[, 2:K, drop = FALSE], y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda.min))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha[, 2:K, drop = FALSE], rep(0, nrow(alpha[, 2:K, drop = FALSE])))
-                    beta[2:K, k] <- tryCatch({
-                        res <- cv.glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda.min))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            } else {
-                if (ncol(alpha) > 1) {
-                    beta[, k] <- tryCatch({
-                        res <- cv.glmnet(x = alpha, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda.min))
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                } else {
-                    res_inputs <- cbind(alpha, rep(0, nrow(alpha)))
-                    beta[, k] <- tryCatch({
-                        res <- cv.glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 50, 
-                            family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                        res <- as.numeric(coef(res,s=res$lambda.min))[-length(res)]
-                        res <- as.numeric(res[-1])
-                        res
-                    }, error = function( e ) {
-                        res <- 0
-                        return(res)
-                    }, finally = {
-                        gc(verbose = FALSE)
-                    })
-                }
-            }
-        }
-        gc(verbose = FALSE)
-    }
-
-    # normalize beta and perform final fit of alpha
-    beta <- (beta/rowSums(beta))
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    for (j in seq_len(n)) {
-        if (nrow(beta) > 1) {
-            alpha[j, ] <- tryCatch({
-                res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 100, 
-                            family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- as.numeric(res[1]+res[-1])
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-            alpha[j, ] <- tryCatch({
-                res <- cv.glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 100, 
-                            family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- as.numeric(res[1]+res[-1])[-length(res)]
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        }
-    }
-    if (!is.null(background)) {
-        colnames(alpha) <- c("Background", paste0("S", seq_len((ncol(alpha) - 1))))
-    } else {
-        colnames(alpha) <- paste0("S", seq_len(ncol(alpha)))
-    }
-    rownames(beta) <- colnames(alpha)
-
-    # update the results
-    basis(seed) <- alpha
-    coef(seed) <- beta
-    rm(x)
-    rm(alpha)
-    rm(beta)
-    gc(verbose = FALSE)
-
-    # return the updated seed
-    return(seed)
-
-}
-
-# perform fit of a given NMF solution by least squares with non-negative constraints
-.nmf_fit <- function( x, beta ) {
-
-    # initialization
-    alpha <- matrix(NA, nrow=nrow(x),ncol=nrow(beta))
-    rownames(alpha) <- rownames(x)
-    colnames(alpha) <- rownames(beta)
-    beta <- (beta/rowSums(beta))
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    n <- nrow(x)  # n is the number of observations in x, i.e., the patients
-    J <- ncol(x)  # J is the number of categories, e.g., 96 trinucleotides
-
-    # iteratively fit alpha and beta by non-negative least squares
-    for (i in seq_len(10)) {
-        # update alpha, beta is kept fixed
-        for (j in seq_len(n)) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                        lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])[-length(res)]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-        }
-        # update beta, alpha is kept fixed
-        for (k in seq_len(J)) {
-            if (ncol(alpha) > 1) {
-                beta[, k] <- tryCatch({
-                    res <- glmnet(x = alpha, y = as.vector(x[, k]), 
-                      lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- 0
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                res_inputs <- cbind(alpha, rep(0, nrow(alpha)))
-                beta[, k] <- tryCatch({
-                    res <- glmnet(x = res_inputs, y = as.vector(x[, k]), 
-                      lambda = 0, family = "gaussian", lower.limits = 0, maxit = 1e+04)
-                    res <- as.numeric(coef(res,s=res$lambda))[-length(res)]
-                    res <- as.numeric(res[-1])
-                    res
-                }, error = function( e ) {
-                    res <- 0
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
-        }
-        gc(verbose = FALSE)
-    }
-
-    # normalize beta and perform final fit of alpha
-    beta <- (beta/rowSums(beta))
-    if (any(is.nan(rowSums(beta)))) {
-        beta[which(is.nan(rowSums(beta))), ] <- (1/ncol(beta))
-    }
-    for (j in seq_len(n)) {
-        if (nrow(beta) > 1) {
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            res_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-            alpha[j, ] <- tryCatch({
-                res <- glmnet(x = res_inputs, y = as.vector(x[j, ]), 
-                    lambda = 0, family = "gaussian", lower.limits = 0)
-                res <- as.numeric(coef(res,s=res$lambda))
-                res <- as.numeric(res[1]+res[-1])[-length(res)]
-                if(any(res<0)) {
-                    res[which(res<0)] <- 0
-                }
-                res
-            }, error = function( e ) {
-                res <- (sum(as.vector(x[j,]))/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        }
-    }
-
-    # update the results
-    results <- list(alpha = alpha, beta = beta)
-    rm(x)
-    rm(alpha)
-    rm(beta)
-    gc(verbose = FALSE)
-
-    # return the results
     return(results)
 
 }

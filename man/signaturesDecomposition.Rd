@@ -10,7 +10,6 @@ signaturesDecomposition(
   background_signature = NULL,
   normalize_counts = FALSE,
   nmf_runs = 100,
-  sparsify = TRUE,
   num_processes = Inf,
   verbose = TRUE
 )
@@ -27,8 +26,6 @@ to be considered.}
 \item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
 
 \item{nmf_runs}{Number of iteration (minimum 1) of NMF to be performed for a robust estimation of beta.}
-
-\item{sparsify}{Boolean. Shall I perform regularization?}
 
 \item{num_processes}{Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.}
@@ -57,7 +54,6 @@ res <- signaturesDecomposition(x = patients[seq_len(5),],
                                K = 3:4,
                                background_signature = background,
                                nmf_runs = 2,
-                               sparsify = FALSE,
                                num_processes = 1)
 
 }

@@ -53,7 +53,6 @@ sigs <- signaturesDecomposition(x = patients[seq_len(5),],
                                 K = 3:4,
                                 background_signature = background,
                                 nmf_runs = 2,
-                                sparsify = FALSE,
                                 num_processes = 1)
 set.seed(12345)
 res <- signaturesCV(x = patients[seq_len(5),],

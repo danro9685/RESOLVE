@@ -10,7 +10,6 @@ signaturesSignificance(
   cosine_thr = 0.95,
   min_contribution = 0.05,
   pvalue_thr = 0.05,
-  sparsify = TRUE,
   nboot = 100,
   num_processes = Inf,
   verbose = TRUE
@@ -27,8 +26,6 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 \item{min_contribution}{Minimum contribution of a signature to be considered significant.}
 
 \item{pvalue_thr}{Pvalue level to be used to assess significance.}
-
-\item{sparsify}{Boolean. Shall I perform regularization using LASSO?}
 
 \item{nboot}{Number of bootstrap iterations to be performed.}
 
@@ -56,7 +53,6 @@ beta <- signaturesDecomposition(x = patients[seq_len(5),],
                                 K = 3:4,
                                 background_signature = background,
                                 nmf_runs = 2,
-                                sparsify = FALSE,
                                 num_processes = 1)
 set.seed(12345)
 res <- signaturesSignificance(x = patients[seq_len(5),],
@@ -64,7 +60,6 @@ res <- signaturesSignificance(x = patients[seq_len(5),],
                               cosine_thr = 0.95,
                               min_contribution = 0.05,
                               pvalue_thr = 0.05,
-                              sparsify = FALSE,
                               nboot = 3,
                               num_processes = 1)
 

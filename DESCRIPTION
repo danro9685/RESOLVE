@@ -8,8 +8,7 @@ Authors@R: c(
     person("Luca", "De Sano", role=c("cre","aut"), email="luca.desano@gmail.com",
                 comment = c(ORCID = "0000-0002-9618-3774")))
 Depends:
-    R (>= 4.1.0),
-    NMF
+    R (>= 4.1.0)
 Imports:
     Biostrings,
     BSgenome,
