@@ -24,7 +24,7 @@ However, available mutational signatures computational tools presents many pitfa
 
 The RESOLVE R package implements a new de novo signatures extraction algorithm, which employs a regularized Non-Negative Matrix Factorization procedure. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation. Furthermore, the package also provide a procedure for confidence estimation of signatures activities in samples.
 
-As such, RESOLVE represent an addition to other Bioconductor packages, such as, e.g., SparseSignatures, MutationalPatterns, musicatk among others, that implements a novel approach for detecting mutational signatures.
+As such, RESOLVE represents an addition to other Bioconductor packages, such as, e.g., SparseSignatures, MutationalPatterns, musicatk among others, that implements a novel approach for detecting mutational signatures.
 
 In this vignette, we give an overview of the package by presenting some of its main functions.
 
@@ -41,8 +41,8 @@ BiocManager::install("RESOLVE")
 
 # Changelog
 
-- *1.0.0* Package released in Bioconductor 3.16.
-- *1.2.0* Major code refactoring.
+- *1.0.0* - Package released in Bioconductor 3.16.
+- *1.2.0* - Major code refactoring.
 
 # Using the RESOLVE R package
 
