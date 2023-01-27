@@ -9,13 +9,13 @@
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' beta <- signaturesDecomposition(x = patients[seq_len(5),],
+#' beta <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
 #'                                 K = 3,
-#'                                 background_signature = background,
+#'                                 background_signature = background[seq_len(2)],
 #'                                 nmf_runs = 2,
 #'                                 num_processes = 1)
 #' set.seed(12345)
-#' res <- signaturesAssignment(x = patients[seq_len(5),], beta = beta$beta[[1]])
+#' res <- signaturesAssignment(x = patients[seq_len(3),seq_len(2)], beta = beta$beta[[1]])
 #'
 #' @title signaturesAssignment
 #' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
@@ -27,7 +27,8 @@
 #'              alpha: matrix of the discovered exposure values.
 #'              beta: matrix of the discovered signatures.
 #' @export signaturesAssignment
-#' @import glmnet
+#' @importFrom glmnet cv.glmnet
+#' @importFrom stats coef
 #'
 signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = TRUE ) {
 
@@ -119,9 +120,9 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' res <- signaturesDecomposition(x = patients[seq_len(5),],
+#' res <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
 #'                                K = 3:4,
-#'                                background_signature = background,
+#'                                background_signature = background[seq_len(2)],
 #'                                nmf_runs = 2,
 #'                                num_processes = 1)
 #'
@@ -142,9 +143,10 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #'              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
-#' @import glmnet
 #' @import parallel
+#' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
+#' @importFrom stats coef rnbinom runif
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
     normalize_counts = FALSE, nmf_runs = 100, num_processes = Inf, verbose = TRUE ) {
@@ -341,13 +343,13 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' sigs <- signaturesDecomposition(x = patients[seq_len(5),],
+#' sigs <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
 #'                                 K = 3:4,
-#'                                 background_signature = background,
+#'                                 background_signature = background[seq_len(2)],
 #'                                 nmf_runs = 2,
 #'                                 num_processes = 1)
 #' set.seed(12345)
-#' res <- signaturesCV(x = patients[seq_len(5),],
+#' res <- signaturesCV(x = patients[seq_len(3),seq_len(2)],
 #'                     beta = sigs$beta,
 #'                     cross_validation_iterations = 2,
 #'                     cross_validation_repetitions = 2,
@@ -370,8 +372,9 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @return A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
 #' cross-validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
-#' @import glmnet
 #' @import parallel
+#' @importFrom glmnet cv.glmnet
+#' @importFrom stats coef runif
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
     cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {

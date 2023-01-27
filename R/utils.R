@@ -1,11 +1,9 @@
 # perform the inference for a given rank
-.fit_nmf <- function( x, K, background = NULL ) {
+.fit_nmf <- function( x, K, background ) {
 
-    # generate the seed to start the inference
-    seed <- .fit_seed(x = x, K = K)
-
-    # perform the fit by elastic net with LASSO penalty
-    model <- .fit_regularized( x = x, seed = seed, background = background )
+    # perform the fit of the model by elastic net with LASSO penalty
+    model <- .fit_regularized( x = x, seed = .fit_seed(x = x, K = K), 
+        background = background )
 
     # evaluate goodness of fit of the inferred model
     objective <- .fit_objective( x = x, model = model )
@@ -46,7 +44,7 @@
 }
 
 # perform regularized fit by elastic net with LASSO penalty
-.fit_regularized <- function( x, seed, background = NULL ) {
+.fit_regularized <- function( x, seed, background ) {
 
     # initialization
     alpha <- seed$alpha # exposures matrix
@@ -413,7 +411,6 @@
     # save the results
     results <- list(alpha = alpha, beta = beta)
     rm(x)
-    rm(seed)
     rm(alpha)
     rm(beta)
     gc(verbose = FALSE)
@@ -424,7 +421,7 @@
 }
 
 # iteratively estimate alpha coefficients until a given level of cosine similarity is reached
-.signatures_significance <- function( x, beta, cosine_thr = 0.95 ) {
+.signatures_significance <- function( x, beta, cosine_thr ) {
     
     # initialization
     alpha <- matrix(NA, nrow = 1, ncol = nrow(beta))

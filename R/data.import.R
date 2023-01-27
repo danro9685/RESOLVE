@@ -17,6 +17,7 @@
 #' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
 #' @importFrom BSgenome getSeq
 #' @importFrom GenomicRanges GRanges seqnames
+#' @importFrom methods is
 #'
 getSBSCounts <- function(data, reference = NULL) {
     # check that reference is a BSgenome object

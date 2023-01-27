@@ -13,7 +13,6 @@ Imports:
     Biostrings,
     BSgenome,
     BSgenome.Hsapiens.1000genomes.hs37d5,
-    cluster,
     data.table,
     GenomeInfoDb,
     GenomicRanges,
@@ -22,6 +21,7 @@ Imports:
     gridExtra,
     IRanges,
     lsa,
+    methods,
     parallel,
     reshape2
 Suggests:

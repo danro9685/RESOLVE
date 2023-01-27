@@ -3,9 +3,9 @@ context("RESOLVE")
 data(background)
 data(patients)
 set.seed(12345)
-res_denovo = signaturesDecomposition(x = patients[1:5,], 
+res_denovo = signaturesDecomposition(x = patients[seq_len(3),seq_len(2)], 
                                      K = 3:4, 
-                                     background_signature = background, 
+                                     background_signature = background[seq_len(2)], 
                                      nmf_runs = 2, 
                                      num_processes = 1)
 test_that("RESOLVE can perform de novo signatures decomposition", {
@@ -13,13 +13,13 @@ test_that("RESOLVE can perform de novo signatures decomposition", {
 })
 
 set.seed(12345)
-res_assignment = signaturesAssignment(x = patients[1:5,], beta = res_denovo$beta[[1]])
+res_assignment = signaturesAssignment(x = patients[seq_len(3),seq_len(2)], beta = res_denovo$beta[[1]])
 test_that("RESOLVE can perform signatures assignment", {
     expect_equal(names(res_assignment),c("alpha","beta"))
 })
 
 set.seed(12345)
-res_cv = signaturesCV(x = patients[1:5,], 
+res_cv = signaturesCV(x = patients[seq_len(3),seq_len(2)], 
                       beta = res_denovo$beta, 
                       cross_validation_iterations = 2, 
                       cross_validation_repetitions = 2, 
@@ -29,7 +29,7 @@ test_that("RESOLVE can perform optimanl number of signatures estimation", {
 })
 
 set.seed(12345)
-res_sig = signaturesSignificance(x = patients[1:5,], 
+res_sig = signaturesSignificance(x = patients[seq_len(3),seq_len(2)], 
                                  beta = res_denovo$beta[[1]], 
                                  cosine_thr = 0.95, 
                                  min_contribution = 0.05, 

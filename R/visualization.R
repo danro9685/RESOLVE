@@ -281,7 +281,7 @@ signaturesSBSPlot <- function(beta, useRowNames = FALSE,
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(nrow(beta))) {
-        plt <- ggplot(x[signature == rownames(beta)[i]]) +
+        plt <- ggplot(x[x$signature == rownames(beta)[i]]) +
             geom_bar(aes_string(x = "Context", y = "value",
                 fill = "alt"), stat = "identity", position = "identity") +
             facet_wrap(~alt, nrow = 1, scales = "free_x") +
@@ -340,7 +340,7 @@ signaturesMNVPlot <- function(beta, useRowNames = FALSE,
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(nrow(beta))) {
-        plt <- ggplot(x[signature == rownames(beta)[i]]) +
+        plt <- ggplot(x[x$signature == rownames(beta)[i]]) +
             geom_bar(aes_string(x = "Context", y = "value",
                 fill = "alt"), stat = "identity", position = "identity") +
             facet_wrap(~alt, nrow = 1, scales = "free_x") +
@@ -570,7 +570,7 @@ signaturesCNPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(nrow(beta))) {
-        plt <- ggplot(x[signature == rownames(beta)[i]]) +
+        plt <- ggplot(x[x$signature == rownames(beta)[i]]) +
             geom_bar(aes_string(x = "Context", y = "value",
                 fill = "alt"), stat = "identity", position = "identity") +
             facet_wrap(~alt, nrow = 1, scales = "free_x") +
@@ -899,7 +899,7 @@ signaturesCXPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(nrow(beta))) {
-        plt <- ggplot(x[signature == rownames(beta)[i]]) +
+        plt <- ggplot(x[x$signature == rownames(beta)[i]]) +
             geom_bar(aes_string(x = "Context", y = "value",
                 fill = "alt"), stat = "identity", position = "identity") +
             facet_wrap(~alt, nrow = 1, scales = "free_x") +

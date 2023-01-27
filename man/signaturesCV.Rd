@@ -49,13 +49,13 @@ signaturesDecomposition) somatic mutational signatures given a set of observatio
 data(background)
 data(patients)
 set.seed(12345)
-sigs <- signaturesDecomposition(x = patients[seq_len(5),],
+sigs <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
                                 K = 3:4,
-                                background_signature = background,
+                                background_signature = background[seq_len(2)],
                                 nmf_runs = 2,
                                 num_processes = 1)
 set.seed(12345)
-res <- signaturesCV(x = patients[seq_len(5),],
+res <- signaturesCV(x = patients[seq_len(3),seq_len(2)],
                     beta = sigs$beta,
                     cross_validation_iterations = 2,
                     cross_validation_repetitions = 2,

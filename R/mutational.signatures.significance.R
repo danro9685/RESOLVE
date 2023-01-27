@@ -5,13 +5,13 @@
 #' data(background)
 #' data(patients)
 #' set.seed(12345)
-#' beta <- signaturesDecomposition(x = patients[seq_len(5),],
+#' beta <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
 #'                                 K = 3:4,
-#'                                 background_signature = background,
+#'                                 background_signature = background[seq_len(2)],
 #'                                 nmf_runs = 2,
 #'                                 num_processes = 1)
 #' set.seed(12345)
-#' res <- signaturesSignificance(x = patients[seq_len(5),],
+#' res <- signaturesSignificance(x = patients[seq_len(3),seq_len(2)],
 #'                               beta = beta$beta[[1]],
 #'                               cosine_thr = 0.95,
 #'                               min_contribution = 0.05,
@@ -36,9 +36,10 @@
 #'              goodness_fit: vector reporting cosine similarities between predictions and observations.
 #'              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 #' @export signaturesSignificance
-#' @import glmnet
 #' @import parallel
+#' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
+#' @importFrom stats coef runif wilcox.test
 #'
 signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05,
     pvalue_thr = 0.05, nboot = 100, num_processes = Inf, verbose = TRUE ) {

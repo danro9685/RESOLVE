@@ -49,13 +49,13 @@ given a set of observed counts x and discovered signatures beta.
 data(background)
 data(patients)
 set.seed(12345)
-beta <- signaturesDecomposition(x = patients[seq_len(5),],
+beta <- signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
                                 K = 3:4,
-                                background_signature = background,
+                                background_signature = background[seq_len(2)],
                                 nmf_runs = 2,
                                 num_processes = 1)
 set.seed(12345)
-res <- signaturesSignificance(x = patients[seq_len(5),],
+res <- signaturesSignificance(x = patients[seq_len(3),seq_len(2)],
                               beta = beta$beta[[1]],
                               cosine_thr = 0.95,
                               min_contribution = 0.05,
