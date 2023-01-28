@@ -57,8 +57,33 @@
     M <- ncol(x) # M is the number of features
     K <- ncol(alpha) # K is the number of latent variables to be fitted
 
+    # fit alpha and beta by non-negative least squares to get close to a good solution
+    for (i in seq_len(20)) {
+        # update alpha, beta is kept fixed
+        for (j in seq_len(N)) {
+            alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
+        }
+        # update beta, alpha is kept fixed
+        for (k in seq_len(M)) {
+            if (!is.null(background)) {
+                # when provided, the first signature represents the background model, 
+                # therefore it is not changed during the fit
+                beta[2:K, k] <- nnls(A = alpha[, 2:K, drop = FALSE], b = as.vector(x[, k]))$x
+            } else {
+                beta[, k] <- nnls(A = alpha, b = as.vector(x[, k]))$x
+            }
+        }
+    }
+
+    # normalize beta
+    beta <- (beta/rowSums(beta))
+    is.invalid <- is.nan(rowSums(beta))
+    if (any(is.invalid)) {
+        beta[is.invalid, ] <- (1/ncol(beta))
+    }
+
     # iteratively fit alpha and beta by elastic net using LASSO penalty
-    for (i in seq_len(10)) {
+    for (i in seq_len(5)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
             if (nrow(beta) > 1) {
@@ -263,6 +288,32 @@
 
 }
 
+# estimate overall cosine similarity between two models
+.fit_stability <- function( model1, model2 ) {
+
+    # consider the signatures from the first model
+    mean_cos_sig <- rep(NA, length(nrow(model1)))
+    search_model <- 1:nrow(model2)
+    for(i in 1:nrow(model1)) {
+        # compare each signatures to the ones from the second model
+        cos_sig <- rep(NA, length(search_model))
+        pos <- 0
+        for(j in search_model) {
+            # compute cosine similarity between the two signatures
+            pos <- pos + 1
+            cos_sig[pos] <- as.numeric(cosine(model1[i,],model2[j,]))
+        }
+        best_match <- which.max(cos_sig)[1]
+        search_model <- search_model[-best_match]
+        mean_cos_sig[i] <- cos_sig[best_match]
+    }
+    mean_cos_sig <- mean(mean_cos_sig, na.rm = TRUE)
+
+    # return the mean cosine similarity between the two models
+    return(mean_cos_sig)
+
+}
+
 # perform fit of a model solution by elastic net with LASSO penalty
 .fit_model <- function( x, beta ) {
 
@@ -274,7 +325,7 @@
     M <- ncol(x) # M is the number of features
 
     # iteratively fit alpha and beta by elastic net using LASSO penalty
-    for (i in seq_len(10)) {
+    for (i in seq_len(5)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
             if (nrow(beta) > 1) {

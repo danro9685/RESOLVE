@@ -143,6 +143,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #'              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
+#' @import nnls
 #' @import parallel
 #' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
@@ -276,26 +277,41 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             }
 
             # select the best model based on median cosine similarity
-            models_objective <- NULL
+            models_objective <- rep(NA, length(results))
             for(j in 1:length(results)) {
-                models_objective <- c(models_objective, results[[j]]$objective$goodness_fit)
+                models_objective[j] <- results[[j]]$objective$goodness_fit
             }
             best_model <- which.max(models_objective)[1]
-
             alpha[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$alpha
             beta[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$beta
             cosine_similarity[[paste0(K[i], "_signatures")]] <- results[[best_model]]$objective$cosine_similarities
 
-            # compute quality measures for the given solution
-            ##### compute measures #####
+            # compute stability among the inferred models
+            if(length(K) == 1) {
+                model_stability <- 1
+            }
+            else {
+                model_stability <- rep(NA, (length(results)-1))
+                cont <- 0
+                for(j in 1:length(results)) {
+                    if(j != best_model) {
+                        cont <- cont + 1
+                        model_stability[cont] <- .fit_stability(model1 = beta[[paste0(K[i], "_signatures")]], 
+                            model2 = results[[j]]$model$beta)
+                    }
+                }
+                model_stability <- median(model_stability, na.rm = TRUE)
+            }
+
+            # save quality measures for the given solution
             curr_measures <- matrix(NA, nrow = 1, ncol = 3)
             rownames(curr_measures) <- paste0("K=",rank)
             colnames(curr_measures) <- c("Stability", "Mean Squared Error", "Predictions")
+            curr_measures[1, "Stability"] <- model_stability
             curr_measures[1, "Mean Squared Error"] <- mean(((x - (alpha[[paste0(K[i], "_signatures")]] %*% beta[[paste0(K[i], 
                 "_signatures")]]))^2), na.rm = TRUE)
             curr_measures[1, "Predictions"] <- results[[best_model]]$objective$goodness_fit
             measures <- rbind(measures, curr_measures)
-            ##### compute measures #####
 
             # rescale alpha to the original magnitude
             if (normalize_counts) {
