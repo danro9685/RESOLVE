@@ -57,7 +57,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- (res[1]+res[-1])
+                res <- ((res[1]*(res[-1]/sum(res[-1])))+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {
                     res[is.invalid] <- 0
@@ -78,7 +78,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- res[-length(res)]
-                res <- (res[1]+res[-1])
+                res <- ((res[1]*(res[-1]/sum(res[-1])))+res[-1])
                 is.invalid <- (res<0)
                 if(any(is.invalid)) {
                     res[is.invalid] <- 0
