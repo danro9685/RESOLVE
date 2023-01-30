@@ -3,19 +3,19 @@
 \docType{data}
 \name{plot_data_examples}
 \alias{plot_data_examples}
-\title{list data structure to run examples}
+\title{List data structure to run examples}
 \format{
-list data structure to run examples
+List data structure to run examples
 }
 \source{
-list data structure to run examples.
+List data structure to run examples.
 }
 \usage{
 data(plot_data_examples)
 }
 \value{
-list data structure to run examples
+List data structure to run examples
 }
 \description{
-list data structure to run examples.
+List data structure to run examples.
 }

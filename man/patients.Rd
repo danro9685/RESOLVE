@@ -3,9 +3,9 @@
 \docType{data}
 \name{patients}
 \alias{patients}
-\title{point mutations for 560 breast tumors}
+\title{Point mutations for 560 breast tumors}
 \format{
-counts of the point mutations
+Counts of the point mutations
 }
 \source{
 Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676).
@@ -14,8 +14,8 @@ Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676)
 data(patients)
 }
 \value{
-counts of point mutations for 560 tumors and 96 trinucleotides
+Counts of point mutations for 560 tumors and 96 trinucleotides
 }
 \description{
-dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
+Dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
 }

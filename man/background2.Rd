@@ -5,7 +5,7 @@
 \alias{background2}
 \title{COSMIC replication error}
 \format{
-vector of rates
+Vector of rates
 }
 \source{
 COSMIC database (https://cancer.sanger.ac.uk/cosmic/signatures) v3.
@@ -14,8 +14,8 @@ COSMIC database (https://cancer.sanger.ac.uk/cosmic/signatures) v3.
 data(background2)
 }
 \value{
-vector of rates for the 96 trinucleotides
+Vector of rates for the 96 trinucleotides
 }
 \description{
-background replication error signature derived from COSMIC SBS5.
+Background replication error signature derived from COSMIC SBS5.
 }

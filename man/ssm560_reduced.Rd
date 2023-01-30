@@ -3,9 +3,9 @@
 \docType{data}
 \name{ssm560_reduced}
 \alias{ssm560_reduced}
-\title{a reduced version of the point mutations for 560 breast tumors in the format compatible with the import function}
+\title{A reduced version of the point mutations for 560 breast tumors in the format compatible with the import function}
 \format{
-reduced versione of the counts of the point mutations in the format compatible with the import function
+Reduced versione of the counts of the point mutations in the format compatible with the import function
 }
 \source{
 Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676).
@@ -14,8 +14,8 @@ Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676)
 data(ssm560_reduced)
 }
 \value{
-reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function
+Reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function
 }
 \description{
-reduced versione of the dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
+Reduced versione of the dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
 }

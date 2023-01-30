@@ -7,11 +7,11 @@
 signaturesCNPlot(beta, useRowNames = FALSE, xlabels = FALSE)
 }
 \arguments{
-\item{beta}{matrix with the inferred mutational signatures.}
+\item{beta}{Matrix with the inferred mutational signatures.}
 
-\item{useRowNames}{boolean value; shall I use the rownames from beta as names for the signatures?}
+\item{useRowNames}{Boolean value; shall I use the rownames from beta as names for the signatures?}
 
-\item{xlabels}{boolean value; shall I display x labels?}
+\item{xlabels}{Boolean value; shall I display x labels?}
 }
 \value{
 A ggplot2 object.

@@ -182,11 +182,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- ((res[1]*(res[-1]/sum(res[-1])))+res[-1])
-                is.invalid <- (res<0)
-                if(any(is.invalid)) {
-                    res[is.invalid] <- 0
-                }
+                res <- res[-1]
                 res
             }, error = function( e ) {
                 res <- (sum(x[i,])/ncol(curr_alpha))
@@ -202,11 +198,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- ((res[1]*(res[-1]/sum(res[-1])))+res[-1])
-                is.invalid <- (res<0)
-                if(any(is.invalid)) {
-                    res[is.invalid] <- 0
-                }
+                res <- res[-length(res)]
+                res <- res[-1]
                 res
             }, error = function( e ) {
                 res <- (sum(x[i,])/ncol(curr_alpha))

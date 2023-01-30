@@ -7,13 +7,13 @@
 groupsCNPlot(counts, groups, normalize = TRUE, xlabels = FALSE)
 }
 \arguments{
-\item{counts}{matrix with Copy Number (CN) counts data.}
+\item{counts}{Matrix with Copy Number (CN) counts data.}
 
-\item{groups}{list where names are groups labels and elements are patients labels corresponding to rownames in counts.}
+\item{groups}{List where names are groups labels and elements are patients labels corresponding to rownames in counts.}
 
-\item{normalize}{boolean value; shall I normalize observed counts?}
+\item{normalize}{Boolean value; shall I normalize observed counts?}
 
-\item{xlabels}{boolean value; shall I display x labels?}
+\item{xlabels}{Boolean value; shall I display x labels?}
 }
 \value{
 A ggplot2 object.

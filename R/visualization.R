@@ -7,10 +7,10 @@
 #' groupsSBSPlot(counts=counts,groups=groups)
 #'
 #' @title groupsSBSPlot
-#' @param counts matrix with Single Base Substitutions (SBS) counts data.
-#' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
-#' @param normalize boolean value; shall I normalize observed counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param counts Matrix with Single Base Substitutions (SBS) counts data.
+#' @param groups List where names are groups labels and elements are patients labels corresponding to rownames in counts.
+#' @param normalize Boolean value; shall I normalize observed counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export groupsSBSPlot
 #' @import ggplot2
@@ -18,6 +18,7 @@
 #'
 groupsSBSPlot <- function(counts, groups, normalize = TRUE,
     xlabels = FALSE) {
+
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(length(groups))) {
@@ -71,10 +72,10 @@ groupsSBSPlot <- function(counts, groups, normalize = TRUE,
 #' groupsMNVPlot(counts=counts,groups=groups)
 #'
 #' @title groupsMNVPlot
-#' @param counts matrix with Multi-Nucleotide Variants (MNVs) counts data.
-#' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
-#' @param normalize boolean value; shall I normalize observed counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param counts Matrix with Multi-Nucleotide Variants (MNVs) counts data.
+#' @param groups List where names are groups labels and elements are patients labels corresponding to rownames in counts.
+#' @param normalize Boolean value; shall I normalize observed counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export groupsMNVPlot
 #' @import ggplot2
@@ -82,6 +83,7 @@ groupsSBSPlot <- function(counts, groups, normalize = TRUE,
 #'
 groupsMNVPlot <- function(counts, groups, normalize = TRUE,
     xlabels = FALSE) {
+
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(length(groups))) {
@@ -132,10 +134,10 @@ groupsMNVPlot <- function(counts, groups, normalize = TRUE,
 #' patientsSBSPlot(trinucleotides_counts=counts,samples=rownames(counts)[seq_len(2)])
 #'
 #' @title patientsSBSPlot
-#' @param trinucleotides_counts trinucleotides counts matrix.
-#' @param samples name of the samples. This should match a rownames in trinucleotides_counts.
-#' @param freq boolean value; shall I display rates instead of counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param trinucleotides_counts Trinucleotides counts matrix.
+#' @param samples Name of the samples. This should match a rownames in trinucleotides_counts.
+#' @param freq Boolean value; shall I display rates instead of counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export patientsSBSPlot
 #' @import ggplot2
@@ -145,6 +147,7 @@ groupsMNVPlot <- function(counts, groups, normalize = TRUE,
 #'
 patientsSBSPlot <- function(trinucleotides_counts, samples = rownames(trinucleotides_counts),
     freq = FALSE, xlabels = FALSE) {
+
     # make samples data
     trinucleotides_counts <- trinucleotides_counts[samples, , drop = FALSE]
     if (freq) {
@@ -193,9 +196,9 @@ patientsSBSPlot <- function(trinucleotides_counts, samples = rownames(trinucleot
 #'
 #' @title patientsMNVPlot
 #' @param multi_nucleotides_counts Multi-Nucleotide counts matrix.
-#' @param samples name of the samples. This should match a rownames in multi_nucleotides_counts
-#' @param freq boolean value; shall I display rates instead of counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param samples Name of the samples. This should match a rownames in multi_nucleotides_counts
+#' @param freq Boolean value; shall I display rates instead of counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export patientsMNVPlot
 #' @import ggplot2
@@ -205,6 +208,7 @@ patientsSBSPlot <- function(trinucleotides_counts, samples = rownames(trinucleot
 #'
 patientsMNVPlot <- function(multi_nucleotides_counts, samples = rownames(multi_nucleotides_counts),
     freq = FALSE, xlabels = FALSE) {
+
     # make samples data
     multi_nucleotides_counts <- multi_nucleotides_counts[samples, , drop = FALSE]
     if (freq) {
@@ -244,7 +248,6 @@ patientsMNVPlot <- function(multi_nucleotides_counts, samples = rownames(multi_n
 
 }
 
-
 #' Plot the inferred Single Base Substitutions (SBS) mutational signatures.
 #'
 #' @examples
@@ -253,9 +256,9 @@ patientsMNVPlot <- function(multi_nucleotides_counts, samples = rownames(multi_n
 #' signaturesSBSPlot(beta=beta)
 #'
 #' @title signaturesSBSPlot
-#' @param beta matrix with the inferred mutational signatures.
-#' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param beta Matrix with the inferred mutational signatures.
+#' @param useRowNames Boolean value; shall I use the rownames from beta as names for the signatures?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export signaturesSBSPlot
 #' @import ggplot2
@@ -265,6 +268,7 @@ patientsMNVPlot <- function(multi_nucleotides_counts, samples = rownames(multi_n
 #'
 signaturesSBSPlot <- function(beta, useRowNames = FALSE,
     xlabels = FALSE) {
+
     # set names of the signatures
     if (!useRowNames) {
         rownames(beta) <- paste0("Signature ", seq_len(nrow(beta)))
@@ -313,9 +317,9 @@ signaturesSBSPlot <- function(beta, useRowNames = FALSE,
 #' signaturesMNVPlot(beta=beta)
 #'
 #' @title signaturesMNVPlot
-#' @param beta matrix with the inferred mutational signatures.
-#' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param beta Matrix with the inferred mutational signatures.
+#' @param useRowNames Boolean value; shall I use the rownames from beta as names for the signatures?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export signaturesMNVPlot
 #' @import ggplot2
@@ -325,6 +329,7 @@ signaturesSBSPlot <- function(beta, useRowNames = FALSE,
 #'
 signaturesMNVPlot <- function(beta, useRowNames = FALSE,
     xlabels = FALSE) {
+
     # set names of the signatures
     if (!useRowNames) {
         rownames(beta) <- paste0("Signature ", seq_len(nrow(beta)))
@@ -373,10 +378,10 @@ signaturesMNVPlot <- function(beta, useRowNames = FALSE,
 #' groupsCNPlot(counts=counts,groups=groups)
 #'
 #' @title groupsCNPlot
-#' @param counts matrix with Copy Number (CN) counts data.
-#' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
-#' @param normalize boolean value; shall I normalize observed counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param counts Matrix with Copy Number (CN) counts data.
+#' @param groups List where names are groups labels and elements are patients labels corresponding to rownames in counts.
+#' @param normalize Boolean value; shall I normalize observed counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export groupsCNPlot
 #' @import ggplot2
@@ -384,6 +389,7 @@ signaturesMNVPlot <- function(beta, useRowNames = FALSE,
 #'
 groupsCNPlot <- function(counts, groups, normalize = TRUE,
     xlabels = FALSE) {
+
     # make the ggplot2 object
     glist <- list()
     for (i in seq_len(length(groups))) {
@@ -453,9 +459,9 @@ groupsCNPlot <- function(counts, groups, normalize = TRUE,
 #'
 #' @title patientsCNPlot
 #' @param cn_data_counts Copy Number counts matrix.
-#' @param samples name of the samples. This should match a rownames in cn_data_counts
-#' @param freq boolean value; shall I display rates instead of counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param samples Name of the samples. This should match a rownames in cn_data_counts
+#' @param freq Boolean value; shall I display rates instead of counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export patientsCNPlot
 #' @import ggplot2
@@ -465,6 +471,7 @@ groupsCNPlot <- function(counts, groups, normalize = TRUE,
 #'
 patientsCNPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
     freq = FALSE, xlabels = FALSE) {
+
     # make samples data
     cn_data_counts <- cn_data_counts[samples, , drop = FALSE]
     if (freq) {
@@ -531,9 +538,9 @@ patientsCNPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
 #' signaturesCNPlot(beta=beta)
 #'
 #' @title signaturesCNPlot
-#' @param beta matrix with the inferred mutational signatures.
-#' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param beta Matrix with the inferred mutational signatures.
+#' @param useRowNames Boolean value; shall I use the rownames from beta as names for the signatures?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export signaturesCNPlot
 #' @import ggplot2
@@ -542,6 +549,7 @@ patientsCNPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
 #' @importFrom reshape2 melt
 #'
 signaturesCNPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
+
     # set names of the signatures
     if (!useRowNames) {
         rownames(beta) <- paste0("Signature ", seq_len(nrow(beta)))
@@ -603,10 +611,10 @@ signaturesCNPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
 #' groupsCXPlot(counts=counts,groups=groups)
 #'
 #' @title groupsCXPlot
-#' @param counts matrix with Copy Number (Reduced, CX) counts data.
-#' @param groups list where names are groups labels and elements are patients labels corresponding to rownames in counts.
-#' @param normalize boolean value; shall I normalize observed counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param counts Matrix with Copy Number (Reduced, CX) counts data.
+#' @param groups List where names are groups labels and elements are patients labels corresponding to rownames in counts.
+#' @param normalize Boolean value; shall I normalize observed counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export groupsCXPlot
 #' @import ggplot2
@@ -614,6 +622,7 @@ signaturesCNPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
 #'
 groupsCXPlot <- function(counts, groups, normalize = TRUE,
     xlabels = FALSE) {
+
     # make the ggplot2 object
     Context_values <- c("S1", "S2", "S3", "S4",
         "S5", "S6", "S7", "S8", "S9", "S10",
@@ -719,9 +728,9 @@ groupsCXPlot <- function(counts, groups, normalize = TRUE,
 #'
 #' @title patientsCXPlot
 #' @param cn_data_counts Copy Number counts matrix.
-#' @param samples name of the samples. This should match a rownames in cn_data_counts
-#' @param freq boolean value; shall I display rates instead of counts?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param samples Name of the samples. This should match a rownames in cn_data_counts
+#' @param freq Boolean value; shall I display rates instead of counts?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export patientsCXPlot
 #' @import ggplot2
@@ -731,6 +740,7 @@ groupsCXPlot <- function(counts, groups, normalize = TRUE,
 #'
 patientsCXPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
     freq = FALSE, xlabels = FALSE) {
+
     # make samples data
     cn_data_counts <- cn_data_counts[samples, , drop = FALSE]
     if (freq) {
@@ -831,9 +841,9 @@ patientsCXPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
 #' signaturesCXPlot(beta=beta)
 #'
 #' @title signaturesCXPlot
-#' @param beta matrix with the inferred mutational signatures.
-#' @param useRowNames boolean value; shall I use the rownames from beta as names for the signatures?
-#' @param xlabels boolean value; shall I display x labels?
+#' @param beta Matrix with the inferred mutational signatures.
+#' @param useRowNames Boolean value; shall I use the rownames from beta as names for the signatures?
+#' @param xlabels Boolean value; shall I display x labels?
 #' @return A ggplot2 object.
 #' @export signaturesCXPlot
 #' @import ggplot2
@@ -842,6 +852,7 @@ patientsCXPlot <- function(cn_data_counts, samples = rownames(cn_data_counts),
 #' @importFrom reshape2 melt
 #'
 signaturesCXPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
+
     # set names of the signatures
     if (!useRowNames) {
         rownames(beta) <- paste0("Signature ", seq_len(nrow(beta)))

@@ -7,9 +7,9 @@
 getSBSCounts(data, reference = NULL)
 }
 \arguments{
-\item{data}{a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.}
+\item{data}{A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.}
 
-\item{reference}{a BSgenome object with the reference genome to be used to retrieve flanking bases.}
+\item{reference}{A BSgenome object with the reference genome to be used to retrieve flanking bases.}
 }
 \value{
 A matrix with Single Base Substitutions (SBS) counts per patient.

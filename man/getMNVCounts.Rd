@@ -7,7 +7,7 @@
 getMNVCounts(data)
 }
 \arguments{
-\item{data}{a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.}
+\item{data}{A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.}
 }
 \value{
 A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.

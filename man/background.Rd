@@ -3,9 +3,9 @@
 \docType{data}
 \name{background}
 \alias{background}
-\title{germline replication error}
+\title{Germline replication error}
 \format{
-vector of rates
+Vector of rates
 }
 \source{
 Nat Genet. 2016 Feb;48(2):126-133 (https://www.nature.com/articles/ng.3469).
@@ -14,8 +14,8 @@ Nat Genet. 2016 Feb;48(2):126-133 (https://www.nature.com/articles/ng.3469).
 data(background)
 }
 \value{
-vector of rates for the 96 trinucleotides
+Vector of rates for the 96 trinucleotides
 }
 \description{
-germline replication error estimated in Rahbari, Raheleh, et al. (2016).
+Germline replication error estimated in Rahbari, Raheleh, et al. (2016).
 }

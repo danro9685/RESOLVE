@@ -12,13 +12,13 @@ patientsSBSPlot(
 )
 }
 \arguments{
-\item{trinucleotides_counts}{trinucleotides counts matrix.}
+\item{trinucleotides_counts}{Trinucleotides counts matrix.}
 
-\item{samples}{name of the samples. This should match a rownames in trinucleotides_counts.}
+\item{samples}{Name of the samples. This should match a rownames in trinucleotides_counts.}
 
-\item{freq}{boolean value; shall I display rates instead of counts?}
+\item{freq}{Boolean value; shall I display rates instead of counts?}
 
-\item{xlabels}{boolean value; shall I display x labels?}
+\item{xlabels}{Boolean value; shall I display x labels?}
 }
 \value{
 A ggplot2 object.

@@ -6,8 +6,8 @@
 #' res <- getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 #'
 #' @title getSBSCounts
-#' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
-#' @param reference a BSgenome object with the reference genome to be used to retrieve flanking bases.
+#' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
 #' @import IRanges
@@ -20,6 +20,7 @@
 #' @importFrom methods is
 #'
 getSBSCounts <- function(data, reference = NULL) {
+
     # check that reference is a BSgenome object
     if (is.null(reference) | (!is(reference, "BSgenome"))) {
         stop("The reference genome provided as input needs to be a BSgenome object.")
@@ -119,12 +120,13 @@ getSBSCounts <- function(data, reference = NULL) {
 #' res <- getMNVCounts(data = ssm560_reduced)
 #'
 #' @title getMNVCounts
-#' @param data a data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
 #' @export getMNVCounts
 #' @importFrom data.table data.table dcast .N
 #'
 getMNVCounts <- function(data) {
+
     # preprocessing input data
     data <- as.data.frame(data)
     colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
