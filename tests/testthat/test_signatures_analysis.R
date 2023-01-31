@@ -9,13 +9,13 @@ res_denovo = signaturesDecomposition(x = patients[seq_len(3),seq_len(2)],
                                      nmf_runs = 2, 
                                      num_processes = 1)
 test_that("RESOLVE can perform de novo signatures decomposition", {
-    expect_equal(names(res_denovo),c("alpha","beta","cosine_similarity","measures"))
+    expect_equal(names(res_denovo),c("alpha","beta","unexplained_mutations","cosine_similarity","measures"))
 })
 
 set.seed(12345)
 res_assignment = signaturesAssignment(x = patients[seq_len(3),seq_len(2)], beta = res_denovo$beta[[1]])
 test_that("RESOLVE can perform signatures assignment", {
-    expect_equal(names(res_assignment),c("alpha","beta"))
+    expect_equal(names(res_assignment),c("alpha","beta","unexplained_mutations"))
 })
 
 set.seed(12345)
@@ -37,5 +37,5 @@ res_sig = signaturesSignificance(x = patients[seq_len(3),seq_len(2)],
                                  nboot = 3, 
                                  num_processes = 1)
 test_that("RESOLVE can perform the signatures significance estimation", {
-    expect_equal(names(res_sig),c("alpha","beta","goodness_fit","bootstrap_estimates"))
+    expect_equal(names(res_sig),c("alpha","beta","unexplained_mutations","goodness_fit","bootstrap_estimates"))
 })
