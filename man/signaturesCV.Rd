@@ -9,7 +9,7 @@ signaturesCV(
   beta,
   normalize_counts = FALSE,
   cross_validation_entries = 0.01,
-  cross_validation_iterations = 5,
+  cross_validation_iterations = 3,
   cross_validation_repetitions = 100,
   num_processes = Inf,
   verbose = TRUE

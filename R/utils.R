@@ -203,6 +203,8 @@
     if (any(is.invalid)) {
         beta[is.invalid, ] <- (1/ncol(beta))
     }
+    unexplained_mutations <- rep(NA, nrow(x))
+    names(unexplained_mutations) <- rownames(x)
     for (j in seq_len(N)) {
         if (nrow(beta) > 1) {
             alpha[j, ] <- tryCatch({
@@ -211,6 +213,7 @@
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                unexplained_mutations[j] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -228,6 +231,7 @@
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- res[-length(res)]
+                unexplained_mutations[j] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -240,7 +244,7 @@
     }
 
     # save the results
-    results <- list(alpha = alpha, beta = beta)
+    results <- list(alpha = alpha, beta = beta, unexplained_mutations = unexplained_mutations)
     rm(x)
     rm(seed)
     rm(alpha)
@@ -309,7 +313,7 @@
     M <- ncol(x) # M is the number of features
 
     # iteratively fit alpha and beta by elastic net using LASSO penalty
-    for (i in seq_len(5)) {
+    for (i in seq_len(3)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
             if (nrow(beta) > 1) {

@@ -35,9 +35,10 @@ this parameter needs to be set to either NA or NULL.}
 \item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
-A list with the bootstrap estimates. It includes 4 elements:
+A list with the bootstrap estimates. It includes 5 elements:
              alpha: matrix of the discovered exposure values considering significant signatures as estimated by bootstrap.
              beta: matrix of the discovered signatures.
+             unexplained_mutations: number of unexplained mutations per sample.
              goodness_fit: vector reporting cosine similarities between predictions and observations.
              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 }

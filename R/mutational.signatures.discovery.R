@@ -23,9 +23,10 @@
 #' @param beta Matrix of the discovered signatures to be used for the assignment.
 #' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
 #' @param verbose Boolean. Shall I print information messages?
-#' @return A list with the discovered signatures. It includes 2 elements:
+#' @return A list with the discovered signatures. It includes 3 elements:
 #'              alpha: matrix of the discovered exposure values.
 #'              beta: matrix of the discovered signatures.
+#'              unexplained_mutations: number of unexplained mutations per sample.
 #' @export signaturesAssignment
 #' @importFrom glmnet cv.glmnet
 #' @importFrom stats coef
@@ -49,6 +50,8 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
     colnames(alpha) <- rownames(beta)
 
     # perform signatures assignment
+    unexplained_mutations <- rep(NA, nrow(x))
+    names(unexplained_mutations) <- rownames(x)
     for (j in seq_len(nrow(x))) {
         if (nrow(beta) > 1) {
             alpha[j, ] <- tryCatch({
@@ -57,6 +60,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                unexplained_mutations[j] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -74,6 +78,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- res[-length(res)]
+                unexplained_mutations[j] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -88,6 +93,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
     # rescale alpha to the original magnitude
     if (normalize_counts) {
         alpha <- alpha * (rowSums(x_not_normalized)/2500)
+        unexplained_mutations <- unexplained_mutations * (rowSums(x_not_normalized)/2500)
     }
 
     # save results
@@ -129,9 +135,10 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode,
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
-#' @return A list with the discovered signatures and related rank measures. It includes 4 elements:
+#' @return A list with the discovered signatures and related rank measures. It includes 5 elements:
 #'              alpha: list of matrices of the discovered exposure values for each possible rank in the range K.
 #'              beta: list of matrices of the discovered signatures for each possible rank in the range K.
+#'              unexplained_mutations: number of unexplained mutations per sample.
 #'              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
@@ -216,6 +223,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             normalize_counts = FALSE, verbose = FALSE)$alpha
         rank0_mse <- mean(((x - (rank0_alpha %*% rank0_beta))^2), na.rm = TRUE)
         rank0_obj <- .fit_objective(x = x, model = list(alpha = rank0_alpha, beta = rank0_beta))
+        rank0_unexplained_mutations <- rank0_obj$unexplained_mutations
         rank0_cosine_similarity <- rank0_obj$cosine_similarities
         rank0_measures <- matrix(NA, nrow = 1, ncol = 3)
         rownames(rank0_measures) <- paste0("K=",1)
@@ -233,11 +241,13 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
         alpha <- list()
         beta <- list()
+        unexplained_mutations <- list()
         cosine_similarity <- list()
         measures <- NULL
         if (rank0) {
             alpha[["1_signatures"]] <- rank0_alpha
             beta[["1_signatures"]] <- rank0_beta
+            unexplained_mutations[["1_signatures"]] <- rank0_unexplained_mutations
             cosine_similarity[["1_signatures"]] <- rank0_cosine_similarity
             measures <- rbind(measures,rank0_measures)
         }
@@ -278,6 +288,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             best_model <- which.max(models_objective)[1]
             alpha[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$alpha
             beta[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$beta
+            unexplained_mutations[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$unexplained_mutations
             cosine_similarity[[paste0(K[i], "_signatures")]] <- results[[best_model]]$objective$cosine_similarities
 
             # compute stability among the inferred models
@@ -310,6 +321,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
             # rescale alpha to the original magnitude
             if (normalize_counts) {
                 alpha[[paste0(K[i], "_signatures")]] <- alpha[[paste0(K[i], "_signatures")]] * (rowSums(x_not_normalized)/2500)
+                unexplained_mutations[[paste0(K[i], "_signatures")]] <- unexplained_mutations[[paste0(K[i], "_signatures")]] * (rowSums(x_not_normalized)/2500)
             }
             rm(results)
             gc(verbose = FALSE)
@@ -322,12 +334,16 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         alpha[["1_signatures"]] <- rank0_alpha
         beta <- list()
         beta[["1_signatures"]] <- rank0_beta
+        unexplained_mutations <- list()
+        unexplained_mutations[["1_signatures"]] <- rank0_unexplained_mutations
+        cosine_similarity <- list()
+        cosine_similarity[["1_signatures"]] <- rank0_cosine_similarity
         measures <- rank0_measures
 
     }
 
     # save results
-    results <- list(alpha = alpha, beta = beta, cosine_similarity = cosine_similarity, measures = measures)
+    results <- list(alpha = alpha, beta = beta, unexplained_mutations = unexplained_mutations, cosine_similarity = cosine_similarity, measures = measures)
     rm(alpha)
     rm(beta)
     rm(cosine_similarity)
@@ -387,7 +403,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @importFrom stats coef runif
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
-    cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
+    cross_validation_iterations = 3, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
 
     # check input parameters
     x <- as.matrix(x)

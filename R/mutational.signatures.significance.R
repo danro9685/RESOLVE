@@ -30,9 +30,10 @@
 #' @param num_processes Number of processes to be used during parallel execution. To execute in single process mode,
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
-#' @return A list with the bootstrap estimates. It includes 4 elements:
+#' @return A list with the bootstrap estimates. It includes 5 elements:
 #'              alpha: matrix of the discovered exposure values considering significant signatures as estimated by bootstrap.
 #'              beta: matrix of the discovered signatures.
+#'              unexplained_mutations: number of unexplained mutations per sample.
 #'              goodness_fit: vector reporting cosine similarities between predictions and observations.
 #'              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 #' @export signaturesSignificance
@@ -170,6 +171,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     goodness_fit <- NULL
+    unexplained_mutations <- rep(NA, nrow(x))
+    names(unexplained_mutations) <- rownames(x)
     for (i in seq_len(nrow(x))) {
         # perform fit of alpha
         curr_sigs <- names(which(bootstrap$pvalues[i, ] < pvalue_thr))
@@ -182,6 +185,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                unexplained_mutations[j] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -199,6 +203,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
                 res <- res[-length(res)]
+                unexplained_mutations[i] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -223,7 +228,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     gc(verbose = FALSE)
 
     # save the results
-    results <- list(alpha = alpha, beta = beta, goodness_fit = goodness_fit, bootstrap_estimates = bootstrap)
+    results <- list(alpha = alpha, beta = beta, unexplained_mutations = unexplained_mutations, goodness_fit = goodness_fit, bootstrap_estimates = bootstrap)
 
     # return the estimeted signatures contributions
     return(results)

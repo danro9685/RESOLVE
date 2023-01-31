@@ -17,9 +17,10 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 \item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
-A list with the discovered signatures. It includes 2 elements:
+A list with the discovered signatures. It includes 3 elements:
              alpha: matrix of the discovered exposure values.
              beta: matrix of the discovered signatures.
+             unexplained_mutations: number of unexplained mutations per sample.
 }
 \description{
 Perform the assignment of K somatic mutational signatures provided as input to samples given a set of observed counts x.
