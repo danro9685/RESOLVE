@@ -97,7 +97,7 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
     }
 
     # save results
-    results <- list(alpha = alpha, beta = beta)
+    results <- list(alpha = alpha, beta = beta, unexplained_mutations = unexplained_mutations)
     rm(alpha)
     rm(beta)
     gc(verbose = FALSE)
@@ -219,11 +219,12 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         rank0_beta <- matrix(background_signature, nrow = 1)
         rownames(rank0_beta) <- "Background"
         colnames(rank0_beta) <- colnames(x)
-        rank0_alpha <- signaturesAssignment(x = x, beta = rank0_beta,
-            normalize_counts = FALSE, verbose = FALSE)$alpha
+        rank0_res <- signaturesAssignment(x = x, beta = rank0_beta,
+            normalize_counts = FALSE, verbose = FALSE)
+        rank0_alpha <- rank0_res$alpha
         rank0_mse <- mean(((x - (rank0_alpha %*% rank0_beta))^2), na.rm = TRUE)
         rank0_obj <- .fit_objective(x = x, model = list(alpha = rank0_alpha, beta = rank0_beta))
-        rank0_unexplained_mutations <- rank0_obj$unexplained_mutations
+        rank0_unexplained_mutations <- rank0_res$unexplained_mutations
         rank0_cosine_similarity <- rank0_obj$cosine_similarities
         rank0_measures <- matrix(NA, nrow = 1, ncol = 3)
         rownames(rank0_measures) <- paste0("K=",1)
