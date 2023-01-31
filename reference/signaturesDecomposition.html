@@ -111,9 +111,10 @@ this parameter needs to be set to either NA or NULL.</p></dd>
     <h2>Value</h2>
     
 
-<p>A list with the discovered signatures and related rank measures. It includes 4 elements:
+<p>A list with the discovered signatures and related rank measures. It includes 5 elements:
              alpha: list of matrices of the discovered exposure values for each possible rank in the range K.
              beta: list of matrices of the discovered signatures for each possible rank in the range K.
+             unexplained_mutations: number of unexplained mutations per sample.
              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
              measures: a data.frame containing the quality measures for each possible rank in the range K.</p>
     </div>
