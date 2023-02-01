@@ -63,7 +63,7 @@ Christopher D., et al. 'Signatures of copy number alterations in human cancer.' 
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">signaturesAssignment</span><span class="op">(</span><span class="va">x</span>, <span class="va">beta</span>, normalize_counts <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">signaturesAssignment</span><span class="op">(</span><span class="va">x</span>, <span class="va">beta</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -75,14 +75,6 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.</p></dd
 
 <dt>beta</dt>
 <dd><p>Matrix of the discovered signatures to be used for the assignment.</p></dd>
-
-
-<dt>normalize_counts</dt>
-<dd><p>If true, the input counts matrix x is normalized such that the patients have the same number of mutation.</p></dd>
-
-
-<dt>verbose</dt>
-<dd><p>Boolean. Shall I print information messages?</p></dd>
 
 </dl></div>
     <div id="value">
@@ -114,15 +106,7 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.</p></dd
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing NMF run 2 out of 2...</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
@@ -131,7 +115,6 @@ in the case of SBS it would be an n patients x 96 trinucleotides matrix.</p></dd
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per fold</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">signaturesAssignment</span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">]</span>, beta <span class="op">=</span> <span class="va">beta</span><span class="op">$</span><span class="va">beta</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Performing signatures assignment...</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
