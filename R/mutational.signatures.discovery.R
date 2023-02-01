@@ -21,8 +21,6 @@
 #' @param x Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 #' in the case of SBS it would be an n patients x 96 trinucleotides matrix.
 #' @param beta Matrix of the discovered signatures to be used for the assignment.
-#' @param normalize_counts If true, the input counts matrix x is normalized such that the patients have the same number of mutation.
-#' @param verbose Boolean. Shall I print information messages?
 #' @return A list with the discovered signatures. It includes 3 elements:
 #'              alpha: matrix of the discovered exposure values.
 #'              beta: matrix of the discovered signatures.
@@ -31,18 +29,10 @@
 #' @importFrom glmnet cv.glmnet
 #' @importFrom stats coef
 #'
-signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = TRUE ) {
+signaturesAssignment <- function( x, beta ) {
 
     # check input parameters
     x <- as.matrix(x)
-    if (normalize_counts) {
-        x_not_normalized <- x
-        x <- (x/rowSums(x)) * 2500
-    }
-
-    if (verbose) {
-        message("Performing signatures assignment...", "\n")
-    }
 
     # initialize alpha with an empty matrix
     alpha <- matrix(NA, nrow=nrow(x), ncol=nrow(beta))
@@ -77,8 +67,8 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- res[-length(res)]
                 unexplained_mutations[j] <- res[1]
+                res <- res[-length(res)]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -88,12 +78,6 @@ signaturesAssignment <- function( x, beta, normalize_counts = FALSE, verbose = T
                 gc(verbose = FALSE)
             })
         }
-    }
-
-    # rescale alpha to the original magnitude
-    if (normalize_counts) {
-        alpha <- alpha * (rowSums(x_not_normalized)/2500)
-        unexplained_mutations <- unexplained_mutations * (rowSums(x_not_normalized)/2500)
     }
 
     # save results
@@ -153,16 +137,16 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
     # check input parameters
     x <- as.matrix(x)
-    K <- sort(unique(K))
     if (length(K) == 0) {
+        warning("No valid value of K is provided: setting K equals to 1...")
         K <- 1
     }
+    K <- sort(unique(K))
     if (min(K) < 1) {
         warning("The minimum value of K must be 1, removing invalid values...")
         K <- K[K >= 1]
         if (length(K) == 0) {
             K <- 1
-            warning("No valid value of K is provided: setting K equals to 1...")
         }
     }
     if (normalize_counts) {
@@ -216,24 +200,29 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
         }
         rank0 <- TRUE
         K <- K[-1]
-        rank0_beta <- matrix(background_signature, nrow = 1)
-        rownames(rank0_beta) <- "Background"
+        rank0_beta <- matrix(background_signature, nrow = 1, ncol = ncol(x))
+        rownames(rank0_beta) <- "S1"
         colnames(rank0_beta) <- colnames(x)
-        rank0_res <- signaturesAssignment(x = x, beta = rank0_beta,
-            normalize_counts = FALSE, verbose = FALSE)
+        rank0_res <- signaturesAssignment(x = x, beta = rank0_beta)
         rank0_alpha <- rank0_res$alpha
-        rank0_mse <- mean(((x - (rank0_alpha %*% rank0_beta))^2), na.rm = TRUE)
-        rank0_obj <- .fit_objective(x = x, model = list(alpha = rank0_alpha, beta = rank0_beta))
         rank0_unexplained_mutations <- rank0_res$unexplained_mutations
+        rank0_predictions <- ((rank0_alpha %*% rank0_beta) + rank0_unexplained_mutations)
+        rank0_mse <- mean(((x - rank0_predictions)^2), na.rm = TRUE)
+        rank0_obj <- .fit_objective(x = x, model = list(alpha = rank0_alpha, beta = rank0_beta, 
+            unexplained_mutations = rank0_unexplained_mutations))
         rank0_cosine_similarity <- rank0_obj$cosine_similarities
-        rank0_measures <- matrix(NA, nrow = 1, ncol = 3)
+        rank0_measures <- matrix(NA, nrow = 1, ncol = 4)
         rownames(rank0_measures) <- paste0("K=",1)
-        colnames(rank0_measures) <- c("Stability", "Mean Squared Error", "Predictions")
+        colnames(rank0_measures) <- c("Stability", "Mean Squared Error", "Explained Variance", "Predictions")
         rank0_measures[1, "Stability"] <- 1
         rank0_measures[1, "Mean Squared Error"] <- rank0_mse
+        pred_ss <- sum(((x - rank0_predictions)^2), na.rm = TRUE)
+        total_ss <- sum((x^2), na.rm = TRUE)
+        rank0_measures[1, "Explained Variance"] <- (1 - (pred_ss / total_ss))
         rank0_measures[1, "Predictions"] <- rank0_obj$goodness_fit
         if (normalize_counts) {
             rank0_alpha <- rank0_alpha * (rowSums(x_not_normalized)/2500)
+            rank0_unexplained_mutations <- rank0_unexplained_mutations * (rowSums(x_not_normalized)/2500)
         }
     }
 
@@ -255,10 +244,10 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 
         for (i in seq_len(length(K))) {
 
-            if (verbose) {
-                message("Performing inference for K=", K[i], "...", "\n")
-            }
             rank = K[i]
+            if (verbose) {
+                message("Performing inference for K=", rank, "...", "\n")
+            }
 
             # perform the inference for the current K
             if (num_processes == 1) { # performing the inference sequentially
@@ -281,19 +270,19 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
                 })
             }
 
-            # select the best model based on median cosine similarity
+            # select the best model based on mean cosine similarity
             models_objective <- rep(NA, length(results))
             for(j in 1:length(results)) {
                 models_objective[j] <- results[[j]]$objective$goodness_fit
             }
             best_model <- which.max(models_objective)[1]
-            alpha[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$alpha
-            beta[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$beta
-            unexplained_mutations[[paste0(K[i], "_signatures")]] <- results[[best_model]]$model$unexplained_mutations
-            cosine_similarity[[paste0(K[i], "_signatures")]] <- results[[best_model]]$objective$cosine_similarities
+            alpha[[paste0(rank, "_signatures")]] <- results[[best_model]]$model$alpha
+            beta[[paste0(rank, "_signatures")]] <- results[[best_model]]$model$beta
+            unexplained_mutations[[paste0(rank, "_signatures")]] <- results[[best_model]]$model$unexplained_mutations
+            cosine_similarity[[paste0(rank, "_signatures")]] <- results[[best_model]]$objective$cosine_similarities
 
             # compute stability among the inferred models
-            if(length(K) == 1) {
+            if(nmf_runs == 1) {
                 model_stability <- 1
             }
             else {
@@ -306,16 +295,21 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
                             model2 = results[[j]]$model$beta)
                     }
                 }
-                model_stability <- median(model_stability, na.rm = TRUE)
+                model_stability <- mean(model_stability, na.rm = TRUE)
             }
 
             # save quality measures for the given solution
-            curr_measures <- matrix(NA, nrow = 1, ncol = 3)
+            curr_measures <- matrix(NA, nrow = 1, ncol = 4)
             rownames(curr_measures) <- paste0("K=",rank)
-            colnames(curr_measures) <- c("Stability", "Mean Squared Error", "Predictions")
+            colnames(curr_measures) <- c("Stability", "Mean Squared Error", "Explained Variance", "Predictions")
             curr_measures[1, "Stability"] <- model_stability
-            curr_measures[1, "Mean Squared Error"] <- mean(((x - (alpha[[paste0(K[i], "_signatures")]] %*% beta[[paste0(K[i], 
-                "_signatures")]]))^2), na.rm = TRUE)
+            curr_rank_predictions <- ((alpha[[paste0(rank, "_signatures")]] %*% beta[[paste0(rank, "_signatures")]]) 
+                + unexplained_mutations[[paste0(rank, "_signatures")]])
+            curr_rank_mse <- mean(((x - curr_rank_predictions)^2), na.rm = TRUE)
+            curr_measures[1, "Mean Squared Error"] <- curr_rank_mse
+            curr_pred_ss <- sum(((x - curr_rank_predictions)^2), na.rm = TRUE)
+            curr_total_ss <- sum((x^2), na.rm = TRUE)
+            curr_measures[1, "Explained Variance"] <- (1 - (curr_pred_ss / curr_total_ss))
             curr_measures[1, "Predictions"] <- results[[best_model]]$objective$goodness_fit
             measures <- rbind(measures, curr_measures)
 
@@ -347,6 +341,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
     results <- list(alpha = alpha, beta = beta, unexplained_mutations = unexplained_mutations, cosine_similarity = cosine_similarity, measures = measures)
     rm(alpha)
     rm(beta)
+    rm(unexplained_mutations)
     rm(cosine_similarity)
     rm(measures)
 
@@ -399,12 +394,14 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @return A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
 #' cross-validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
+#' @import nnls
 #' @import parallel
 #' @importFrom glmnet cv.glmnet
+#' @importFrom lsa cosine
 #' @importFrom stats coef runif
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
-    cross_validation_iterations = 3, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
+    cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {
 
     # check input parameters
     x <- as.matrix(x)
@@ -439,6 +436,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
     # perform a total of cross_validation_repetitions repetitions of cross-validation
     valid_entries <- which(x > 0, arr.ind = TRUE)
+    num_entries <- round((nrow(valid_entries) * cross_validation_entries))
 
     # performing the inference
     if (num_processes == 1) { # performing the inference sequentially
@@ -451,8 +449,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
             }
 
             # randomly set the cross-validation entries for the current iteration
-            cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)), 
-                size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE), ]
+            cv_entries <- valid_entries[sample(x = seq_len(nrow(valid_entries)), 
+                size = num_entries, replace = FALSE), , drop = FALSE]
 
             # consider all the possible values of K
             cont <- 0
@@ -476,8 +474,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                             " out of ", cross_validation_iterations, "...", "\n")
                     }
 
-                    # set a percentage of cross_validation_entries entries to 0
-                    # in order to perform cross-validation
+                    # set a percentage of cross_validation_entries entries to 0 to perform cross-validation
                     if (cv_iteration == 1) {
                         x_cv[cv_entries] <- 0
                     } else {
@@ -491,12 +488,16 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
 
                 }
 
+                # perform final fit of alpha
+                curr_results <- signaturesAssignment(x = x_cv, beta = curr_results[["beta"]])
+
                 # save an estimate of the current solution
-                curr_predicted_counts <- curr_results[["alpha"]] %*% curr_results[["beta"]]
+                curr_predicted_counts <- ((curr_results[["alpha"]] %*% curr_results[["beta"]]) 
+                    + curr_results[["unexplained_mutations"]])
                 rm(curr_results)
                 curr_true_considered_counts <- as.vector(x[cv_entries])
                 curr_predicted_considered_counts <- as.vector(curr_predicted_counts[cv_entries])
-                error <- median((curr_true_considered_counts - curr_predicted_considered_counts)^2)
+                error <- (1 - as.numeric(cosine(curr_true_considered_counts,curr_predicted_considered_counts)))
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_estimates[cv_repetitions, paste0(k, "_signatures")] <- error
@@ -528,9 +529,13 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         close_parallel <- TRUE
         res_clusterEvalQ <- clusterEvalQ(parallel, library("glmnet", warn.conflicts = FALSE,
             quietly = TRUE, verbose = FALSE))
-        clusterExport(parallel, varlist = c(".fit_model", "verbose", "cross_validation_repetitions",
-            "cross_validation_entries"), envir = environment())
-        clusterExport(parallel, varlist = c("cross_validation_iterations", "valid_entries",
+        res_clusterEvalQ <- clusterEvalQ(parallel, library("lsa", warn.conflicts = FALSE,
+            quietly = TRUE, verbose = FALSE))
+        res_clusterEvalQ <- clusterEvalQ(parallel, library("nnls", warn.conflicts = FALSE,
+            quietly = TRUE, verbose = FALSE))
+        clusterExport(parallel, varlist = c(".fit_model", "signaturesAssignment", "verbose", 
+            "cross_validation_repetitions", "cross_validation_entries"), envir = environment())
+        clusterExport(parallel, varlist = c("cross_validation_iterations", "valid_entries", "num_entries",
             "beta", "x"), envir = environment())
         clusterSetRNGStream(parallel, iseed = round(runif(1) * 1e+05))
         curr_results <- parLapply(parallel, seq_len(cross_validation_repetitions), function(cv_repetitions) {
@@ -541,8 +546,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
             }
 
             # randomly set the cross-validation entries for the current iteration
-            cv_entries <- valid_entries[sample(seq_len(nrow(valid_entries)), 
-                size = round(nrow(valid_entries) * cross_validation_entries), replace = FALSE), ]
+            cv_entries <- valid_entries[sample(x = seq_len(nrow(valid_entries)), 
+                size = num_entries, replace = FALSE), , drop = FALSE]
 
             # consider all the possible values of K
             cv_errors <- rep(NA, length(beta))
@@ -557,8 +562,7 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                 x_cv <- x
                 for (cv_iteration in seq_len(cross_validation_iterations)) {
 
-                    # set a percentage of cross_validation_entries entries to 0
-                    # in order to perform cross-validation
+                    # set a percentage of cross_validation_entries entries to 0 to perform cross-validation
                     if (cv_iteration == 1) {
                         x_cv[cv_entries] <- 0
                     } else {
@@ -571,12 +575,16 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
                     gc(verbose = FALSE)
                 }
 
+                # perform final fit of alpha
+                curr_results <- signaturesAssignment(x = x_cv, beta = curr_results[["beta"]])
+
                 # save an estimate of the current solution
-                curr_predicted_counts <- curr_results[["alpha"]] %*% curr_results[["beta"]]
+                curr_predicted_counts <- ((curr_results[["alpha"]] %*% curr_results[["beta"]]) 
+                    + curr_results[["unexplained_mutations"]])
                 rm(curr_results)
                 curr_true_considered_counts <- as.vector(x[cv_entries])
                 curr_predicted_considered_counts <- as.vector(curr_predicted_counts[cv_entries])
-                error <- median((curr_true_considered_counts - curr_predicted_considered_counts)^2)
+                error <- (1 - as.numeric(cosine(curr_true_considered_counts,curr_predicted_considered_counts)))
                 rm(curr_true_considered_counts)
                 rm(curr_predicted_considered_counts)
                 cv_errors[num_signs] <- error

@@ -1,4 +1,4 @@
-# perform the inference for a given rank
+# perform the inference of K mutational signatures
 .fit_nmf <- function( x, K, background ) {
 
     # perform the fit of the model by elastic net with LASSO penalty
@@ -43,7 +43,7 @@
 
 }
 
-# perform regularized fit by elastic net with LASSO penalty
+# perform the inference with regularization by elastic net with LASSO penalty
 .fit_regularized <- function( x, seed, background ) {
 
     # initialization
@@ -55,7 +55,7 @@
     }
     N <- nrow(x) # N is the number of samples
     M <- ncol(x) # M is the number of features
-    K <- ncol(alpha) # K is the number of latent variables to be fitted
+    K <- ncol(alpha) # K is the number of signatures to be fitted
 
     # fit alpha and beta by non-negative least squares to get close to a good solution
     for (i in seq_len(20)) {
@@ -67,7 +67,7 @@
         for (k in seq_len(M)) {
             if (!is.null(background)) {
                 # when provided, the first signature represents the background model, 
-                # therefore it is not changed during the fit
+                # therefore, it is not changed during the fit
                 beta[2:K, k] <- nnls(A = alpha[, 2:K, drop = FALSE], b = as.vector(x[, k]))$x
             } else {
                 beta[, k] <- nnls(A = alpha, b = as.vector(x[, k]))$x
@@ -82,8 +82,8 @@
         beta[is.invalid, ] <- (1/ncol(beta))
     }
 
-    # iteratively fit alpha and beta by elastic net using LASSO penalty
-    for (i in seq_len(5)) {
+    # refine the fit of alpha and beta by elastic net using LASSO penalty
+    for (i in seq_len(3)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
             if (nrow(beta) > 1) {
@@ -124,7 +124,7 @@
         for (k in seq_len(M)) {
             if (!is.null(background)) {
                 # when provided, the first signature represents the background model, 
-                # therefore it is not changed during the fit
+                # therefore, it is not changed during the fit
                 if (ncol(alpha[, 2:K, drop = FALSE]) > 1) {
                     beta[2:K, k] <- tryCatch({
                         res <- cv.glmnet(x = alpha[, 2:K, drop = FALSE], y = as.vector(x[, k]), 
@@ -203,7 +203,7 @@
     if (any(is.invalid)) {
         beta[is.invalid, ] <- (1/ncol(beta))
     }
-    unexplained_mutations <- rep(NA, nrow(x))
+    unexplained_mutations <- rep(0, nrow(x))
     names(unexplained_mutations) <- rownames(x)
     for (j in seq_len(N)) {
         if (nrow(beta) > 1) {
@@ -230,8 +230,8 @@
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- res[-length(res)]
                 unexplained_mutations[j] <- res[1]
+                res <- res[-length(res)]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -256,11 +256,11 @@
 
 }
 
-# compute goodness of fit estimates for a given model
+# compute an estimate of goodness of fit for a given model
 .fit_objective <- function( x, model ) {
 
     # compute cosine similarities comparing observations and predictions
-    predictions <- (model$alpha %*% model$beta)
+    predictions <- ((model$alpha %*% model$beta) + model$unexplained_mutations)
     cosine_similarities <- rep(NA, nrow(x))
     names(cosine_similarities) <- rownames(x)
     for(i in seq_len(nrow(x))) {
@@ -268,7 +268,7 @@
     }
 
     # compute goodness of fit for a given model
-    goodness_fit <- median(cosine_similarities,na.rm=TRUE)
+    goodness_fit <- mean(cosine_similarities,na.rm=TRUE)
 
     # return the results
     results <- list(goodness_fit = goodness_fit, cosine_similarities = cosine_similarities)
@@ -276,7 +276,7 @@
 
 }
 
-# estimate overall cosine similarity between two models
+# estimate mean cosine similarity between two models
 .fit_stability <- function( model1, model2 ) {
 
     # consider the signatures from the first model
@@ -302,7 +302,7 @@
 
 }
 
-# perform fit of a model solution by elastic net with LASSO penalty
+# perform the inference given an estimate of beta
 .fit_model <- function( x, beta ) {
 
     # initialization
@@ -312,82 +312,17 @@
     N <- nrow(x) # N is the number of samples
     M <- ncol(x) # M is the number of features
 
-    # iteratively fit alpha and beta by elastic net using LASSO penalty
-    for (i in seq_len(3)) {
+    # fit alpha and beta by non-negative least squares to get close to a good solution
+    for (i in seq_len(10)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
-            if (nrow(beta) > 1) {
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 100, 
-                            family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+05)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- res[-1]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(x[j,])/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-                alpha[j, ] <- tryCatch({
-                    res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                            type.measure = "mse", nfolds = 10, nlambda = 100, 
-                            family = "gaussian", alpha = 1, lower.limits = 0, 
-                            maxit = 1e+05)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- res[-length(res)]
-                    res <- res[-1]
-                    res
-                }, error = function( e ) {
-                    res <- (sum(x[j,])/ncol(alpha))
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
+            alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
         }
         # update beta, alpha is kept fixed
         for (k in seq_len(M)) {
-            if (ncol(alpha) > 1) {
-                beta[, k] <- tryCatch({
-                    res <- cv.glmnet(x = alpha, y = as.vector(x[, k]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        upper.limits = 1, maxit = 1e+05)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- res[-1]
-                    res
-                }, error = function( e ) {
-                    res <- 0
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            } else {
-                fit_inputs <- cbind(alpha, rep(0, nrow(alpha)))
-                beta[, k] <- tryCatch({
-                    res <- cv.glmnet(x = fit_inputs, y = as.vector(x[, k]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        upper.limits = 1, maxit = 1e+05)
-                    res <- as.numeric(coef(res,s=res$lambda.min))
-                    res <- res[-length(res)]
-                    res <- res[-1]
-                    res
-                }, error = function( e ) {
-                    res <- 0
-                    return(res)
-                }, finally = {
-                    gc(verbose = FALSE)
-                })
-            }
+            beta[, k] <- nnls(A = alpha, b = as.vector(x[, k]))$x
         }
     }
-    gc(verbose = FALSE)
 
     # normalize beta and perform final fit of alpha
     beta <- (beta/rowSums(beta))
@@ -396,39 +331,7 @@
         beta[is.invalid, ] <- (1/ncol(beta))
     }
     for (j in seq_len(N)) {
-        if (nrow(beta) > 1) {
-            alpha[j, ] <- tryCatch({
-                res <- cv.glmnet(x = t(beta), y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+05)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- res[-1]
-                res
-            }, error = function( e ) {
-                res <- (sum(x[j,])/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            fit_inputs <- cbind(t(beta), rep(0, ncol(beta)))
-            alpha[j, ] <- tryCatch({
-                res <- cv.glmnet(x = fit_inputs, y = as.vector(x[j, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+05)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                res <- res[-length(res)]
-                res <- res[-1]
-                res
-            }, error = function( e ) {
-                res <- (sum(x[j,])/ncol(alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        }
+        alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
     }
 
     # save the results
@@ -443,7 +346,7 @@
 
 }
 
-# iteratively estimate alpha coefficients until a given level of cosine similarity is reached
+# iteratively estimate alpha until a given level of cosine similarity is reached
 .signatures_significance <- function( x, beta, cosine_thr ) {
     
     # initialization
@@ -483,18 +386,18 @@
             gc(verbose = FALSE)
         })
     }
+    gc(verbose = FALSE)
 
-    # iteratively include signatures into the fit until a given level of cosine similarity is reached
-    sigs <- colnames(alpha[, which(alpha[1, ] > 0),
-        drop = FALSE])[sort.int(alpha[, which(alpha[1, ] > 0)], decreasing = TRUE, index.return = TRUE)$ix]
+    # iteratively include signatures into the model until a given level of cosine similarity is reached
+    sigs <- names(sort(alpha[, which(alpha[1, ] > 0)], decreasing = TRUE))
     alpha <- matrix(0, nrow = 1, ncol = nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     for (i in seq_len(length(sigs))) {
-
         # consider the current set of signatures and perform fit of alpha
         curr_alpha <- matrix(NA, nrow = 1, ncol = i)
         curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
+        unexplained_mutations <- 0
         if (nrow(curr_beta) > 1) {
             curr_alpha[1, ] <- tryCatch({
                 res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
@@ -502,6 +405,7 @@
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                unexplained_mutations <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -518,6 +422,7 @@
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
+                unexplained_mutations <- res[1]
                 res <- res[-length(res)]
                 res <- res[-1]
                 res
@@ -528,16 +433,15 @@
                 gc(verbose = FALSE)
             })
         }
-
         # estimate goodness of fit
-        curr_predicted_counts <- curr_alpha %*% curr_beta
+        curr_predicted_counts <- ((curr_alpha %*% curr_beta) + unexplained_mutations)
         curr_goodness_fit <- as.numeric(cosine(as.numeric(x),as.numeric(curr_predicted_counts)))
         if (curr_goodness_fit > cosine_thr) {
             break
         }
-
     }
     alpha[, rownames(curr_beta)] <- curr_alpha
+    gc(verbose = FALSE)
 
     # return the estimated signatures exposure
     return(alpha)

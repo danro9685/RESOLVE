@@ -4,17 +4,13 @@
 \alias{signaturesAssignment}
 \title{signaturesAssignment}
 \usage{
-signaturesAssignment(x, beta, normalize_counts = FALSE, verbose = TRUE)
+signaturesAssignment(x, beta)
 }
 \arguments{
 \item{x}{Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 in the case of SBS it would be an n patients x 96 trinucleotides matrix.}
 
 \item{beta}{Matrix of the discovered signatures to be used for the assignment.}
-
-\item{normalize_counts}{If true, the input counts matrix x is normalized such that the patients have the same number of mutation.}
-
-\item{verbose}{Boolean. Shall I print information messages?}
 }
 \value{
 A list with the discovered signatures. It includes 3 elements:

@@ -34,7 +34,7 @@ res_sig = signaturesSignificance(x = patients[seq_len(3),seq_len(2)],
                                  cosine_thr = 0.95, 
                                  min_contribution = 0.05, 
                                  pvalue_thr = 0.05, 
-                                 nboot = 3, 
+                                 nboot = 5, 
                                  num_processes = 1)
 test_that("RESOLVE can perform the signatures significance estimation", {
     expect_equal(names(res_sig),c("alpha","beta","unexplained_mutations","goodness_fit","bootstrap_estimates"))

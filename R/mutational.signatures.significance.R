@@ -16,7 +16,7 @@
 #'                               cosine_thr = 0.95,
 #'                               min_contribution = 0.05,
 #'                               pvalue_thr = 0.05,
-#'                               nboot = 3,
+#'                               nboot = 5,
 #'                               num_processes = 1)
 #'
 #' @title signaturesSignificance
@@ -48,9 +48,9 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
     # check input parameters
     x <- as.matrix(x)
     beta <- as.matrix(beta)
-    if (nboot < 3) {
-        warning("The minimum value of nboot must be 3...")
-        nboot <- 3
+    if (nboot < 5) {
+        warning("The minimum value of nboot must be 5...")
+        nboot <- 5
     }
 
     # setting up parallel execution
@@ -140,34 +140,28 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         message("Estimating level of significance for each signature...", "\n")
     }
     pvalues <- alpha
-    pvalues[which(pvalues == 0)] <- NA
+    pvalues[which(alpha == 0)] <- NA
     for (i in seq_len(nrow(pvalues))) {
         for (j in seq_len(ncol(pvalues))) {
             if (!is.na(pvalues[i, j])) {
                 pvalues[i, j] <- NA
                 curr_values <- NULL
                 for (k in seq_len(length(alpha_distibution))) {
-                    curr_values <- c(curr_values, (alpha_distibution[[k]][i, ]/sum(alpha_distibution[[k]][i, ]))[j])
+                    curr_values <- c(curr_values, ((alpha_distibution[[k]][i, j])/sum((alpha_distibution[[k]][i, ]))))
                 }
                 pvalues[i, j] <- wilcox.test(as.numeric(curr_values), alternative = "greater",
                     mu = min_contribution)$p.value
             }
         }
     }
-    goodness_fit <- NULL
-    for (i in seq_len(nrow(x))) {
-        # estimate goodness of fit
-        goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), as.numeric((alpha[i, ] %*% beta)))))
-    }
-    names(goodness_fit) <- rownames(x)
-    bootstrap <- list(estimate = alpha, pvalues = pvalues, goodness_fit = goodness_fit)
+    bootstrap <- list(estimate = alpha, pvalues = pvalues)
 
     if (verbose) {
         message("Performing fit of alpha considering only signatures with significant contribution...", "\n")
     }
 
     # perform final fit of alpha using only significant signatures
-    alpha <- matrix(0, nrow=nrow(x), ncol=nrow(beta))
+    alpha <- matrix(0, nrow = nrow(x), ncol = nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
     goodness_fit <- NULL
@@ -215,7 +209,8 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         }
         alpha[i, rownames(curr_beta)] <- as.numeric(curr_alpha)
         # estimate goodness of fit
-        goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), as.numeric((alpha[i, ] %*% beta)))))
+        pred_counts <- ((alpha[i, ] %*% beta) + unexplained_mutations[j])
+        goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), as.numeric(pred_counts))))
     }
     names(goodness_fit) <- rownames(x)
 
