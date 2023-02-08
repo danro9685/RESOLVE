@@ -280,7 +280,7 @@
 .fit_stability <- function( model1, model2 ) {
 
     # consider the signatures from the first model
-    mean_cos_sig <- rep(NA, seq_len(nrow(model1)))
+    mean_cos_sig <- rep(NA, nrow(model1))
     search_model <- seq_len(nrow(model2))
     for(i in seq_len(nrow(model1))) {
         # compare each signatures to the ones from the second model
