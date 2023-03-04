@@ -393,54 +393,56 @@
     alpha <- matrix(0, nrow = 1, ncol = nrow(beta))
     rownames(alpha) <- rownames(x)
     colnames(alpha) <- rownames(beta)
-    for (i in seq_len(length(sigs))) {
-        # consider the current set of signatures and perform fit of alpha
-        curr_alpha <- matrix(NA, nrow = 1, ncol = i)
-        curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
-        unexplained_mutations <- 0
-        if (nrow(curr_beta) > 1) {
-            curr_alpha[1, ] <- tryCatch({
-                res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+05)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                unexplained_mutations <- res[1]
-                res <- res[-1]
-                res
-            }, error = function( e ) {
-                res <- (sum(x[1,])/ncol(curr_alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
-        } else {
-            fit_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
-            curr_alpha[1, ] <- tryCatch({
-                res <- cv.glmnet(x = fit_inputs, y = as.vector(x[1, ]), 
-                        type.measure = "mse", nfolds = 10, nlambda = 100, 
-                        family = "gaussian", alpha = 1, lower.limits = 0, 
-                        maxit = 1e+05)
-                res <- as.numeric(coef(res,s=res$lambda.min))
-                unexplained_mutations <- res[1]
-                res <- res[-length(res)]
-                res <- res[-1]
-                res
-            }, error = function( e ) {
-                res <- (sum(x[1,])/ncol(curr_alpha))
-                return(res)
-            }, finally = {
-                gc(verbose = FALSE)
-            })
+    if(length(sigs)>0) {
+        for (i in seq_len(length(sigs))) {
+            # consider the current set of signatures and perform fit of alpha
+            curr_alpha <- matrix(NA, nrow = 1, ncol = i)
+            curr_beta <- beta[sigs[seq_len(i)], , drop = FALSE]
+            unexplained_mutations <- 0
+            if (nrow(curr_beta) > 1) {
+                curr_alpha[1, ] <- tryCatch({
+                    res <- cv.glmnet(x = t(curr_beta), y = as.vector(x[1, ]), 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
+                            family = "gaussian", alpha = 1, lower.limits = 0, 
+                            maxit = 1e+05)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    unexplained_mutations <- res[1]
+                    res <- res[-1]
+                    res
+                }, error = function( e ) {
+                    res <- (sum(x[1,])/ncol(curr_alpha))
+                    return(res)
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            } else {
+                fit_inputs <- cbind(t(curr_beta), rep(0, ncol(curr_beta)))
+                curr_alpha[1, ] <- tryCatch({
+                    res <- cv.glmnet(x = fit_inputs, y = as.vector(x[1, ]), 
+                            type.measure = "mse", nfolds = 10, nlambda = 100, 
+                            family = "gaussian", alpha = 1, lower.limits = 0, 
+                            maxit = 1e+05)
+                    res <- as.numeric(coef(res,s=res$lambda.min))
+                    unexplained_mutations <- res[1]
+                    res <- res[-length(res)]
+                    res <- res[-1]
+                    res
+                }, error = function( e ) {
+                    res <- (sum(x[1,])/ncol(curr_alpha))
+                    return(res)
+                }, finally = {
+                    gc(verbose = FALSE)
+                })
+            }
+            # estimate goodness of fit
+            curr_predicted_counts <- ((curr_alpha %*% curr_beta) + unexplained_mutations)
+            curr_goodness_fit <- as.numeric(cosine(as.numeric(x),as.numeric(curr_predicted_counts)))
+            if (curr_goodness_fit > cosine_thr) {
+                break
+            }
         }
-        # estimate goodness of fit
-        curr_predicted_counts <- ((curr_alpha %*% curr_beta) + unexplained_mutations)
-        curr_goodness_fit <- as.numeric(cosine(as.numeric(x),as.numeric(curr_predicted_counts)))
-        if (curr_goodness_fit > cosine_thr) {
-            break
-        }
+        alpha[, rownames(curr_beta)] <- curr_alpha
     }
-    alpha[, rownames(curr_beta)] <- curr_alpha
     gc(verbose = FALSE)
 
     # return the estimated signatures exposure
