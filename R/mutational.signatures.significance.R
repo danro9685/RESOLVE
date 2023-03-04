@@ -179,7 +179,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
                         family = "gaussian", alpha = 1, lower.limits = 0, 
                         maxit = 1e+05)
                 res <- as.numeric(coef(res,s=res$lambda.min))
-                unexplained_mutations[j] <- res[1]
+                unexplained_mutations[i] <- res[1]
                 res <- res[-1]
                 res
             }, error = function( e ) {
@@ -209,7 +209,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
         }
         alpha[i, rownames(curr_beta)] <- as.numeric(curr_alpha)
         # estimate goodness of fit
-        pred_counts <- ((alpha[i, ] %*% beta) + unexplained_mutations[j])
+        pred_counts <- ((alpha[i, ] %*% beta) + unexplained_mutations[i])
         goodness_fit <- c(goodness_fit, as.numeric(cosine(as.numeric(x[i, ]), as.numeric(pred_counts))))
     }
     names(goodness_fit) <- rownames(x)
