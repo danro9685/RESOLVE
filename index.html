@@ -34,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">RESOLVE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
       </span>
     </div>
 
@@ -69,7 +69,26 @@
 <div class="section level1">
 <div class="page-header"><h1 id="resolve">RESOLVE<a class="anchor" aria-label="anchor" href="#resolve"></a>
 </h1></div>
-<p><a href="https://github.com/danro9685/RESOLVE/actions?query=workflow%3Acheck-master" class="external-link"><img src="https://github.com/danro9685/RESOLVE/workflows/check-master/badge.svg" alt="Actions Status"></a> <a href="https://github.com/danro9685/RESOLVE/actions?query=workflow%3Acheck-development" class="external-link"><img src="https://github.com/danro9685/RESOLVE/workflows/check-development/badge.svg" alt="Actions Status"></a></p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Branch</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>master</td>
+<td><a href="https://github.com/danro9685/RESOLVE/actions/workflows/check-bioc.yml" class="external-link"><img src="https://github.com/danro9685/RESOLVE/actions/workflows/check-bioc.yml/badge.svg?branch=master" alt="R-CMD-check-bioc"></a></td>
+</tr>
+<tr class="even">
+<td>development</td>
+<td><a href="https://github.com/danro9685/RESOLVE/actions/workflows/check-bioc.yml" class="external-link"><img src="https://github.com/danro9685/RESOLVE/actions/workflows/check-bioc.yml/badge.svg?branch=development" alt="R-CMD-check-bioc"></a></td>
+</tr>
+</tbody>
+</table>
 <p>Cancer is a genetic disease caused by somatic mutations in genes controlling key biological functions such as cellular growth and division. Such mutations may arise both through cell-intrinsic and exogenous processes, generating characteristic mutational patterns over the genome named mutational signatures. The study of mutational signatures have become a standard component of modern genomics studies, since it can reveal which (environmental and endogenous) mutagenic processes are active in a tumor, and may highlight markers for therapeutic response.</p>
 <p>Mutational signatures computational analysis presents many pitfalls. First, the task of determining the number of signatures is very complex and depends on heuristics. Second, several signatures have no clear etiology, casting doubt on them being computational artifacts rather than due to mutagenic processes. Last, approaches for signatures assignment are greatly influenced by the set of signatures used for the analysis. To overcome these limitations, we developed RESOLVE (Robust EStimation Of mutationaL signatures Via rEgularization), a framework that allows the efficient extraction and assignment of mutational signatures.</p>
 <p>RESOLVE implements a novel algorithm that enables (i) the efficient extraction, (ii) exposure estimation, and (iii) confidence assessment during the computational inference of mutational signatures.</p>
