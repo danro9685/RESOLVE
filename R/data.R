@@ -38,6 +38,16 @@ NULL
 #' @return Reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function
 NULL
 
+#' @name cn_example_reduced
+#' @title A reduced version of the copy number data for 5 TCGA samples in the format compatible with the import function
+#' @description Reduced versione of the dataset of counts of copy numbers detected in TCGA tumors published in Steele, Christopher D., et al. (2022).
+#' @docType data
+#' @usage data(cn_example_reduced)
+#' @format Reduced versione of the counts of copy numbers in the format compatible with the import function
+#' @source Nature. 2022 Jun;606(7916):984-991 (https://www.nature.com/articles/s41586-022-04738-6).
+#' @return Reduced versione of the counts of copy numbers for 5 tumors and 48 copy number classes in the format compatible with the import function
+NULL
+
 #' @name plot_data_examples
 #' @title List data structure to run examples
 #' @description List data structure to run examples.

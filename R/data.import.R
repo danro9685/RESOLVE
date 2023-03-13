@@ -230,3 +230,75 @@ getMNVCounts <- function(data) {
     return(multi_nucleotides_counts)
 
 }
+
+#' Create Copy Numbers (CNs) counts matrix from input data.
+#' This function has been derived from: https://github.com/UCL-Research-Department-of-Pathology/panConusig/blob/main/R/setup_CNsigs.R
+#'
+#' @examples
+#' data(cn_example_reduced)
+#' res <- getCNCounts(data = cn_example_reduced)
+#'
+#' @title getCNCounts
+#' @param data A data.frame with copy number data having 6 columns: sample name, chromosome, start position, end position, major CN, minor CN.
+#' @return A matrix with Copy Numbers (CNs) counts per patient.
+#' @export getCNCounts
+#'
+getCNCounts <- function( data ) {
+
+    # setup all possible CN classes
+    CNclasses <- c("1","2","3-4","5-8","9+") # different total CN states
+    lengths <- c("0-100kb","100kb-1Mb","1Mb-10Mb","10Mb-40Mb",">40Mb") # different lengths
+    lohs <- c("LOH","het") # loh statuses
+    allNames <- sapply(lohs,FUN=function(x) sapply(CNclasses,FUN=function(y) sapply(lengths,FUN=function(z) paste0(y,":",x,":",z))))
+    allNames <- allNames[-grep("1[:]het",allNames)] # remove heterozygous deletions (impossible)
+    homdelclasses <- "0" # add homozygous deletions
+    homdelLengths <- c("0-100kb","100kb-1Mb",">1Mb")
+    allNames <- c(sapply(homdelclasses,FUN=function(x) sapply(homdelLengths,FUN=function(z) paste0(x,":homdel:",z))),allNames)
+
+    # set colnames for data
+    colnames(data) <- c("sample","chrom","start","end","major","minor")
+
+    # compute CN data for each patients
+    sample_names <- sort(unique(data$sample))
+    CN_data <- sapply(sample_names, FUN = function(x) {
+        patient_pos <- which(data$sample==x)
+        chrom <- as.character(data$chrom[patient_pos])
+        start <- as.numeric(data$start[patient_pos])
+        end <- as.numeric(data$end[patient_pos])
+        major <- as.numeric(data$major[patient_pos])
+        minor <- as.numeric(data$minor[patient_pos])
+        total_cn <- (major+minor)
+        lengths <- (end-start)/1000000
+        LOH <- pmin(major,minor)
+        LOHstatus <- ifelse(LOH==0,"LOH","het")
+        LOHstatus[which(total_cn==0)] <- "homdel"
+        varCN <- cut(total_cn, 
+                    breaks = c(-0.5,0.5,1.5,2.5,4.5,8.5,Inf), 
+                    labels = c("0","1","2","3-4","5-8","9+"))
+        varLength <- rep(NA, length = length(varCN))
+        hdIndex <- which(LOHstatus=="homdel")
+        if(length(hdIndex)>0) {
+            varLength[hdIndex] <- paste0(cut(lengths[hdIndex],breaks=c(-0.01,0.1,1,Inf)))
+            varLength[-hdIndex] <- paste0(cut(lengths[-hdIndex],breaks=c(-0.01,0.1,1,10,40,Inf)))
+        } else {
+            varLength <- paste0(cut(lengths,breaks=c(-0.01,0.1,1,10,40,Inf)))
+        }
+        renameVarLengths <- c("(-0.01,0.1]"="0-100kb","(0.1,1]"="100kb-1Mb","(1,10]"="1Mb-10Mb","(10,40]"="10Mb-40Mb","(40,Inf]"=">40Mb","(1,Inf]"=">1Mb")
+        varLength <- renameVarLengths[paste0(varLength)]
+        sepVars <- paste(varCN, LOHstatus, varLength, sep=":")
+        variables <- table(sepVars)
+    })
+    names(CN_data) <- sample_names
+
+    # build CN counts matrix
+    cn_counts <- matrix(0, nrow = length(CN_data), ncol = length(allNames))
+    rownames(cn_counts) <- names(CN_data)
+    colnames(cn_counts) <- allNames
+    for(i in rownames(cn_counts)) {
+        cn_counts[i,names(CN_data[[i]])] <- CN_data[[i]]
+    }
+
+    # return copy numbers counts matrix
+    return(cn_counts)
+
+}
