@@ -5,6 +5,7 @@
 \section{Changes in Version 1.2.0}{
     \itemize{
         \item Major code refactoring.
+        \item Package released in Bioconductor 3.17.
     }
 }
 
