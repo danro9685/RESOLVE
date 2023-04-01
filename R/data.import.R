@@ -258,10 +258,6 @@ getIDCounts <- function(data, reference = NULL) {
     # preprocessing input data
     data <- as.data.frame(data)
     colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
-
-    # consider only small insertions and deletions
-    valid_entries <- ((!as.character(data[,"ref"])%in%c("A","C","G","T")) | (!as.character(data[,"alt"])%in%c("A","C","G","T")))
-    data <- data[which(valid_entries==TRUE), , drop = FALSE]
     data <- data[, c("sample", "chrom", "start", "ref", "alt"), drop = FALSE]
     colnames(data) <- c("sample", "chrom", "pos", "ref", "alt")
     data <- unique(data)
@@ -271,7 +267,7 @@ getIDCounts <- function(data, reference = NULL) {
     data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), ref = data$ref,
         alt = data$alt, sample = data$sample)
     data <- get_mut_type(data, type = "indel", predefined_dbs_mbs = FALSE)
-    data <- get_indel_context(indel_grl, reference)
+    data <- get_indel_context(data, reference)
 
     # build counts matrix
     id_counts <- t(count_indel_contexts(data))
