@@ -231,6 +231,56 @@ getMNVCounts <- function(data) {
 
 }
 
+#' Create Small Insertions and Deletions (IDs) counts matrix from input data.
+#'
+#' @examples
+#' library('BSgenome.Hsapiens.UCSC.hg19')
+#' data(id_example_reduced)
+#' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.UCSC.hg19)
+#'
+#' @title getIDCounts
+#' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param reference A BSgenome object with the reference genome to be used.
+#' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
+#' @export getIDCounts
+#' @import IRanges
+#' @import BSgenome.Hsapiens.UCSC.hg19
+#' @importFrom GenomicRanges GRanges
+#' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
+#'
+getIDCounts <- function(data, reference = NULL) {
+
+    # check that reference is a BSgenome object
+    if (is.null(reference) | (!is(reference, "BSgenome"))) {
+        stop("The reference genome provided as input needs to be a BSgenome object.")
+    }
+
+    # preprocessing input data
+    data <- as.data.frame(data)
+    colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
+
+    # consider only small insertions and deletions
+    valid_entries <- ((!as.character(data[,"ref"])%in%c("A","C","G","T")) | (!as.character(data[,"alt"])%in%c("A","C","G","T")))
+    data <- data[which(valid_entries==TRUE), , drop = FALSE]
+    data <- data[, c("sample", "chrom", "start", "ref", "alt"), drop = FALSE]
+    colnames(data) <- c("sample", "chrom", "pos", "ref", "alt")
+    data <- unique(data)
+    data <- data[order(data[, "sample"], data[, "chrom"], data[, "pos"]), , drop = FALSE]
+
+    # convert data to GRanges
+    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), ref = data$ref,
+        alt = data$alt, sample = data$sample)
+    data <- get_mut_type(data, type = "indel", predefined_dbs_mbs = FALSE)
+    data <- get_indel_context(indel_grl, reference)
+
+    # build counts matrix
+    id_counts <- t(count_indel_contexts(data))
+
+    # return indel counts matrix
+    return(id_counts)
+
+}
+
 #' Create Copy Numbers (CNs) counts matrix from input data.
 #' This function has been derived from: https://github.com/UCL-Research-Department-of-Pathology/panConusig/blob/main/R/setup_CNsigs.R
 #'
