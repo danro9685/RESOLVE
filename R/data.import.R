@@ -234,9 +234,9 @@ getMNVCounts <- function(data) {
 #' Create Small Insertions and Deletions (IDs) counts matrix from input data.
 #'
 #' @examples
-#' library('BSgenome.Hsapiens.UCSC.hg19')
+#' library('BSgenome.Hsapiens.1000genomes.hs37d5')
 #' data(id_example_reduced)
-#' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.UCSC.hg19)
+#' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
 #'
 #' @title getIDCounts
 #' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
@@ -244,7 +244,8 @@ getMNVCounts <- function(data) {
 #' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
 #' @export getIDCounts
 #' @import IRanges
-#' @import BSgenome.Hsapiens.UCSC.hg19
+#' @import GenomeInfoDb
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @importFrom GenomicRanges GRanges
 #' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
 #'
@@ -264,13 +265,20 @@ getIDCounts <- function(data, reference = NULL) {
     data <- data[order(data[, "sample"], data[, "chrom"], data[, "pos"]), , drop = FALSE]
 
     # convert data to GRanges
-    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), ref = data$ref,
-        alt = data$alt, sample = data$sample)
+    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), 
+        ref = data$ref, alt = data$alt, sample = data$sample)
     data <- get_mut_type(data, type = "indel", predefined_dbs_mbs = FALSE)
+    genome(data) <- metadata(reference)$genome
     data <- get_indel_context(data, reference)
 
     # build counts matrix
-    id_counts <- t(count_indel_contexts(data))
+    id_counts <- NULL
+    samp_names <- sort(unique(data$sample))
+    for(i in samp_names) {
+        res <- t(count_indel_contexts(data[which(data$sample==i), , drop = FALSE]))
+        id_counts <- rbind(id_counts, res)
+    }
+    rownames(id_counts) <- samp_names
 
     # return indel counts matrix
     return(id_counts)
