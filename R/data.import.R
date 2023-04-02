@@ -247,6 +247,7 @@ getMNVCounts <- function(data) {
 #' @import GenomeInfoDb
 #' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @importFrom GenomicRanges GRanges
+#' @importFrom S4Vectors metadata
 #' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
 #'
 getIDCounts <- function(data, reference = NULL) {
