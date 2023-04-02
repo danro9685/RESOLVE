@@ -25,7 +25,8 @@ Imports:
     MutationalPatterns,
     nnls,
     parallel,
-    reshape2
+    reshape2,
+    S4Vectors
 Suggests:
     BiocGenerics,
     BiocStyle,
