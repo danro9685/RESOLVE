@@ -369,6 +369,321 @@ signaturesMNVPlot <- function(beta, useRowNames = FALSE,
 
 }
 
+#' Plot observed Small Insertions and Deletions (ID) counts for different groups of patients.
+#'
+#' @examples
+#' data(plot_data_examples)
+#' counts <- plot_data_examples[['groups.ID.plot']][['counts']]
+#' groups <- plot_data_examples[['groups.ID.plot']][['groups']]
+#' groupsIDPlot(counts=counts,groups=groups)
+#'
+#' @title groupsIDPlot
+#' @param counts Matrix with Small Insertions and Deletions (ID) counts data.
+#' @param groups List where names are groups labels and elements are patients labels corresponding to rownames in counts.
+#' @param normalize Boolean value; shall I normalize observed counts?
+#' @param xlabels Boolean value; shall I display x labels?
+#' @return A ggplot2 object.
+#' @export groupsIDPlot
+#' @import ggplot2
+#' @import gridExtra
+#'
+groupsIDPlot <- function(counts, groups, normalize = TRUE,
+    xlabels = FALSE) {
+
+    # make the ggplot2 object
+    glist <- list()
+    for (i in seq_len(length(groups))) {
+        plot_data <- counts[groups[[i]], ]
+        if (normalize) {
+            plot_data <- plot_data/rowSums(plot_data)
+        }
+        x_label <- NULL
+        x_value <- NULL
+        for (a in seq_len(nrow(plot_data))) {
+            for (b in seq_len(ncol(plot_data))) {
+                x_label <- c(x_label, colnames(plot_data)[b])
+                x_value <- c(x_value, plot_data[a,
+                  b])
+            }
+        }
+        Context <- NULL
+        for (j in as.character(x_label)) {
+            new_ctx <- strsplit(j, ":")[[1]][[4]]
+            if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Del") {
+                new_ctx <- as.character((as.numeric(new_ctx)+1))
+                if(new_ctx=="6") {
+                    new_ctx <- "6+"
+                }
+            }
+            if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Ins") {
+                if(new_ctx=="5") {
+                    new_ctx <- "5+"
+                }
+            }
+            if(strsplit(j,":")[[1]][[3]]=="M"&&strsplit(j,":")[[1]][[2]]=="Del") {
+                if(new_ctx=="5") {
+                    new_ctx <- "5+"
+                }
+            }
+            Context <- c(Context, new_ctx)
+        }
+        Alt <- NULL
+        for (j in as.character(x_label)) {
+            Alt <- c(Alt, paste0(strsplit(j,":")[[1]][[1]],strsplit(j,":")[[1]][[2]],strsplit(j,":")[[1]][[3]]))
+        }
+        Alt[which(Alt=="1DelC")] <- "1bp C Del"
+        Alt[which(Alt=="1DelT")] <- "1bp T Del"
+        Alt[which(Alt=="1InsC")] <- "1bp C Ins"
+        Alt[which(Alt=="1InsT")] <- "1bp T Ins"
+        Alt[which(Alt=="2DelR")] <- "2bp R Del"
+        Alt[which(Alt=="3DelR")] <- "3bp R Del"
+        Alt[which(Alt=="4DelR")] <- "4bp R Del"
+        Alt[which(Alt=="5DelR")] <- "5bp+ R Del"
+        Alt[which(Alt=="2InsR")] <- "2bp R Ins"
+        Alt[which(Alt=="3InsR")] <- "3bp R Ins"
+        Alt[which(Alt=="4InsR")] <- "4bp R Ins"
+        Alt[which(Alt=="5InsR")] <- "5bp+ R Ins"
+        Alt[which(Alt=="2DelM")] <- "2bp M Del"
+        Alt[which(Alt=="3DelM")] <- "3bp M Del"
+        Alt[which(Alt=="4DelM")] <- "4bp M Del"
+        Alt[which(Alt=="5DelM")] <- "5bp+ M Del"
+        plot_data <- data.frame(Context = factor(Context,
+            levels = c("0", "1", "2", "3", "4", "5", "5+", "6+")), alt = factor(Alt,
+            levels = c("1bp C Del", "1bp T Del", "1bp C Ins", "1bp T Ins", 
+                "2bp R Del","3bp R Del","4bp R Del","5bp+ R Del", 
+                "2bp R Ins","3bp R Ins","4bp R Ins","5bp+ R Ins", 
+                "2bp M Del", "3bp M Del", "4bp M Del", "5bp+ M Del")), value = x_value)
+        plt <- ggplot(plot_data) + geom_boxplot(aes_string(x = "Context",
+            y = "value", fill = "alt")) + facet_wrap(~alt,
+            nrow = 1, scales = "free_x") +
+            theme(panel.background = element_blank(),
+                axis.line = element_line(colour = "black")) +
+            ggtitle(names(groups)[i]) + theme(legend.position = "none") +
+            ylab("Frequency of mutations")
+
+        if (!xlabels) {
+            plt <- plt + theme(axis.text.x = element_blank(),
+                axis.ticks.x = element_blank())
+        }
+
+        glist[[i]] <- plt
+
+    }
+
+    # make the final plot
+    grid.arrange(grobs = glist, ncol = ceiling(length(groups)/3))
+
+}
+
+#' Plot Small Insertions and Deletions (ID) counts for a set of given patients.
+#'
+#' @examples
+#' data(plot_data_examples)
+#' counts <- plot_data_examples[['patients.ID.plot']][['counts']]
+#' patientsIDPlot(id_data_counts=counts,samples=rownames(counts)[seq_len(2)])
+#'
+#' @title patientsIDPlot
+#' @param id_data_counts Small Insertions and Deletions counts matrix.
+#' @param samples Name of the samples. This should match a rownames in id_data_counts
+#' @param freq Boolean value; shall I display rates instead of counts?
+#' @param xlabels Boolean value; shall I display x labels?
+#' @return A ggplot2 object.
+#' @export patientsIDPlot
+#' @import ggplot2
+#' @import gridExtra
+#' @importFrom data.table as.data.table :=
+#' @importFrom reshape2 melt
+#'
+patientsIDPlot <- function(id_data_counts, samples = rownames(id_data_counts),
+    freq = FALSE, xlabels = FALSE) {
+
+    # make samples data
+    id_data_counts <- id_data_counts[samples, , drop = FALSE]
+    if (freq) {
+        id_data_counts <- id_data_counts/rowSums(id_data_counts)
+    }
+
+    # separate context and alteration
+    x <- as.data.table(melt(as.matrix(id_data_counts),
+        varnames = c("patient", "cat")))
+    Context <- NULL
+    for (j in as.character(x$cat)) {
+        new_ctx <- strsplit(j, ":")[[1]][[4]]
+        if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Del") {
+            new_ctx <- as.character((as.numeric(new_ctx)+1))
+            if(new_ctx=="6") {
+                new_ctx <- "6+"
+            }
+        }
+        if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Ins") {
+            if(new_ctx=="5") {
+                new_ctx <- "5+"
+            }
+        }
+        if(strsplit(j,":")[[1]][[3]]=="M"&&strsplit(j,":")[[1]][[2]]=="Del") {
+            if(new_ctx=="5") {
+                new_ctx <- "5+"
+            }
+        }
+        Context <- c(Context, new_ctx)
+    }
+    x[, `:=`("Context", factor(Context, levels = c("0", "1", "2", "3", "4", "5", "5+", "6+")))]
+    Alt <- NULL
+    for (j in as.character(x$cat)) {
+        Alt <- c(Alt, paste0(strsplit(j,":")[[1]][[1]],strsplit(j,":")[[1]][[2]],strsplit(j,":")[[1]][[3]]))
+    }
+    Alt[which(Alt=="1DelC")] <- "1bp C Del"
+    Alt[which(Alt=="1DelT")] <- "1bp T Del"
+    Alt[which(Alt=="1InsC")] <- "1bp C Ins"
+    Alt[which(Alt=="1InsT")] <- "1bp T Ins"
+    Alt[which(Alt=="2DelR")] <- "2bp R Del"
+    Alt[which(Alt=="3DelR")] <- "3bp R Del"
+    Alt[which(Alt=="4DelR")] <- "4bp R Del"
+    Alt[which(Alt=="5DelR")] <- "5bp+ R Del"
+    Alt[which(Alt=="2InsR")] <- "2bp R Ins"
+    Alt[which(Alt=="3InsR")] <- "3bp R Ins"
+    Alt[which(Alt=="4InsR")] <- "4bp R Ins"
+    Alt[which(Alt=="5InsR")] <- "5bp+ R Ins"
+    Alt[which(Alt=="2DelM")] <- "2bp M Del"
+    Alt[which(Alt=="3DelM")] <- "3bp M Del"
+    Alt[which(Alt=="4DelM")] <- "4bp M Del"
+    Alt[which(Alt=="5DelM")] <- "5bp+ M Del"
+    x[, `:=`("alt", factor(Alt, levels = c("1bp C Del", "1bp T Del", "1bp C Ins", "1bp T Ins", 
+        "2bp R Del","3bp R Del","4bp R Del","5bp+ R Del", 
+        "2bp R Ins","3bp R Ins","4bp R Ins","5bp+ R Ins", 
+        "2bp M Del", "3bp M Del", "4bp M Del", "5bp+ M Del")))]
+
+    # make the ggplot2 object
+    glist <- list()
+    for (i in seq_len(nrow(id_data_counts))) {
+        plt <- ggplot(x[x$patient == rownames(id_data_counts)[i]]) +
+            geom_bar(aes_string(x = "Context", y = "value",
+                fill = "alt"), stat = "identity", position = "identity") +
+            facet_wrap(~alt, nrow = 1, scales = "free_x") +
+            theme(panel.background = element_blank(),
+                axis.line = element_line(colour = "black")) +
+            ggtitle(rownames(id_data_counts)[i]) +
+            theme(legend.position = "none") + ylab("Number of mutations")
+
+        if (freq) {
+            plt <- plt + ylab("Frequency of mutations")
+        }
+
+        if (!xlabels) {
+            plt <- plt + theme(axis.text.x = element_blank(),
+                axis.ticks.x = element_blank())
+        }
+
+        glist[[i]] <- plt
+
+    }
+
+    # make the final plot
+    grid.arrange(grobs = glist, ncol = ceiling(nrow(id_data_counts)/3))
+
+}
+
+#' Plot the inferred Small Insertions and Deletions (ID) mutational signatures.
+#'
+#' @examples
+#' data(plot_data_examples)
+#' beta <- plot_data_examples[['signatures.ID.plot']][['beta']]
+#' signaturesIDPlot(beta=beta)
+#'
+#' @title signaturesIDPlot
+#' @param beta Matrix with the inferred mutational signatures.
+#' @param useRowNames Boolean value; shall I use the rownames from beta as names for the signatures?
+#' @param xlabels Boolean value; shall I display x labels?
+#' @return A ggplot2 object.
+#' @export signaturesIDPlot
+#' @import ggplot2
+#' @import gridExtra
+#' @importFrom data.table as.data.table :=
+#' @importFrom reshape2 melt
+#'
+signaturesIDPlot <- function(beta, useRowNames = FALSE, xlabels = FALSE) {
+
+    # set names of the signatures
+    if (!useRowNames) {
+        rownames(beta) <- paste0("Signature ", seq_len(nrow(beta)))
+    }
+
+    # separate context and alteration
+    x <- as.data.table(melt(as.matrix(beta), varnames = c("signature",
+        "cat")))
+    Context <- NULL
+    for (j in as.character(x$cat)) {
+        new_ctx <- strsplit(j, ":")[[1]][[4]]
+        if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Del") {
+            new_ctx <- as.character((as.numeric(new_ctx)+1))
+            if(new_ctx=="6") {
+                new_ctx <- "6+"
+            }
+        }
+        if(strsplit(j,":")[[1]][[3]]%in%c("C","T","R")&&strsplit(j,":")[[1]][[2]]=="Ins") {
+            if(new_ctx=="5") {
+                new_ctx <- "5+"
+            }
+        }
+        if(strsplit(j,":")[[1]][[3]]=="M"&&strsplit(j,":")[[1]][[2]]=="Del") {
+            if(new_ctx=="5") {
+                new_ctx <- "5+"
+            }
+        }
+        Context <- c(Context, new_ctx)
+    }
+    x[, `:=`("Context", factor(Context, levels = c("0", "1", "2", "3", "4", "5", "5+", "6+")))]
+    Alt <- NULL
+    for (j in as.character(x$cat)) {
+        Alt <- c(Alt, paste0(strsplit(j,":")[[1]][[1]],strsplit(j,":")[[1]][[2]],strsplit(j,":")[[1]][[3]]))
+    }
+    Alt[which(Alt=="1DelC")] <- "1bp C Del"
+    Alt[which(Alt=="1DelT")] <- "1bp T Del"
+    Alt[which(Alt=="1InsC")] <- "1bp C Ins"
+    Alt[which(Alt=="1InsT")] <- "1bp T Ins"
+    Alt[which(Alt=="2DelR")] <- "2bp R Del"
+    Alt[which(Alt=="3DelR")] <- "3bp R Del"
+    Alt[which(Alt=="4DelR")] <- "4bp R Del"
+    Alt[which(Alt=="5DelR")] <- "5bp+ R Del"
+    Alt[which(Alt=="2InsR")] <- "2bp R Ins"
+    Alt[which(Alt=="3InsR")] <- "3bp R Ins"
+    Alt[which(Alt=="4InsR")] <- "4bp R Ins"
+    Alt[which(Alt=="5InsR")] <- "5bp+ R Ins"
+    Alt[which(Alt=="2DelM")] <- "2bp M Del"
+    Alt[which(Alt=="3DelM")] <- "3bp M Del"
+    Alt[which(Alt=="4DelM")] <- "4bp M Del"
+    Alt[which(Alt=="5DelM")] <- "5bp+ M Del"
+    x[, `:=`("alt", factor(Alt, levels = c("1bp C Del", "1bp T Del", "1bp C Ins", "1bp T Ins", 
+        "2bp R Del","3bp R Del","4bp R Del","5bp+ R Del", 
+        "2bp R Ins","3bp R Ins","4bp R Ins","5bp+ R Ins", 
+        "2bp M Del", "3bp M Del", "4bp M Del", "5bp+ M Del")))]
+
+    # make the ggplot2 object
+    glist <- list()
+    for (i in seq_len(nrow(beta))) {
+        plt <- ggplot(x[x$signature == rownames(beta)[i]]) +
+            geom_bar(aes_string(x = "Context", y = "value",
+                fill = "alt"), stat = "identity", position = "identity") +
+            facet_wrap(~alt, nrow = 1, scales = "free_x") +
+            theme(panel.background = element_blank(),
+                axis.line = element_line(colour = "black")) +
+            ggtitle(rownames(beta)[i]) + theme(legend.position = "none") +
+            ylab("Frequency of mutations")
+
+        if (!xlabels) {
+            plt <- plt + theme(axis.text.x = element_blank(),
+                axis.ticks.x = element_blank())
+        }
+
+        glist[[i]] <- plt
+
+    }
+
+    # make the final plot
+    grid.arrange(grobs = glist, ncol = ceiling(nrow(beta)/3))
+
+}
+
 #' Plot observed Copy Number (CN) counts for different groups of patients.
 #'
 #' @examples
