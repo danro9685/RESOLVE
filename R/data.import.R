@@ -10,14 +10,6 @@
 #' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
-#' @import IRanges
-#' @import GenomeInfoDb
-#' @import BSgenome.Hsapiens.1000genomes.hs37d5
-#' @importFrom data.table data.table dcast .N
-#' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
-#' @importFrom BSgenome getSeq
-#' @importFrom GenomicRanges GRanges seqnames
-#' @importFrom methods is
 #'
 getSBSCounts <- function(data, reference = NULL) {
 
@@ -228,5 +220,146 @@ getMNVCounts <- function(data) {
 
     # return multi nucleotides counts matrix
     return(multi_nucleotides_counts)
+
+}
+
+#' Create Small Insertions and Deletions (IDs) counts matrix from input data.
+#'
+#' @examples
+#' library('BSgenome.Hsapiens.1000genomes.hs37d5')
+#' data(id_example_reduced)
+#' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+#'
+#' @title getIDCounts
+#' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param reference A BSgenome object with the reference genome to be used.
+#' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
+#' @export getIDCounts
+#' @import IRanges
+#' @import GenomeInfoDb
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
+#' @importFrom GenomicRanges GRanges
+#' @importFrom S4Vectors metadata
+#' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
+#'
+getIDCounts <- function(data, reference = NULL) {
+
+    # check that reference is a BSgenome object
+    if (is.null(reference) | (!is(reference, "BSgenome"))) {
+        stop("The reference genome provided as input needs to be a BSgenome object.")
+    }
+
+    # preprocessing input data
+    data <- as.data.frame(data)
+    colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
+    data <- data[, c("sample", "chrom", "start", "ref", "alt"), drop = FALSE]
+    colnames(data) <- c("sample", "chrom", "pos", "ref", "alt")
+    data <- unique(data)
+    data <- data[order(data[, "sample"], data[, "chrom"], data[, "pos"]), , drop = FALSE]
+
+    # convert data to GRanges
+    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), 
+        ref = data$ref, alt = data$alt, sample = data$sample)
+    data <- get_mut_type(data, type = "indel", predefined_dbs_mbs = FALSE)
+    genome(data) <- metadata(reference)$genome
+    data <- get_indel_context(data, reference)
+
+    # build counts matrix
+    id_counts <- NULL
+    samp_names <- sort(unique(data$sample))
+    for(i in samp_names) {
+        res <- t(count_indel_contexts(data[which(data$sample==i), , drop = FALSE]))
+        id_counts <- rbind(id_counts, res)
+    }
+    rownames(id_counts) <- samp_names
+
+    # rename mutation categories
+    mutation_categories <- c("1:Del:C:0" , "1:Del:C:1" , "1:Del:C:2" , "1:Del:C:3" , "1:Del:C:4" , "1:Del:C:5" , 
+        "1:Del:T:0" , "1:Del:T:1" , "1:Del:T:2" , "1:Del:T:3" , "1:Del:T:4" , "1:Del:T:5" , "1:Ins:C:0" , "1:Ins:C:1" , 
+        "1:Ins:C:2" , "1:Ins:C:3" , "1:Ins:C:4" , "1:Ins:C:5" , "1:Ins:T:0" , "1:Ins:T:1" , "1:Ins:T:2" , "1:Ins:T:3" , 
+        "1:Ins:T:4" , "1:Ins:T:5" , "2:Del:R:0" , "2:Del:R:1" , "2:Del:R:2" , "2:Del:R:3" , "2:Del:R:4" , "2:Del:R:5" , 
+        "3:Del:R:0" , "3:Del:R:1" , "3:Del:R:2" , "3:Del:R:3" , "3:Del:R:4" , "3:Del:R:5" , "4:Del:R:0" , "4:Del:R:1" , 
+        "4:Del:R:2" , "4:Del:R:3" , "4:Del:R:4" , "4:Del:R:5" , "5:Del:R:0" , "5:Del:R:1" , "5:Del:R:2" , "5:Del:R:3" , 
+        "5:Del:R:4" , "5:Del:R:5" , "2:Ins:R:0" , "2:Ins:R:1" , "2:Ins:R:2" , "2:Ins:R:3" , "2:Ins:R:4" , "2:Ins:R:5" , 
+        "3:Ins:R:0" , "3:Ins:R:1" , "3:Ins:R:2" , "3:Ins:R:3" , "3:Ins:R:4" , "3:Ins:R:5" , "4:Ins:R:0" , "4:Ins:R:1" , 
+        "4:Ins:R:2" , "4:Ins:R:3" , "4:Ins:R:4" , "4:Ins:R:5" , "5:Ins:R:0" , "5:Ins:R:1" , "5:Ins:R:2" , "5:Ins:R:3" , 
+        "5:Ins:R:4" , "5:Ins:R:5" , "2:Del:M:1" , "3:Del:M:1" , "3:Del:M:2" , "4:Del:M:1" , "4:Del:M:2" , "4:Del:M:3" , 
+        "5:Del:M:1" , "5:Del:M:2" , "5:Del:M:3" , "5:Del:M:4" , "5:Del:M:5")
+    colnames(id_counts) <- mutation_categories
+
+    # return indel counts matrix
+    return(id_counts)
+
+}
+
+#' Create Copy Numbers (CNs) counts matrix from input data.
+#' This function has been derived from: https://github.com/UCL-Research-Department-of-Pathology/panConusig/blob/main/R/setup_CNsigs.R
+#'
+#' @examples
+#' data(cn_example_reduced)
+#' res <- getCNCounts(data = cn_example_reduced)
+#'
+#' @title getCNCounts
+#' @param data A data.frame with copy number data having 6 columns: sample name, chromosome, start position, end position, major CN, minor CN.
+#' @return A matrix with Copy Numbers (CNs) counts per patient.
+#' @export getCNCounts
+#'
+getCNCounts <- function( data ) {
+
+    # setup all possible CN classes
+    CNclasses <- c("1","2","3-4","5-8","9+") # different total CN states
+    lengths <- c("0-100kb","100kb-1Mb","1Mb-10Mb","10Mb-40Mb",">40Mb") # different lengths
+    lohs <- c("LOH","het") # loh statuses
+    allNames <- sapply(lohs,FUN=function(x) sapply(CNclasses,FUN=function(y) sapply(lengths,FUN=function(z) paste0(y,":",x,":",z))))
+    allNames <- allNames[-grep("1[:]het",allNames)] # remove heterozygous deletions (impossible)
+    homdelclasses <- "0" # add homozygous deletions
+    homdelLengths <- c("0-100kb","100kb-1Mb",">1Mb")
+    allNames <- c(sapply(homdelclasses,FUN=function(x) sapply(homdelLengths,FUN=function(z) paste0(x,":homdel:",z))),allNames)
+
+    # set colnames for data
+    colnames(data) <- c("sample","chrom","start","end","major","minor")
+
+    # compute CN data for each patients
+    sample_names <- sort(unique(data$sample))
+    CN_data <- sapply(sample_names, FUN = function(x) {
+        patient_pos <- which(data$sample==x)
+        chrom <- as.character(data$chrom[patient_pos])
+        start <- as.numeric(data$start[patient_pos])
+        end <- as.numeric(data$end[patient_pos])
+        major <- as.numeric(data$major[patient_pos])
+        minor <- as.numeric(data$minor[patient_pos])
+        total_cn <- (major+minor)
+        lengths <- (end-start)/1000000
+        LOH <- pmin(major,minor)
+        LOHstatus <- ifelse(LOH==0,"LOH","het")
+        LOHstatus[which(total_cn==0)] <- "homdel"
+        varCN <- cut(total_cn, 
+                    breaks = c(-0.5,0.5,1.5,2.5,4.5,8.5,Inf), 
+                    labels = c("0","1","2","3-4","5-8","9+"))
+        varLength <- rep(NA, length = length(varCN))
+        hdIndex <- which(LOHstatus=="homdel")
+        if(length(hdIndex)>0) {
+            varLength[hdIndex] <- paste0(cut(lengths[hdIndex],breaks=c(-0.01,0.1,1,Inf)))
+            varLength[-hdIndex] <- paste0(cut(lengths[-hdIndex],breaks=c(-0.01,0.1,1,10,40,Inf)))
+        } else {
+            varLength <- paste0(cut(lengths,breaks=c(-0.01,0.1,1,10,40,Inf)))
+        }
+        renameVarLengths <- c("(-0.01,0.1]"="0-100kb","(0.1,1]"="100kb-1Mb","(1,10]"="1Mb-10Mb","(10,40]"="10Mb-40Mb","(40,Inf]"=">40Mb","(1,Inf]"=">1Mb")
+        varLength <- renameVarLengths[paste0(varLength)]
+        sepVars <- paste(varCN, LOHstatus, varLength, sep=":")
+        variables <- table(sepVars)
+    })
+    names(CN_data) <- sample_names
+
+    # build CN counts matrix
+    cn_counts <- matrix(0, nrow = length(CN_data), ncol = length(allNames))
+    rownames(cn_counts) <- names(CN_data)
+    colnames(cn_counts) <- allNames
+    for(i in rownames(cn_counts)) {
+        cn_counts[i,names(CN_data[[i]])] <- CN_data[[i]]
+    }
+
+    # return copy numbers counts matrix
+    return(cn_counts)
 
 }

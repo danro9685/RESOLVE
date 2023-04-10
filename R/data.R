@@ -30,12 +30,32 @@ NULL
 
 #' @name ssm560_reduced
 #' @title A reduced version of the point mutations for 560 breast tumors in the format compatible with the import function
-#' @description Reduced versione of the dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
+#' @description Reduced version of the dataset of counts of the point mutations detected in 560 breast tumors published in Nik-Zainal, Serena, et al. (2016).
 #' @docType data
 #' @usage data(ssm560_reduced)
-#' @format Reduced versione of the counts of the point mutations in the format compatible with the import function
+#' @format Reduced version of the counts of the point mutations in the format compatible with the import function
 #' @source Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676).
-#' @return Reduced versione of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function
+#' @return Reduced version of the counts of point mutations for 560 tumors and 96 trinucleotides in the format compatible with the import function
+NULL
+
+#' @name id_example_reduced
+#' @title A reduced version of the indel data for 3 samples in the format compatible with the import function
+#' @description Reduced version of the dataset of counts of indels detected in 3 samples from Osorio, Fernando G., et al. (2018).
+#' @docType data
+#' @usage data(id_example_reduced)
+#' @format Reduced version of the counts of indels in the format compatible with the import function
+#' @source Cell Rep. 2018 Nov 27;25(9):2308-2316.e4 (10.1016/j.celrep.2018.11.014).
+#' @return Reduced version of the counts of indels for 3 samples and 83 indel classes in the format compatible with the import function
+NULL
+
+#' @name cn_example_reduced
+#' @title A reduced version of the copy number data for 5 TCGA samples in the format compatible with the import function
+#' @description Reduced version of the dataset of counts of copy numbers detected in TCGA tumors published in Steele, Christopher D., et al. (2022).
+#' @docType data
+#' @usage data(cn_example_reduced)
+#' @format Reduced version of the counts of copy numbers in the format compatible with the import function
+#' @source Nature. 2022 Jun;606(7916):984-991 (https://www.nature.com/articles/s41586-022-04738-6).
+#' @return Reduced version of the counts of copy numbers for 5 tumors and 48 copy number classes in the format compatible with the import function
 NULL
 
 #' @name plot_data_examples
