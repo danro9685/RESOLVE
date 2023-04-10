@@ -34,6 +34,9 @@
     <loc>/reference/getCNCounts.html</loc>
   </url>
   <url>
+    <loc>/reference/getIDCounts.html</loc>
+  </url>
+  <url>
     <loc>/reference/getMNVCounts.html</loc>
   </url>
   <url>
@@ -46,10 +49,16 @@
     <loc>/reference/groupsCXPlot.html</loc>
   </url>
   <url>
+    <loc>/reference/groupsIDPlot.html</loc>
+  </url>
+  <url>
     <loc>/reference/groupsMNVPlot.html</loc>
   </url>
   <url>
     <loc>/reference/groupsSBSPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/id_example_reduced.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -62,6 +71,9 @@
   </url>
   <url>
     <loc>/reference/patientsCXPlot.html</loc>
+  </url>
+  <url>
+    <loc>/reference/patientsIDPlot.html</loc>
   </url>
   <url>
     <loc>/reference/patientsMNVPlot.html</loc>
@@ -86,6 +98,9 @@
   </url>
   <url>
     <loc>/reference/signaturesDecomposition.html</loc>
+  </url>
+  <url>
+    <loc>/reference/signaturesIDPlot.html</loc>
   </url>
   <url>
     <loc>/reference/signaturesMNVPlot.html</loc>
