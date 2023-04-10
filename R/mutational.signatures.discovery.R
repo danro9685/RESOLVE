@@ -516,8 +516,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         cv_mean <- NULL
         cv_median <- NULL
         for (i in seq_len(ncol(cv_estimates))) {
-            cv_mean <- c(cv_mean, mean(cv_estimates[, i]))
-            cv_median <- c(cv_median, median(cv_estimates[, i]))
+            cv_mean <- c(cv_mean, mean(cv_estimates[, i], na.rm = TRUE))
+            cv_median <- c(cv_median, median(cv_estimates[, i], na.rm = TRUE))
         }
         cv_summary <- cbind(cv_mean, cv_median)
         rownames(cv_summary) <- colnames(cv_estimates)
@@ -606,8 +606,8 @@ signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_en
         cv_mean <- NULL
         cv_median <- NULL
         for (i in seq_len(ncol(cv_estimates))) {
-            cv_mean <- c(cv_mean, mean(cv_estimates[, i]))
-            cv_median <- c(cv_median, median(cv_estimates[, i]))
+            cv_mean <- c(cv_mean, mean(cv_estimates[, i], na.rm = TRUE))
+            cv_median <- c(cv_median, median(cv_estimates[, i], na.rm = TRUE))
         }
         cv_summary <- cbind(cv_mean, cv_median)
         rownames(cv_summary) <- colnames(cv_estimates)

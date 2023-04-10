@@ -10,14 +10,6 @@
 #' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
-#' @import IRanges
-#' @import GenomeInfoDb
-#' @import BSgenome.Hsapiens.1000genomes.hs37d5
-#' @importFrom data.table data.table dcast .N
-#' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
-#' @importFrom BSgenome getSeq
-#' @importFrom GenomicRanges GRanges seqnames
-#' @importFrom methods is
 #'
 getSBSCounts <- function(data, reference = NULL) {
 
@@ -228,6 +220,75 @@ getMNVCounts <- function(data) {
 
     # return multi nucleotides counts matrix
     return(multi_nucleotides_counts)
+
+}
+
+#' Create Small Insertions and Deletions (IDs) counts matrix from input data.
+#'
+#' @examples
+#' library('BSgenome.Hsapiens.1000genomes.hs37d5')
+#' data(id_example_reduced)
+#' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
+#'
+#' @title getIDCounts
+#' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param reference A BSgenome object with the reference genome to be used.
+#' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
+#' @export getIDCounts
+#' @import IRanges
+#' @import GenomeInfoDb
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
+#' @importFrom GenomicRanges GRanges
+#' @importFrom S4Vectors metadata
+#' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
+#'
+getIDCounts <- function(data, reference = NULL) {
+
+    # check that reference is a BSgenome object
+    if (is.null(reference) | (!is(reference, "BSgenome"))) {
+        stop("The reference genome provided as input needs to be a BSgenome object.")
+    }
+
+    # preprocessing input data
+    data <- as.data.frame(data)
+    colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
+    data <- data[, c("sample", "chrom", "start", "ref", "alt"), drop = FALSE]
+    colnames(data) <- c("sample", "chrom", "pos", "ref", "alt")
+    data <- unique(data)
+    data <- data[order(data[, "sample"], data[, "chrom"], data[, "pos"]), , drop = FALSE]
+
+    # convert data to GRanges
+    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), 
+        ref = data$ref, alt = data$alt, sample = data$sample)
+    data <- get_mut_type(data, type = "indel", predefined_dbs_mbs = FALSE)
+    genome(data) <- metadata(reference)$genome
+    data <- get_indel_context(data, reference)
+
+    # build counts matrix
+    id_counts <- NULL
+    samp_names <- sort(unique(data$sample))
+    for(i in samp_names) {
+        res <- t(count_indel_contexts(data[which(data$sample==i), , drop = FALSE]))
+        id_counts <- rbind(id_counts, res)
+    }
+    rownames(id_counts) <- samp_names
+
+    # rename mutation categories
+    mutation_categories <- c("1:Del:C:0" , "1:Del:C:1" , "1:Del:C:2" , "1:Del:C:3" , "1:Del:C:4" , "1:Del:C:5" , 
+        "1:Del:T:0" , "1:Del:T:1" , "1:Del:T:2" , "1:Del:T:3" , "1:Del:T:4" , "1:Del:T:5" , "1:Ins:C:0" , "1:Ins:C:1" , 
+        "1:Ins:C:2" , "1:Ins:C:3" , "1:Ins:C:4" , "1:Ins:C:5" , "1:Ins:T:0" , "1:Ins:T:1" , "1:Ins:T:2" , "1:Ins:T:3" , 
+        "1:Ins:T:4" , "1:Ins:T:5" , "2:Del:R:0" , "2:Del:R:1" , "2:Del:R:2" , "2:Del:R:3" , "2:Del:R:4" , "2:Del:R:5" , 
+        "3:Del:R:0" , "3:Del:R:1" , "3:Del:R:2" , "3:Del:R:3" , "3:Del:R:4" , "3:Del:R:5" , "4:Del:R:0" , "4:Del:R:1" , 
+        "4:Del:R:2" , "4:Del:R:3" , "4:Del:R:4" , "4:Del:R:5" , "5:Del:R:0" , "5:Del:R:1" , "5:Del:R:2" , "5:Del:R:3" , 
+        "5:Del:R:4" , "5:Del:R:5" , "2:Ins:R:0" , "2:Ins:R:1" , "2:Ins:R:2" , "2:Ins:R:3" , "2:Ins:R:4" , "2:Ins:R:5" , 
+        "3:Ins:R:0" , "3:Ins:R:1" , "3:Ins:R:2" , "3:Ins:R:3" , "3:Ins:R:4" , "3:Ins:R:5" , "4:Ins:R:0" , "4:Ins:R:1" , 
+        "4:Ins:R:2" , "4:Ins:R:3" , "4:Ins:R:4" , "4:Ins:R:5" , "5:Ins:R:0" , "5:Ins:R:1" , "5:Ins:R:2" , "5:Ins:R:3" , 
+        "5:Ins:R:4" , "5:Ins:R:5" , "2:Del:M:1" , "3:Del:M:1" , "3:Del:M:2" , "4:Del:M:1" , "4:Del:M:2" , "4:Del:M:3" , 
+        "5:Del:M:1" , "5:Del:M:2" , "5:Del:M:3" , "5:Del:M:4" , "5:Del:M:5")
+    colnames(id_counts) <- mutation_categories
+
+    # return indel counts matrix
+    return(id_counts)
 
 }
 
