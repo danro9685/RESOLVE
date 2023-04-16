@@ -150,6 +150,7 @@ signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution
             }
         }
     }
+
     bootstrap <- list(estimate = alpha, pvalues = pvalues)
 
     if (verbose) {

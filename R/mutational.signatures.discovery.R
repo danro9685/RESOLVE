@@ -26,8 +26,6 @@
 #'              beta: matrix of the discovered signatures.
 #'              unexplained_mutations: number of unexplained mutations per sample.
 #' @export signaturesAssignment
-#' @importFrom glmnet cv.glmnet
-#' @importFrom stats coef
 #'
 signaturesAssignment <- function( x, beta ) {
 
@@ -126,11 +124,6 @@ signaturesAssignment <- function( x, beta ) {
 #'              cosine_similarity: cosine similarity comparing input data x and predictions for each rank in the range K.
 #'              measures: a data.frame containing the quality measures for each possible rank in the range K.
 #' @export signaturesDecomposition
-#' @import nnls
-#' @import parallel
-#' @importFrom glmnet cv.glmnet
-#' @importFrom lsa cosine
-#' @importFrom stats coef rnbinom runif
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
     normalize_counts = FALSE, nmf_runs = 100, num_processes = Inf, verbose = TRUE ) {
@@ -394,11 +387,6 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @return A list of 2 elements: estimates and summary. Here, cv_estimates reports the mean squared error for each configuration of performed
 #' cross-validation; rank_estimates reports mean and median values for each value of K.
 #' @export signaturesCV
-#' @import nnls
-#' @import parallel
-#' @importFrom glmnet cv.glmnet
-#' @importFrom lsa cosine
-#' @importFrom stats coef runif
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,
     cross_validation_iterations = 5, cross_validation_repetitions = 100, num_processes = Inf, verbose = TRUE ) {

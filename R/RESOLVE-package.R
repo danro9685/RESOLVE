@@ -14,10 +14,11 @@
 #' @import parallel
 #' @import IRanges
 #' @import GenomeInfoDb
+#' @import nnls
 #' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @importFrom glmnet cv.glmnet
 #' @importFrom lsa cosine
-#' @importFrom stats coef runif wilcox.test
+#' @importFrom stats coef runif wilcox.test rnbinom
 #' @importFrom data.table data.table dcast .N
 #' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
 #' @importFrom BSgenome getSeq
