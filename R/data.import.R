@@ -115,37 +115,32 @@ getSBSCounts <- function(data, reference = NULL) {
 #' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
 #' @export getMNVCounts
-#' @importFrom data.table data.table dcast .N
+#' @importFrom MutationalPatterns get_mut_type get_dbs_context count_dbs_contexts
 #'
 getMNVCounts <- function(data) {
 
     # preprocessing input data
     data <- as.data.frame(data)
     colnames(data) <- c("sample", "chrom", "start", "end", "ref", "alt")
-
-    # consider only single nucleotide variants involving (A,C,G,T) bases
-    data <- data[which(data[, "start"] == data[, "end"]), , drop = FALSE]
-    data <- data[which(as.character(data[, "ref"]) %in% c("A", "C", "G", "T")), ,
-        drop = FALSE]
-    data <- data[which(as.character(data[, "alt"]) %in% c("A", "C", "G", "T")), ,
-        drop = FALSE]
     data <- data[, c("sample", "chrom", "start", "ref", "alt"), drop = FALSE]
     colnames(data) <- c("sample", "chrom", "pos", "ref", "alt")
     data <- unique(data)
     data <- data[order(data[, "sample"], data[, "chrom"], data[, "pos"]), , drop = FALSE]
 
-    # consider Multi-Nucleotide Variants (MNVs)
-    cond1 <- c(data$sample[seq_len((nrow(data) - 1))] == data$sample[2:nrow(data)],
-        FALSE)
-    cond2 <- c(data$chrom[seq_len((nrow(data) - 1))] == data$chrom[2:nrow(data)],
-        FALSE)
-    cond3 <- c(data$pos[seq_len((nrow(data) - 1))] == (data$pos[2:nrow(data)] - 1),
-        FALSE)
-    data <- cbind(data[which(cond1 & cond2 & cond3), ], data[(which(cond1 & cond2 &
-        cond3) + 1), c("ref", "alt")])
-    data[, 4] <- paste0(data[, 4], data[, 6])
-    data[, 5] <- paste0(data[, 5], data[, 7])
-    data <- data[, c(seq_len(5)), drop = FALSE]
+    # convert data to GRanges
+    data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), 
+        ref = data$ref, alt = data$alt, sample = data$sample)
+    data <- get_mut_type(data, type = "dbs", predefined_dbs_mbs = FALSE)
+    data <- get_dbs_context(data)
+
+    # build counts matrix
+    dbs_counts <- NULL
+    samp_names <- sort(unique(data$sample))
+    for(i in samp_names) {
+        res <- t(count_dbs_contexts(data[which(data$sample==i), , drop = FALSE]))
+        dbs_counts <- rbind(dbs_counts, res)
+    }
+    rownames(dbs_counts) <- samp_names
 
     # create 78 doublet base substitutions categories and their complements
     mutation_categories <- c("AC>CA", "AC>CG", "AC>CT", "AC>GA", "AC>GG", "AC>GT",
@@ -188,37 +183,12 @@ getMNVCounts <- function(data) {
         "CA>GT", "CA>AT", "CA>TG", "CA>GG", "CA>AG", "CA>TC", "CA>GC", "CA>AC")  # CA
     mutation_categories_complements <- c(mutation_categories_complements, "AA>TT",
         "AA>GT", "AA>CT", "AA>TG", "AA>GG", "AA>CG", "AA>TC", "AA>GC", "AA>CC")  # AA
+    colnames(dbs_counts) = gsub("_",">",colnames(dbs_counts))
 
-    # identify doublets motif
-    data$cat <- paste0(data$ref, ">", data$alt)
-    for (i in seq_len(length(mutation_categories_complements))) {
-        data$cat[which(data$cat == mutation_categories_complements[i])] <- mutation_categories[i]
-    }
+    # make the multi nucleotide counts matrix
+    multi_nucleotides_counts = dbs_counts[, mutation_categories ,drop = FALSE]
 
-    # count number of mutations per sample for each category
-    mutation_categories <- data.table(cat = mutation_categories)
-    data <- merge(mutation_categories[, list(cat)], data.table(sample = data$sample,
-        cat = data$cat)[, .N, by = list(sample, cat)], by = "cat", all = TRUE)
-    data <- dcast(data, sample ~ cat, value.var = "N")
-    data <- data[!is.na(sample), drop = FALSE]
-    data[is.na(data)] <- 0
-
-    # make multi nucleotide counts matrix
-    samples_names <- data$sample
-    data <- as.matrix(data[, 2:ncol(data), drop = FALSE])
-    rownames(data) <- samples_names
-    data <- data[sort(rownames(data)), , drop = FALSE]
-    data <- data[, sort(colnames(data)), drop = FALSE]
-    multi_nucleotides_counts <- array(0, c(nrow(data), 78))
-    rownames(multi_nucleotides_counts) <- rownames(data)
-    colnames(multi_nucleotides_counts) <- sort(mutation_categories$cat)
-    rows_contexts <- rownames(data)
-    cols_contexts <- colnames(multi_nucleotides_counts)[which(colnames(multi_nucleotides_counts) %in%
-        colnames(data))]
-    multi_nucleotides_counts[rows_contexts, cols_contexts] <- data[rows_contexts,
-        cols_contexts]
-
-    # return multi nucleotides counts matrix
+    # return the multi nucleotides counts matrix
     return(multi_nucleotides_counts)
 
 }
