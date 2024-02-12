@@ -113,11 +113,15 @@ getSBSCounts <- function(data, reference = NULL) {
 #'
 #' @title getMNVCounts
 #' @param data A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.
+#' @param predefined_dbs_mbs Boolean. As defined by the function get_mut_type from the package MutationalPatterns, it specifies whether 
+#' dbs and mbs mutations have been predefined in the input data. This function by default assumes that dbs and mbs mutations are present 
+#' in the vcf as snvs, which are positioned next to each other. If your dbs/mbs mutations are called separately, you should set this 
+#' argument to TRUE.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
 #' @export getMNVCounts
 #' @importFrom MutationalPatterns get_mut_type get_dbs_context count_dbs_contexts
 #'
-getMNVCounts <- function(data) {
+getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
 
     # preprocessing input data
     data <- as.data.frame(data)
@@ -130,7 +134,7 @@ getMNVCounts <- function(data) {
     # convert data to GRanges
     data <- GRanges(data$chrom, IRanges(start = data$pos, width = nchar(data$ref)), 
         ref = data$ref, alt = data$alt, sample = data$sample)
-    data <- get_mut_type(data, type = "dbs", predefined_dbs_mbs = FALSE)
+    data <- get_mut_type(data, type = "dbs", predefined_dbs_mbs = predefined_dbs_mbs)
     data <- get_dbs_context(data)
 
     # build counts matrix

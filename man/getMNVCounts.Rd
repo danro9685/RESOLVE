@@ -4,10 +4,15 @@
 \alias{getMNVCounts}
 \title{getMNVCounts}
 \usage{
-getMNVCounts(data)
+getMNVCounts(data, predefined_dbs_mbs = FALSE)
 }
 \arguments{
 \item{data}{A data.frame with variants having 6 columns: sample name, chromosome, start position, end position, ref, alt.}
+
+\item{predefined_dbs_mbs}{Boolean. As defined by the function get_mut_type from the package MutationalPatterns, it specifies whether 
+dbs and mbs mutations have been predefined in the input data. This function by default assumes that dbs and mbs mutations are present 
+in the vcf as snvs, which are positioned next to each other. If your dbs/mbs mutations are called separately, you should set this 
+argument to TRUE.}
 }
 \value{
 A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
