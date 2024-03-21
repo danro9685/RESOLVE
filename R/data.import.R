@@ -1,7 +1,6 @@
 #' Create Single Base Substitutions (SBS) counts matrix from input data for a provided reference genome.
 #'
 #' @examples
-#' library('data.table')
 #' library('BSgenome.Hsapiens.1000genomes.hs37d5')
 #' data(ssm560_reduced)
 #' res <- getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
@@ -11,6 +10,12 @@
 #' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
+#' @importFrom data.table data.table dcast .N
+#' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
+#' @import GenomicRanges
+#' @import IRanges
+#' @import GenomeInfoDb
+#' @importFrom BSgenome getSeq
 #'
 getSBSCounts <- function(data, reference = NULL) {
 
@@ -120,6 +125,9 @@ getSBSCounts <- function(data, reference = NULL) {
 #' argument to TRUE.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
 #' @export getMNVCounts
+#' @import GenomicRanges
+#' @import IRanges
+#' @import GenomeInfoDb
 #' @importFrom MutationalPatterns get_mut_type get_dbs_context count_dbs_contexts
 #'
 getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
@@ -201,7 +209,6 @@ getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
 #' Create Small Insertions and Deletions (IDs) counts matrix from input data.
 #'
 #' @examples
-#' library('data.table')
 #' library('BSgenome.Hsapiens.1000genomes.hs37d5')
 #' data(id_example_reduced)
 #' res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
@@ -211,10 +218,9 @@ getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
 #' @param reference A BSgenome object with the reference genome to be used.
 #' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
 #' @export getIDCounts
+#' @import GenomicRanges
 #' @import IRanges
 #' @import GenomeInfoDb
-#' @import BSgenome.Hsapiens.1000genomes.hs37d5
-#' @importFrom GenomicRanges GRanges
 #' @importFrom S4Vectors metadata
 #' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
 #'

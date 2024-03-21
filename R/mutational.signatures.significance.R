@@ -37,6 +37,9 @@
 #'              goodness_fit: vector reporting cosine similarities between predictions and observations.
 #'              bootstrap_estimates: list of matrices reporting results by bootstrap estimates.
 #' @export signaturesSignificance
+#' @import glmnet
+#' @import lsa
+#' @import parallel
 #'
 signaturesSignificance <- function( x, beta, cosine_thr = 0.95, min_contribution = 0.05,
     pvalue_thr = 0.05, nboot = 100, num_processes = Inf, verbose = TRUE ) {
