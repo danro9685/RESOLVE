@@ -1,5 +1,6 @@
 context("RESOLVE")
 
+library("data.table")
 library("BSgenome.Hsapiens.1000genomes.hs37d5")
 data(ssm560_reduced)
 res_sbs = getSBSCounts(data = ssm560_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
