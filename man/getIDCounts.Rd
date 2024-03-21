@@ -18,6 +18,7 @@ A matrix with Small Insertions and Deletions (IDs) counts per patient.
 Create Small Insertions and Deletions (IDs) counts matrix from input data.
 }
 \examples{
+library('data.table')
 library('BSgenome.Hsapiens.1000genomes.hs37d5')
 data(id_example_reduced)
 res <- getIDCounts(data = id_example_reduced, reference = BSgenome.Hsapiens.1000genomes.hs37d5)
