@@ -10,6 +10,7 @@
 #' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @import GenomeInfoDb
 #' @import GenomicRanges
 #' @import IRanges
@@ -218,6 +219,7 @@ getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
 #' @param reference A BSgenome object with the reference genome to be used.
 #' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
 #' @export getIDCounts
+#' @import BSgenome.Hsapiens.1000genomes.hs37d5
 #' @import GenomeInfoDb
 #' @import GenomicRanges
 #' @import IRanges
