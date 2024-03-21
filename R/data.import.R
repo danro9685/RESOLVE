@@ -10,11 +10,11 @@
 #' @param reference A BSgenome object with the reference genome to be used to retrieve flanking bases.
 #' @return A matrix with Single Base Substitutions (SBS) counts per patient.
 #' @export getSBSCounts
-#' @importFrom data.table data.table dcast .N
-#' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
+#' @import GenomeInfoDb
 #' @import GenomicRanges
 #' @import IRanges
-#' @import GenomeInfoDb
+#' @importFrom data.table data.table dcast .N
+#' @importFrom Biostrings DNAStringSet complement reverseComplement subseq
 #' @importFrom BSgenome getSeq
 #'
 getSBSCounts <- function(data, reference = NULL) {
@@ -125,9 +125,9 @@ getSBSCounts <- function(data, reference = NULL) {
 #' argument to TRUE.
 #' @return A matrix with Multi-Nucleotide Variants (MNVs) counts per patient.
 #' @export getMNVCounts
+#' @import GenomeInfoDb
 #' @import GenomicRanges
 #' @import IRanges
-#' @import GenomeInfoDb
 #' @importFrom MutationalPatterns get_mut_type get_dbs_context count_dbs_contexts
 #'
 getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
@@ -218,11 +218,11 @@ getMNVCounts <- function( data, predefined_dbs_mbs = FALSE ) {
 #' @param reference A BSgenome object with the reference genome to be used.
 #' @return A matrix with Small Insertions and Deletions (IDs) counts per patient.
 #' @export getIDCounts
+#' @import GenomeInfoDb
 #' @import GenomicRanges
 #' @import IRanges
-#' @import GenomeInfoDb
-#' @importFrom S4Vectors metadata
 #' @importFrom MutationalPatterns get_mut_type get_indel_context count_indel_contexts
+#' @importFrom S4Vectors metadata
 #'
 getIDCounts <- function(data, reference = NULL) {
 

@@ -12,7 +12,6 @@ Depends:
 Imports:
     Biostrings,
     BSgenome,
-    BSgenome.Hsapiens.1000genomes.hs37d5,
     data.table,
     GenomeInfoDb,
     GenomicRanges,
@@ -21,7 +20,6 @@ Imports:
     gridExtra,
     IRanges,
     lsa,
-    methods,
     MutationalPatterns,
     nnls,
     parallel,
