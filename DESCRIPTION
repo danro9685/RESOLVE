@@ -1,5 +1,5 @@
 Package: RESOLVE
-Version: 1.7.0
+Version: 1.6.0
 Date: 2024-03-26
 Title: RESOLVE: An R package for the efficient analysis of mutational signatures from cancer genomes
 Authors@R: c(
