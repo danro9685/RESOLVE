@@ -73,7 +73,7 @@ Sano</h4>
                         <h4 data-toc-skip class="author">Daniele
 Ramazzotti</h4>
             
-            <h4 data-toc-skip class="date">April 13, 2024</h4>
+            <h4 data-toc-skip class="date">April 19, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/danro9685/RESOLVE/blob/HEAD/vignettes/RESOLVE.rmd" class="external-link"><code>vignettes/RESOLVE.rmd</code></a></small>
       <div class="hidden name"><code>RESOLVE.rmd</code></div>
@@ -178,12 +178,18 @@ BSgenome object to be considered. This can be done as follows, where in
 the example we used hs37d5 as reference genome as provided as data
 object within the package.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"BSgenome.Hsapiens.1000genomes.hs37d5"</span><span class="op">)</span></span>
-<span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/getSBSCounts.html">getSBSCounts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"BSgenome.Hsapiens.1000genomes.hs37d5"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning: package 'BSgenome' was built under R version 4.5.0</span></span></code></pre>
+<pre><code><span><span class="co">## Warning: package 'S4Vectors' was built under R version 4.5.0</span></span></code></pre>
+<pre><code><span><span class="co">## Warning: package 'GenomicRanges' was built under R version 4.5.0</span></span></code></pre>
+<pre><code><span><span class="co">## Warning: package 'Biostrings' was built under R version 4.5.0</span></span></code></pre>
+<pre><code><span><span class="co">## Warning: package 'rtracklayer' was built under R version 4.5.0</span></span></code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">imported_data</span> <span class="op">=</span> <span class="fu"><a href="../reference/getSBSCounts.html">getSBSCounts</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">ssm560_reduced</span>, reference <span class="op">=</span> <span class="va">BSgenome.Hsapiens.1000genomes.hs37d5</span><span class="op">)</span></span></code></pre></div>
 <p>Now, we present an example of visualization feature provided by the
 package, showing the counts for the first patient, i.e., PD10010a, in
 the following plot.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/patientsSBSPlot.html">patientsSBSPlot</a></span><span class="op">(</span>trinucleotides_counts<span class="op">=</span><span class="va">imported_data</span>,samples<span class="op">=</span><span class="st">"PD10010a"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
 <img src="RESOLVE_files/figure-html/unnamed-chunk-4-1.png" alt="Visualization of the counts for patient PD10010a from the dataset published in Nik-Zainal, Serena, et al." width="672"><p class="caption">
@@ -196,7 +202,7 @@ extraction. To do so, we need to define a range for the number of
 signatures (variable K) to be considered. We now show how to perform the
 inference on the dataset from Nik-Zainal, Serena, et al. (2016), whose
 counts are provided within the package.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">background</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patients</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
@@ -211,7 +217,7 @@ CX and CN.</p>
 <p>Now that we have performed the de novo inferece, we need to decide
 the optimal number of signatures to be extracted from our dataset. To do
 so, we provide a procedure based on cross-validation.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12345</span><span class="op">)</span></span>
 <span><span class="va">res_cv</span> <span class="op">=</span> <span class="fu"><a href="../reference/signaturesCV.html">signaturesCV</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">patients</span>, </span>
 <span>                      beta <span class="op">=</span> <span class="va">res_denovo</span><span class="op">$</span><span class="va">beta</span>, </span>
@@ -227,9 +233,9 @@ and to the RESOLVE manuscript for details on the method.</p>
 <div class="section level2">
 <h2 id="current-r-session">Current R Session<a class="anchor" aria-label="anchor" href="#current-r-session"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## R Under development (unstable) (2024-04-10 r86396)</span></span>
+<pre><code><span><span class="co">## R version 4.4.0 RC (2024-04-16 r86435)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
 <span><span class="co">## Running under: Ubuntu 22.04.4 LTS</span></span>
 <span><span class="co">## </span></span>
@@ -260,7 +266,7 @@ and to the RESOLVE manuscript for details on the method.</p>
 <span><span class="co">##  [5] Biostrings_2.71.5                          </span></span>
 <span><span class="co">##  [6] XVector_0.43.1                             </span></span>
 <span><span class="co">##  [7] GenomicRanges_1.55.4                       </span></span>
-<span><span class="co">##  [8] GenomeInfoDb_1.39.13                       </span></span>
+<span><span class="co">##  [8] GenomeInfoDb_1.39.14                       </span></span>
 <span><span class="co">##  [9] IRanges_2.37.1                             </span></span>
 <span><span class="co">## [10] S4Vectors_0.41.6                           </span></span>
 <span><span class="co">## [11] RESOLVE_1.6.0                              </span></span>
@@ -272,27 +278,27 @@ and to the RESOLVE manuscript for details on the method.</p>
 <span><span class="co">##   [1] bitops_1.0-7                gridExtra_2.3              </span></span>
 <span><span class="co">##   [3] rlang_1.1.3                 magrittr_2.0.3             </span></span>
 <span><span class="co">##   [5] gridBase_0.4-7              matrixStats_1.3.0          </span></span>
-<span><span class="co">##   [7] compiler_4.5.0              ggalluvial_0.12.5          </span></span>
+<span><span class="co">##   [7] compiler_4.4.0              ggalluvial_0.12.5          </span></span>
 <span><span class="co">##   [9] systemfonts_1.0.6           vctrs_0.6.5                </span></span>
 <span><span class="co">##  [11] reshape2_1.4.4              stringr_1.5.1              </span></span>
 <span><span class="co">##  [13] pkgconfig_2.0.3             shape_1.4.6.1              </span></span>
 <span><span class="co">##  [15] crayon_1.5.2                fastmap_1.1.1              </span></span>
 <span><span class="co">##  [17] labeling_0.4.3              utf8_1.2.4                 </span></span>
 <span><span class="co">##  [19] Rsamtools_2.19.4            rmarkdown_2.26             </span></span>
-<span><span class="co">##  [21] pracma_2.4.4                UCSC.utils_0.99.5          </span></span>
+<span><span class="co">##  [21] pracma_2.4.4                UCSC.utils_0.99.7          </span></span>
 <span><span class="co">##  [23] ragg_1.3.0                  purrr_1.0.2                </span></span>
 <span><span class="co">##  [25] xfun_0.43                   glmnet_4.1-8               </span></span>
 <span><span class="co">##  [27] zlibbioc_1.49.3             cachem_1.0.8               </span></span>
 <span><span class="co">##  [29] jsonlite_1.8.8              highr_0.10                 </span></span>
 <span><span class="co">##  [31] SnowballC_0.7.1             DelayedArray_0.29.9        </span></span>
-<span><span class="co">##  [33] BiocParallel_1.37.1         parallel_4.5.0             </span></span>
+<span><span class="co">##  [33] BiocParallel_1.37.1         parallel_4.4.0             </span></span>
 <span><span class="co">##  [35] cluster_2.1.6               R6_2.5.1                   </span></span>
 <span><span class="co">##  [37] stringi_1.8.3               bslib_0.7.0                </span></span>
 <span><span class="co">##  [39] RColorBrewer_1.1-3          jquerylib_0.1.4            </span></span>
-<span><span class="co">##  [41] Rcpp_1.0.12                 bookdown_0.38              </span></span>
+<span><span class="co">##  [41] Rcpp_1.0.12                 bookdown_0.39              </span></span>
 <span><span class="co">##  [43] SummarizedExperiment_1.33.3 iterators_1.0.14           </span></span>
 <span><span class="co">##  [45] knitr_1.46                  Matrix_1.7-0               </span></span>
-<span><span class="co">##  [47] splines_4.5.0               nnls_1.5                   </span></span>
+<span><span class="co">##  [47] splines_4.4.0               nnls_1.5                   </span></span>
 <span><span class="co">##  [49] tidyselect_1.2.1            abind_1.4-5                </span></span>
 <span><span class="co">##  [51] yaml_2.3.8                  doParallel_1.0.17          </span></span>
 <span><span class="co">##  [53] codetools_0.2-20            curl_5.2.1                 </span></span>
@@ -306,10 +312,10 @@ and to the RESOLVE manuscript for details on the method.</p>
 <span><span class="co">##  [69] generics_0.1.3              RCurl_1.98-1.14            </span></span>
 <span><span class="co">##  [71] ggplot2_3.5.0               munsell_0.5.1              </span></span>
 <span><span class="co">##  [73] scales_1.3.0                NMF_0.27                   </span></span>
-<span><span class="co">##  [75] glue_1.7.0                  tools_4.5.0                </span></span>
+<span><span class="co">##  [75] glue_1.7.0                  tools_4.4.0                </span></span>
 <span><span class="co">##  [77] data.table_1.15.4           GenomicAlignments_1.39.5   </span></span>
 <span><span class="co">##  [79] registry_0.5-1              fs_1.6.3                   </span></span>
-<span><span class="co">##  [81] XML_3.99-0.16.1             grid_4.5.0                 </span></span>
+<span><span class="co">##  [81] XML_3.99-0.16.1             grid_4.4.0                 </span></span>
 <span><span class="co">##  [83] colorspace_2.1-0            GenomeInfoDbData_1.2.12    </span></span>
 <span><span class="co">##  [85] restfulr_0.0.15             cli_3.6.2                  </span></span>
 <span><span class="co">##  [87] textshaping_0.3.7           fansi_1.0.6                </span></span>
@@ -318,7 +324,7 @@ and to the RESOLVE manuscript for details on the method.</p>
 <span><span class="co">##  [93] digest_0.6.35               SparseArray_1.3.5          </span></span>
 <span><span class="co">##  [95] farver_2.1.1                rjson_0.2.21               </span></span>
 <span><span class="co">##  [97] htmlwidgets_1.6.4           memoise_2.0.1              </span></span>
-<span><span class="co">##  [99] htmltools_0.5.8.1           pkgdown_2.0.8.9000         </span></span>
+<span><span class="co">##  [99] htmltools_0.5.8.1           pkgdown_2.0.9.9000         </span></span>
 <span><span class="co">## [101] lifecycle_1.0.4             httr_1.4.7</span></span></code></pre>
 </div>
   </div>
@@ -340,7 +346,7 @@ and to the RESOLVE manuscript for details on the method.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
 
       </footer>
