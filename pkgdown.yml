@@ -1,7 +1,7 @@
 pandoc: 3.1.1
 pkgdown: 2.0.9.9000
-pkgdown_sha: b04741701bc6aef5e0cb9f3f688e687947b7af60
+pkgdown_sha: 4e7ffec191b6e42d0e3dd718e5719ddf66f5eef9
 articles:
   RESOLVE: RESOLVE.html
-last_built: 2024-04-19T08:08Z
+last_built: 2024-04-24T08:00Z
 
