@@ -69,40 +69,40 @@ signaturesDecomposition) somatic mutational signatures given a set of observatio
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+    <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Counts matrix for a set of n patients and m categories. These can be, e.g., SBS, MNV, CN or CN counts;
 in the case of SBS it would be an n patients x 96 trinucleotides matrix.</p></dd>
 
 
-<dt>beta</dt>
+<dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
 <dd><p>A set of inferred signatures as returned by signaturesDecomposition function.</p></dd>
 
 
-<dt>normalize_counts</dt>
+<dt id="arg-normalize-counts">normalize_counts<a class="anchor" aria-label="anchor" href="#arg-normalize-counts"></a></dt>
 <dd><p>If true, the input counts matrix x is normalized such that the patients have the same number of mutation.</p></dd>
 
 
-<dt>cross_validation_entries</dt>
+<dt id="arg-cross-validation-entries">cross_validation_entries<a class="anchor" aria-label="anchor" href="#arg-cross-validation-entries"></a></dt>
 <dd><p>Percentage of cells in the counts matrix to be replaced by 0s during cross-validation.</p></dd>
 
 
-<dt>cross_validation_iterations</dt>
+<dt id="arg-cross-validation-iterations">cross_validation_iterations<a class="anchor" aria-label="anchor" href="#arg-cross-validation-iterations"></a></dt>
 <dd><p>For each configuration, the first time the signatures are fitted form a matrix with a
 percentage of values replaced by 0s. This may result in poor fit/results. Then, we perform predictions of these entries and replace them with
 such predicted values. This parameter is the number of restarts to be performed to improve this estimate and obtain more stable solutions.</p></dd>
 
 
-<dt>cross_validation_repetitions</dt>
+<dt id="arg-cross-validation-repetitions">cross_validation_repetitions<a class="anchor" aria-label="anchor" href="#arg-cross-validation-repetitions"></a></dt>
 <dd><p>Number of time cross-validation should be repeated. Higher values result in better estimate, but are 
 computationally more expensive.</p></dd>
 
 
-<dt>num_processes</dt>
+<dt id="arg-num-processes">num_processes<a class="anchor" aria-label="anchor" href="#arg-num-processes"></a></dt>
 <dd><p>Number of processes to be used during parallel execution. To execute in single process mode,
 this parameter needs to be set to either NA or NULL.</p></dd>
 
 
-<dt>verbose</dt>
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Boolean. Shall I print information messages?</p></dd>
 
 </dl></div>
