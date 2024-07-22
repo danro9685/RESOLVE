@@ -1,114 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/articles/RESOLVE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/background.html</loc>
-  </url>
-  <url>
-    <loc>/reference/background2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/cn_example_reduced.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getCNCounts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getIDCounts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getMNVCounts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/getSBSCounts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupsCNPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupsCXPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupsIDPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupsMNVPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/groupsSBSPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/id_example_reduced.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patients.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patientsCNPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patientsCXPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patientsIDPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patientsMNVPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/patientsSBSPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_data_examples.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesAssignment.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesCNPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesCV.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesCXPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesDecomposition.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesIDPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesMNVPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesSBSPlot.html</loc>
-  </url>
-  <url>
-    <loc>/reference/signaturesSignificance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ssm560_reduced.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/articles/RESOLVE.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/background.html</loc></url>
+<url><loc>/reference/background2.html</loc></url>
+<url><loc>/reference/cn_example_reduced.html</loc></url>
+<url><loc>/reference/getCNCounts.html</loc></url>
+<url><loc>/reference/getIDCounts.html</loc></url>
+<url><loc>/reference/getMNVCounts.html</loc></url>
+<url><loc>/reference/getSBSCounts.html</loc></url>
+<url><loc>/reference/groupsCNPlot.html</loc></url>
+<url><loc>/reference/groupsCXPlot.html</loc></url>
+<url><loc>/reference/groupsIDPlot.html</loc></url>
+<url><loc>/reference/groupsMNVPlot.html</loc></url>
+<url><loc>/reference/groupsSBSPlot.html</loc></url>
+<url><loc>/reference/id_example_reduced.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/patients.html</loc></url>
+<url><loc>/reference/patientsCNPlot.html</loc></url>
+<url><loc>/reference/patientsCXPlot.html</loc></url>
+<url><loc>/reference/patientsIDPlot.html</loc></url>
+<url><loc>/reference/patientsMNVPlot.html</loc></url>
+<url><loc>/reference/patientsSBSPlot.html</loc></url>
+<url><loc>/reference/plot_data_examples.html</loc></url>
+<url><loc>/reference/signaturesAssignment.html</loc></url>
+<url><loc>/reference/signaturesCNPlot.html</loc></url>
+<url><loc>/reference/signaturesCV.html</loc></url>
+<url><loc>/reference/signaturesCXPlot.html</loc></url>
+<url><loc>/reference/signaturesDecomposition.html</loc></url>
+<url><loc>/reference/signaturesIDPlot.html</loc></url>
+<url><loc>/reference/signaturesMNVPlot.html</loc></url>
+<url><loc>/reference/signaturesSBSPlot.html</loc></url>
+<url><loc>/reference/signaturesSignificance.html</loc></url>
+<url><loc>/reference/ssm560_reduced.html</loc></url>
 </urlset>
+
