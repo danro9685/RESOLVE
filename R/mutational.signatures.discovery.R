@@ -128,6 +128,7 @@ signaturesAssignment <- function( x, beta ) {
 #' @import glmnet
 #' @import lsa
 #' @import nnls
+#' @import RhpcBLASctl
 #' @import parallel
 #'
 signaturesDecomposition <- function( x, K, background_signature = NULL,
@@ -395,6 +396,7 @@ signaturesDecomposition <- function( x, K, background_signature = NULL,
 #' @import glmnet
 #' @import lsa
 #' @import nnls
+#' @import RhpcBLASctl
 #' @import parallel
 #'
 signaturesCV <- function( x, beta, normalize_counts = FALSE, cross_validation_entries = 0.01,

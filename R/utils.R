@@ -61,16 +61,22 @@
     for (i in seq_len(20)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
+            blas_set_num_threads(1)
             alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
+            blas_set_num_threads(blas_get_num_procs()) # reset to default
         }
         # update beta, alpha is kept fixed
         for (k in seq_len(M)) {
             if (!is.null(background)) {
                 # when provided, the first signature represents the background model, 
                 # therefore, it is not changed during the fit
+                blas_set_num_threads(1)
                 beta[2:K, k] <- nnls(A = alpha[, 2:K, drop = FALSE], b = as.vector(x[, k]))$x
+                blas_set_num_threads(blas_get_num_procs()) # reset to default
             } else {
+                blas_set_num_threads(1)
                 beta[, k] <- nnls(A = alpha, b = as.vector(x[, k]))$x
+                blas_set_num_threads(blas_get_num_procs()) # reset to default
             }
         }
     }
@@ -316,11 +322,15 @@
     for (i in seq_len(10)) {
         # update alpha, beta is kept fixed
         for (j in seq_len(N)) {
+            blas_set_num_threads(1)
             alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
+            blas_set_num_threads(blas_get_num_procs()) # reset to default
         }
         # update beta, alpha is kept fixed
         for (k in seq_len(M)) {
+            blas_set_num_threads(1)
             beta[, k] <- nnls(A = alpha, b = as.vector(x[, k]))$x
+            blas_set_num_threads(blas_get_num_procs()) # reset to default
         }
     }
 
@@ -331,7 +341,9 @@
         beta[is.invalid, ] <- (1/ncol(beta))
     }
     for (j in seq_len(N)) {
+        blas_set_num_threads(1)
         alpha[j, ] <- nnls(A = t(beta), b = as.vector(x[j, ]))$x
+        blas_set_num_threads(blas_get_num_procs()) # reset to default
     }
 
     # save the results
