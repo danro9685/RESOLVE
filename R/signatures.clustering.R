@@ -13,7 +13,7 @@
 #' this parameter needs to be set to either NA or NULL.
 #' @param verbose Boolean. Shall I print information messages?
 #' @return A list a clusters assignments for each number within the num_clusters range.
-#' @export signaturesSignificance
+#' @export signaturesClustering
 #' @import cluster
 #' @import lsa
 #' @import parallel
