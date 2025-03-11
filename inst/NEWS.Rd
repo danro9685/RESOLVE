@@ -2,6 +2,13 @@
 \title{News for the package \pkg{RESOLVE}}
 \encoding{UTF-8}
 
+\section{Changes in Version 1.10.0}{
+    \itemize{
+        \item Major code update, implementing signatures-based clustering and associations.
+        \item Package released in Bioconductor 3.21.
+    }
+}
+
 \section{Changes in Version 1.2.0}{
     \itemize{
         \item Major code refactoring.

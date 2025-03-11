@@ -24,6 +24,8 @@ However, available mutational signatures computational tools presents many pitfa
 
 The RESOLVE R package implements a new de novo signatures extraction algorithm, which employs a regularized Non-Negative Matrix Factorization procedure. The method incorporates a background signature during the inference step and adopts elastic net regression to reduce the impact of overfitting. The estimation of the optimal number of signatures is performed by bi-cross-validation. Furthermore, the package also provide a procedure for confidence estimation of signatures activities in samples.
 
+Additionally, RESOLVE enables the precise stratification of cancer genomes based on mutational signatures, allowing for the identification of key signatures that drive specific cancer subtypes. Beyond de novo extraction, assignment, and confidence estimation, RESOLVE also supports patient clustering, survival analysis to identify risk groups linked to distinct mutational processes, and the investigation of associations between mutational signatures and driver gene mutations. These advanced capabilities offer deeper insights into tumorigenesis mechanisms, their prognostic relevance, and potential therapeutic targets.
+
 As such, RESOLVE represents an addition to other Bioconductor packages, such as, e.g., SparseSignatures, MutationalPatterns, musicatk among others, that implements a novel approach for detecting mutational signatures.
 
 In this vignette, we give an overview of the package by presenting some of its main functions.
@@ -43,6 +45,7 @@ BiocManager::install("RESOLVE")
 
 - *1.0.0* - Package released in Bioconductor 3.16.
 - *1.2.0* - Major code refactoring.
+- *1.10.0* - Major code update, implementing signatures-based clustering and associations.
 
 # Using the RESOLVE R package
 
@@ -95,9 +98,13 @@ res_cv = signaturesCV(x = patients,
                       num_processes = 50)
 ```
 
-We notice that the computations for this task can be very time consuming, expecially when many iterations of cross validations are performed (see manual) and a large set of configurations of the parameters are tested.
+The computations for this task can be very time consuming, especially when many iterations of cross validations are performed (see manual) and a large set of configurations of the parameters are tested.
 
 We refer to the manual for a detailed description of each parameter and to the RESOLVE manuscript for details on the method.
+
+# Using the RESOLVE R package
+
+RESOLVE enables the identification of clusters of patients with active similar mutation processes.
 
 # Current R Session
 
