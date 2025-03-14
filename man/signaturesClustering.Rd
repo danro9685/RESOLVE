@@ -31,6 +31,7 @@ Perform signatures based clustering given the signatures assignments matrix alph
 data(sbs_assignments)
 set.seed(12345)
 norm_alpha = (sbs_assignments$alpha / rowSums(sbs_assignments$alpha))
-sbs_clustering = signaturesClustering(alpha = norm_alpha, num_clusters = 1:3, num_processes = 1, verbose = FALSE)
+sbs_clustering = signaturesClustering(alpha = norm_alpha, num_clusters = 1:3, 
+                                      num_processes = 1, verbose = FALSE)
 
 }
