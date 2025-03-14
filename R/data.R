@@ -87,3 +87,13 @@ NULL
 #' @source ICGC data portal (https://dcc.icgc.org/).
 #' @return Mutations and SBS assignments
 NULL
+
+#' @name association_survival
+#' @title List providing clinical data and signatures assignments for 359 pancreatic cancer patients
+#' @description Clinical data and SBS assignments for 359 pancreatic tumors from ICGC.
+#' @docType data
+#' @usage data(association_survival)
+#' @format List providing clinical data and signatures assignments for 359 pancreatic cancer patients from ICGC (https://dcc.icgc.org/)
+#' @source ICGC data portal (https://dcc.icgc.org/).
+#' @return Clinical data and SBS assignments
+NULL
