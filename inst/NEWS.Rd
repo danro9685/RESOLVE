@@ -4,7 +4,7 @@
 
 \section{Changes in Version 1.10.0}{
     \itemize{
-        \item Major code update, implementing signatures-based clustering and associations.
+        \item Major code update, implementing signatures-based clustering and associations to signatures exposures.
         \item Package released in Bioconductor 3.21.
     }
 }

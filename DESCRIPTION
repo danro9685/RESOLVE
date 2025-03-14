@@ -27,7 +27,8 @@ Imports:
     parallel,
     reshape2,
     S4Vectors,
-    RhpcBLASctl
+    RhpcBLASctl,
+    survival
 Suggests:
     BiocGenerics,
     BiocStyle,
