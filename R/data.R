@@ -77,3 +77,13 @@ NULL
 #' @source Nature. 2016 Jun 2;534(7605):47-54 (https://www.nature.com/articles/nature17676).
 #' @return SBS assignments inferred by RESOLVE
 NULL
+
+#' @name association_mutations
+#' @title List providing mutations as binary variables and signatures assignments for 656 breast cancer patients
+#' @description Mutations and SBS assignments for 656 breast tumors from ICGC.
+#' @docType data
+#' @usage data(association_mutations)
+#' @format List providing mutations as binary variables and signatures assignments for 656 breast cancer patients from ICGC (https://dcc.icgc.org/)
+#' @source ICGC data portal (https://dcc.icgc.org/).
+#' @return Mutations and SBS assignments
+NULL
