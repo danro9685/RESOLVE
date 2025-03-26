@@ -5,6 +5,11 @@
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/reference/associationAlterations.html</loc></url>
+<url><loc>/reference/associationPrognosis.html</loc></url>
+<url><loc>/reference/associationSignatures.html</loc></url>
+<url><loc>/reference/association_mutations.html</loc></url>
+<url><loc>/reference/association_survival.html</loc></url>
 <url><loc>/reference/background.html</loc></url>
 <url><loc>/reference/background2.html</loc></url>
 <url><loc>/reference/cn_example_reduced.html</loc></url>
@@ -26,10 +31,12 @@
 <url><loc>/reference/patientsMNVPlot.html</loc></url>
 <url><loc>/reference/patientsSBSPlot.html</loc></url>
 <url><loc>/reference/plot_data_examples.html</loc></url>
+<url><loc>/reference/sbs_assignments.html</loc></url>
 <url><loc>/reference/signaturesAssignment.html</loc></url>
 <url><loc>/reference/signaturesCNPlot.html</loc></url>
 <url><loc>/reference/signaturesCV.html</loc></url>
 <url><loc>/reference/signaturesCXPlot.html</loc></url>
+<url><loc>/reference/signaturesClustering.html</loc></url>
 <url><loc>/reference/signaturesDecomposition.html</loc></url>
 <url><loc>/reference/signaturesIDPlot.html</loc></url>
 <url><loc>/reference/signaturesMNVPlot.html</loc></url>
