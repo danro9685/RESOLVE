@@ -41,19 +41,25 @@ import(nnls)
 import(parallel)
 import(survival)
 importFrom(BSgenome,getSeq)
-importFrom(Biostrings,DNAStringSet)
-importFrom(Biostrings,complement)
-importFrom(Biostrings,reverseComplement)
-importFrom(Biostrings,subseq)
-importFrom(MutationalPatterns,count_dbs_contexts)
-importFrom(MutationalPatterns,count_indel_contexts)
-importFrom(MutationalPatterns,get_dbs_context)
-importFrom(MutationalPatterns,get_indel_context)
-importFrom(MutationalPatterns,get_mut_type)
+importFrom(Biostrings,
+  DNAStringSet,
+  complement,
+  reverseComplement,
+  subseq
+)
+importFrom(MutationalPatterns,
+  count_dbs_contexts,
+  count_indel_contexts,
+  get_dbs_context,
+  get_indel_context,
+  get_mut_type
+)
 importFrom(S4Vectors,metadata)
-importFrom(data.table,":=")
-importFrom(data.table,.N)
-importFrom(data.table,as.data.table)
-importFrom(data.table,data.table)
-importFrom(data.table,dcast)
+importFrom(data.table,
+  ":=",
+  .N,
+  as.data.table,
+  data.table,
+  dcast
+)
 importFrom(reshape2,melt)
